@@ -27,3 +27,8 @@ model Student {
 
   discounts Discount[]
 }
+
+model PaymentMethod {
+  id   Int    @id @default(autoincrement())
+  name String
+}
