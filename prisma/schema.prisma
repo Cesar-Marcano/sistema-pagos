@@ -16,4 +16,14 @@ model User {
 
 model Discount {
   id Int @id @default(autoincrement())
+
+  Student   Student? @relation(fields: [studentId], references: [id])
+  studentId Int?
+}
+
+model Student {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  discounts Discount[]
 }
