@@ -3,6 +3,8 @@ import { TYPES } from "../../config/types";
 import { UserFeature } from "../../features/user.feature";
 import { container } from "../../config/container";
 import { z } from "zod";
+import { ITokenService } from "../../services/jwt.service";
+import { SessionFeature } from "../../features/session.feature";
 
 const registerSchema = z.object({
   username: z
@@ -24,8 +26,17 @@ export async function register(req: Request, res: Response) {
   const { username, password } = registerSchema.parse(req.body);
 
   const userFeature = container.get<UserFeature>(TYPES.UserFeature);
+  const sessionFeature = container.get<SessionFeature>(TYPES.SessionFeature);
+  const jwtService = container.get<ITokenService>(TYPES.ITokenService);
 
   const user = await userFeature.register(username, password);
 
-  res.json({ user });
+  const { token, jti, expiration } = jwtService.sign(
+    user.username,
+    user.id
+  );
+
+  await sessionFeature.createSession(user.id, jti, expiration);
+
+  res.json({ token });
 }
