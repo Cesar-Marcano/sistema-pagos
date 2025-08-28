@@ -1,4 +1,4 @@
-import { Request } from "express";
+import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { UserFeature } from "../../features/user.feature";
 import { container } from "../../config/container";
@@ -25,5 +25,7 @@ export async function register(req: Request, res: Response) {
 
   const userFeature = container.get<UserFeature>(TYPES.UserFeature);
 
-  return await userFeature.register(username, password);
+  const user = await userFeature.register(username, password);
+
+  res.json({ user });
 }
