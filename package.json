@@ -13,18 +13,17 @@
   "packageManager": "pnpm@10.11.0",
   "dependencies": {
     "@prisma/client": "6.15.0",
-    "@types/express": "^5.0.3",
     "express": "^5.1.0",
     "inversify": "^7.9.1",
     "morgan": "^1.10.1",
-    "nodemon": "^3.1.10",
-    "prisma": "^6.15.0",
     "reflect-metadata": "^0.2.2",
-    "typescript": "^5.9.2",
     "winston": "^3.17.0"
   },
   "devDependencies": {
-    "@types/winston": "^2.4.4",
-    "ts-node": "^10.9.2"
+    "@types/express": "^5.0.3",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.15.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   }
 }
