@@ -3,17 +3,15 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { injectable, inject } from "inversify";
 import { TYPES } from "./types";
-import { IHasherService } from "../services/argon2.service";
-import { PrismaClient } from "@prisma/client";
+import { UserFeature } from "../features/user.feature";
 
 @injectable()
 export class PassportConfig {
   private readonly JWT_SECRET = process.env.JWT_SECRET || "super-secret-key";
 
   constructor(
-    @inject(TYPES.IHasherService)
-    private readonly hasherService: IHasherService,
-    @inject(TYPES.Prisma) private readonly prisma: PrismaClient
+    @inject(TYPES.UserFeature)
+    private readonly userFeature: UserFeature
   ) {}
 
   public setup() {
@@ -22,20 +20,8 @@ export class PassportConfig {
         { usernameField: "username" },
         async (username, password, done) => {
           try {
-            const user = await this.prisma.user.findUnique({
-              where: { username },
-            });
-            if (!user) {
-              return done(null, false, { message: "Incorrect username." });
-            }
+            const user = await this.userFeature.login(username, password);
 
-            const isMatch = await this.hasherService.compare(
-              user.password,
-              password
-            );
-            if (!isMatch) {
-              return done(null, false, { message: "Incorrect password." });
-            }
             return done(null, user);
           } catch (err) {
             return done(err);
@@ -52,9 +38,8 @@ export class PassportConfig {
         },
         async (jwtPayload, done) => {
           try {
-            const user = await this.prisma.user.findUnique({
-              where: { id: jwtPayload.id },
-            });
+            const user = await this.userFeature.findById(jwtPayload.id);
+
             if (user) {
               return done(null, user);
             } else {
