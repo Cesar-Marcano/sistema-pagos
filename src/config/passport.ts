@@ -5,6 +5,8 @@ import { injectable, inject } from "inversify";
 import { TYPES } from "./types";
 import { UserFeature } from "../features/user.feature";
 import { env } from "./env";
+import { SessionFeature } from "../features/session.feature";
+import { ITokenService, Payload } from "../services/jwt.service";
 
 @injectable()
 export class PassportConfig {
@@ -12,7 +14,11 @@ export class PassportConfig {
 
   constructor(
     @inject(TYPES.UserFeature)
-    private readonly userFeature: UserFeature
+    private readonly userFeature: UserFeature,
+    @inject(TYPES.SessionFeature)
+    private readonly sessionFeature: SessionFeature,
+    @inject(TYPES.ITokenService)
+    private readonly jwtService: ITokenService
   ) {}
 
   public setup() {
@@ -23,7 +29,13 @@ export class PassportConfig {
           try {
             const user = await this.userFeature.login(username, password);
 
-            return done(null, user);
+            const { token, jti, expiration } = this.jwtService.sign(
+              user.username,
+              user.id
+            );
+            await this.sessionFeature.createSession(user.id, jti, expiration);
+
+            return done(null, { user, token });
           } catch (err) {
             return done(err);
           }
@@ -37,9 +49,9 @@ export class PassportConfig {
           jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
           secretOrKey: this.JWT_SECRET,
         },
-        async (jwtPayload, done) => {
+        async (jwtPayload: Payload, done) => {
           try {
-            const user = await this.userFeature.findById(jwtPayload.id);
+            const user = await this.userFeature.findById(Number(jwtPayload.sub!));
 
             if (user) {
               return done(null, user);
