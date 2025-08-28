@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
 import { PrismaClient, Session } from "@prisma/client";
-import { StringValue } from "ms";
+import ms, { StringValue } from "ms";
 
 @injectable()
 export class SessionFeature {
@@ -13,7 +13,7 @@ export class SessionFeature {
   public async createSession(
     userId: number,
     jti: string,
-    expiration: StringValue
+    expiration: Date
   ): Promise<Session> {
     return await this.prisma.session.create({
       data: {
