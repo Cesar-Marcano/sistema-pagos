@@ -49,7 +49,7 @@ export class UserFeature {
     if (!user) throw createHttpError(403, "Credenciales inválidos.");
 
     const isPasswordValid = await this.hasherService.compare(
-      user?.password,
+      user.password,
       password
     );
 
