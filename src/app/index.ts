@@ -3,6 +3,7 @@ import logger from "./logger";
 import { container } from "../config/container";
 import { PassportConfig } from "../config/passport";
 import passport from "passport";
+import { errorHandler } from "../config/globalErrorHandler";
 
 export async function run() {
   const app = express();
@@ -15,6 +16,9 @@ export async function run() {
   passportConfig.setup();
 
   app.use(passport.initialize());
+
+  // error handler
+  app.use(errorHandler);
 
   return app.listen(3000, () => {
     logger.info("Server listeining on port 3000");
