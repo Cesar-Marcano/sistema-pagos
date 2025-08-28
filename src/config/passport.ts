@@ -4,10 +4,11 @@ import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { injectable, inject } from "inversify";
 import { TYPES } from "./types";
 import { UserFeature } from "../features/user.feature";
+import { env } from "./env";
 
 @injectable()
 export class PassportConfig {
-  private readonly JWT_SECRET = process.env.JWT_SECRET || "super-secret-key";
+  private readonly JWT_SECRET = env.JWT_SECRET;
 
   constructor(
     @inject(TYPES.UserFeature)

@@ -1,7 +1,6 @@
 import "dotenv/config";
 
 import { z } from "zod";
-import logger from "../app/logger";
 import ms, { StringValue } from "ms";
 
 const envSchema = z.object({
@@ -25,17 +24,4 @@ const envSchema = z.object({
   TOKEN_ISSUER: z.string().default("sistema-pagos-estudiantiles"),
 });
 
-type EnvSchema = z.infer<typeof envSchema>;
-
-declare global {
-  namespace NodeJS {
-    interface ProcessEnv extends EnvSchema {}
-  }
-}
-
-try {
-  envSchema.parse(process.env);
-} catch (error) {
-  logger.error(error);
-  process.exit(1);
-}
+export const env = envSchema.parse(process.env);
