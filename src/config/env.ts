@@ -10,6 +10,8 @@ const envSchema = z.object({
   PORT: z.string().transform(Number).default(3000),
   JWT_SECRET: z.string().min(1),
   DATABASE_URL: z.url(),
+  TOKEN_LIFETIME: z.string().default("4h"),
+  TOKEN_ISSUER: z.string().default("sistema-pagos-estudiantiles"),
 });
 
 type EnvSchema = z.infer<typeof envSchema>;
