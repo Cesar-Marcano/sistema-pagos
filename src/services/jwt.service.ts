@@ -2,12 +2,13 @@ import { PrismaClient, User } from "@prisma/client";
 import { v4 } from "uuid";
 import { sign, verify } from "jsonwebtoken";
 import { StringValue } from "ms";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
 import createHttpError from "http-errors";
 
 type TokenUserData = Omit<User, "password">;
 
+@injectable()
 export class JwtService {
   private readonly jwtSecret: string = process.env.JWT_SECRET;
   private readonly tokenLifetime: StringValue = process.env
