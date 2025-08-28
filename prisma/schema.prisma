@@ -133,8 +133,6 @@ model StudentDiscount {
     student  Student  @relation(fields: [studentId], references: [id])
     discount Discount @relation(fields: [discountId], references: [id])
 
-    validUntil DateTime?
-
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
