@@ -2,6 +2,7 @@ import express from "express";
 import logger from "./logger";
 import { container } from "../config/container";
 import { PassportConfig } from "../config/passport";
+import passport from "passport";
 
 export async function run() {
   const app = express();
@@ -12,6 +13,8 @@ export async function run() {
   app.use(express.json());
 
   passportConfig.setup();
+
+  app.use(passport.initialize());
 
   return app.listen(3000, () => {
     logger.info("Server listeining on port 3000");
