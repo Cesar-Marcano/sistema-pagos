@@ -44,6 +44,9 @@ importers:
       winston:
         specifier: ^3.17.0
         version: 3.17.0
+      zod:
+        specifier: ^4.1.4
+        version: 4.1.4
     devDependencies:
       '@types/express':
         specifier: ^5.0.3
@@ -968,6 +971,9 @@ packages:
   yn@3.1.1:
     resolution: {integrity: sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==}
     engines: {node: '>=6'}
+
+  zod@4.1.4:
+    resolution: {integrity: sha512-2YqJuWkU6IIK9qcE4k1lLLhyZ6zFw7XVRdQGpV97jEIZwTrscUw+DY31Xczd8nwaoksyJUIxCojZXwckJovWxA==}
 
 snapshots:
 
@@ -1918,3 +1924,5 @@ snapshots:
   wrappy@1.0.2: {}
 
   yn@3.1.1: {}
+
+  zod@4.1.4: {}
