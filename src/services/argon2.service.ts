@@ -2,12 +2,14 @@ import * as argon2 from "argon2";
 import { argon2Options } from "../config/argon2";
 import createHttpError from "http-errors";
 import logger from "../app/logger";
+import { injectable } from "inversify";
 
 export interface IHasherService {
   hash(password: string): Promise<string>;
   compare(hash: string, password: string): Promise<boolean>;
 }
 
+@injectable()
 export class Argon2Service implements IHasherService {
   public async hash(password: string): Promise<string> {
     try {
