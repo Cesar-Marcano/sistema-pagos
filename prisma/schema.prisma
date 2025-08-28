@@ -10,26 +10,34 @@ datasource db {
 model User {
     id Int @id @default(autoincrement())
 
-    username String @unique
+    username String
     password String
 
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt
-    AuditLog  AuditLog[]
-    Session   Session[]
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
+
+    AuditLog AuditLog[]
+    Session  Session[]
+
+    @@unique([username, deletedAt])
 }
 
 model SchoolYear {
     id Int @id @default(autoincrement())
 
-    name      String   @unique
+    name      String
     startDate DateTime
     endDate   DateTime
 
-    createdAt    DateTime       @default(now())
-    updatedAt    DateTime       @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
+
     SchoolPeriod SchoolPeriod[]
     StudentGrade StudentGrade[]
+
+    @@unique([name, deletedAt])
 }
 
 model SchoolPeriod {
@@ -38,26 +46,32 @@ model SchoolPeriod {
     schoolYear SchoolYear @relation(fields: [schoolYearId], references: [id])
     month      Int
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
 
     schoolYearId    Int
     MonthlyFee      MonthlyFee[]
     GradeFeeHistory GradeFeeHistory[]
     Payment         Payment[]
+
+    @@unique([month, schoolYearId, deletedAt])
 }
 
 model Student {
     id Int @id @default(autoincrement())
 
-    name String @unique
+    name String
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
 
     StudentGrade    StudentGrade[]
     Payment         Payment[]
     StudentDiscount StudentDiscount[]
+
+    @@unique([name, deletedAt])
 }
 
 model MonthlyFee {
@@ -67,10 +81,14 @@ model MonthlyFee {
     amount        Decimal      @db.Decimal(15, 2)
     effectiveFrom SchoolPeriod @relation(fields: [schoolPeriodId], references: [id])
 
-    createdAt       DateTime          @default(now())
-    updatedAt       DateTime          @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
+
     schoolPeriodId  Int
     GradeFeeHistory GradeFeeHistory[]
+
+    @@unique([description, deletedAt])
 }
 
 model GradeFeeHistory {
@@ -91,12 +109,16 @@ model GradeFeeHistory {
 model Grade {
     id Int @id @default(autoincrement())
 
-    name String @unique
+    name String
 
-    createdAt       DateTime          @default(now())
-    updatedAt       DateTime          @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
+
     StudentGrade    StudentGrade[]
     GradeFeeHistory GradeFeeHistory[]
+
+    @@unique([name, deletedAt])
 }
 
 model StudentGrade {
@@ -106,25 +128,32 @@ model StudentGrade {
     grade      Grade      @relation(fields: [gradeId], references: [id])
     student    Student    @relation(fields: [studentId], references: [id])
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
 
     schoolYearId Int
     gradeId      Int
     studentId    Int
+
+    @@unique([schoolYearId, gradeId, studentId, deletedAt])
 }
 
 model Discount {
     id Int @id @default(autoincrement())
 
-    name         String  @unique
+    name         String
     description  String
     amount       Decimal @db.Decimal(15, 2)
     isPercentage Boolean @default(true)
 
-    createdAt       DateTime          @default(now())
-    updatedAt       DateTime          @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
+
     StudentDiscount StudentDiscount[]
+
+    @@unique([name, deletedAt])
 }
 
 model StudentDiscount {
@@ -132,15 +161,16 @@ model StudentDiscount {
     student  Student  @relation(fields: [studentId], references: [id])
     discount Discount @relation(fields: [discountId], references: [id])
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
 
     studentId      Int
     discountId     Int
     schoolPeriodId Int?
     Payment        Payment[]
 
-    @@unique([studentId, discountId, schoolPeriodId])
+    @@unique([studentId, discountId, schoolPeriodId, deletedAt])
 }
 
 model PaymentMethod {
@@ -152,7 +182,11 @@ model PaymentMethod {
 
     createdAt DateTime  @default(now())
     updatedAt DateTime  @updatedAt
-    Payment   Payment[]
+    deletedAt DateTime?
+
+    Payment Payment[]
+
+    @@unique([name, deletedAt])
 }
 
 enum PaymentType {
@@ -176,13 +210,16 @@ model Payment {
 
     gradeFeeHistory GradeFeeHistory @relation(fields: [gradeFeeHistoryId], references: [id])
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
 
     studentId         Int
     schoolPeriodId    Int
     gradeFeeHistoryId Int
     paymentMethodId   Int
+
+    @@unique([reference, deletedAt])
 }
 
 enum AuditableEntities {
