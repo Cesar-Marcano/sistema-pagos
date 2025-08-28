@@ -5,6 +5,7 @@ import { PassportConfig } from "./passport";
 import { PrismaClient } from "@prisma/client";
 import { UserFeature } from "../features/user.feature";
 import { ITokenService, JwtService } from "../services/jwt.service";
+import { SessionFeature } from "../features/session.feature";
 
 const container = new Container();
 
@@ -17,6 +18,7 @@ container.bind<ITokenService>(TYPES.ITokenService).to(JwtService);
 
 // Features
 container.bind<UserFeature>(TYPES.UserFeature).to(UserFeature);
+container.bind<SessionFeature>(TYPES.UserFeature).to(SessionFeature);
 
 container.bind<PassportConfig>(PassportConfig).toSelf();
 
