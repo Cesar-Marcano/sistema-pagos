@@ -17,11 +17,22 @@ export class UserFeature {
 
     const trimmedUsername = username.trim().toLowerCase();
 
-    if (usernameRegex.test(trimmedUsername)) {
+    if (!usernameRegex.test(trimmedUsername)) {
       throw createHttpError(
         400,
         "El nombre de usuario debe tener entre 5 y 16 caracteres, solo puede contener letras minúsculas, números, guiones bajos y puntos, y no pueden ser seguidos o al inicio/final.."
       );
+    }
+
+    const existingUser = await this.prisma.user.count({
+      where: {
+        username: trimmedUsername,
+        deletedAt: null,
+      },
+    });
+
+    if (existingUser > 0) {
+      throw createHttpError(409, "El nombre de usuario ya está en uso.");
     }
 
     const hashedPassword = await this.hasherService.hash(password);
@@ -35,5 +46,28 @@ export class UserFeature {
         password: true,
       },
     });
+  }
+
+  async login(username: string, password: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        username,
+        deletedAt: null,
+      },
+    });
+
+    if (!user) throw createHttpError(403, "Credenciales inválidos.");
+
+    const isPasswordValid = await this.hasherService.compare(
+      user?.password,
+      password
+    );
+
+    if (!isPasswordValid)
+      throw createHttpError(403, "Credenciales inválidos.");
+
+    const { password: _, ...loggedUser } = user;
+
+    return loggedUser;
   }
 }
