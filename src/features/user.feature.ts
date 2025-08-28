@@ -14,20 +14,9 @@ export class UserFeature {
   ) {}
 
   async register(username: string, password: string) {
-    const usernameRegex = /^(?!.*[_.]{2})[a-z0-9_.]{5,16}(?<![_.]{1})$/;
-
-    const trimmedUsername = username.trim().toLowerCase();
-
-    if (!usernameRegex.test(trimmedUsername)) {
-      throw createHttpError(
-        400,
-        "El nombre de usuario debe tener entre 5 y 16 caracteres, solo puede contener letras minúsculas, números, guiones bajos y puntos, y no pueden ser seguidos o al inicio/final.."
-      );
-    }
-
     const existingUser = await this.prisma.user.count({
       where: {
-        username: trimmedUsername,
+        username,
         deletedAt: null,
       },
     });
@@ -40,7 +29,7 @@ export class UserFeature {
 
     return await this.prisma.user.create({
       data: {
-        username: trimmedUsername,
+        username,
         password: hashedPassword,
       },
       omit: {
