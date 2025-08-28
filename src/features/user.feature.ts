@@ -1,9 +1,10 @@
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
 import { IHasherService } from "../services/argon2.service";
 import { PrismaClient } from "@prisma/client";
 import createHttpError from "http-errors";
 
+@injectable()
 export class UserFeature {
   constructor(
     @inject(TYPES.IHasherService)
@@ -63,11 +64,22 @@ export class UserFeature {
       password
     );
 
-    if (!isPasswordValid)
-      throw createHttpError(403, "Credenciales inválidos.");
+    if (!isPasswordValid) throw createHttpError(403, "Credenciales inválidos.");
 
     const { password: _, ...loggedUser } = user;
 
     return loggedUser;
+  }
+
+  async findById(id: number) {
+    return await this.prisma.user.findUnique({
+      where: {
+        id,
+        deletedAt: null,
+      },
+      omit: {
+        password: true,
+      },
+    });
   }
 }
