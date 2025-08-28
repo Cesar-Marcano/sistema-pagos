@@ -1,43 +1,64 @@
-import { PrismaClient, User } from "@prisma/client";
 import { v4 } from "uuid";
-import { sign, verify } from "jsonwebtoken";
+import { decode, JwtPayload, sign, verify } from "jsonwebtoken";
 import { StringValue } from "ms";
-import { inject, injectable } from "inversify";
-import { TYPES } from "../config/types";
+import { injectable } from "inversify";
 import createHttpError from "http-errors";
+import { env } from "../config/env";
 
-type TokenUserData = Omit<User, "password">;
+export type TokenUserData = { username: string };
+
+export type Payload = TokenUserData & JwtPayload;
 
 export interface ITokenService {
-  sign(userData: TokenUserData): { token: string; jti: string };
-  verify(token: string): TokenUserData & { jti: string };
+  sign(
+    username: string,
+    userId: number
+  ): {
+    token: string;
+    jti: string;
+    expiration: Date;
+  };
+  verify(token: string): Payload;
 }
 
 @injectable()
 export class JwtService implements ITokenService {
-  private readonly jwtSecret: string = process.env.JWT_SECRET;
-  private readonly tokenLifetime: StringValue = process.env
-    .TOKEN_LIFETIME as StringValue;
-  private readonly tokenIssuer: string = process.env.TOKEN_ISSUER;
+  private readonly jwtSecret: string = env.JWT_SECRET;
+  private readonly tokenLifetime: StringValue =
+    env.TOKEN_LIFETIME as StringValue;
+  private readonly tokenIssuer: string = env.TOKEN_ISSUER;
 
-  public sign(userData: TokenUserData): { token: string; jti: string } {
+  public sign(
+    username: string,
+    userId: number
+  ): {
+    token: string;
+    jti: string;
+    expiration: Date;
+  } {
     const jti = v4();
 
-    const token = sign(userData, this.jwtSecret, {
+    const token = sign({ username }, this.jwtSecret, {
       expiresIn: this.tokenLifetime,
       issuer: this.tokenIssuer,
-      subject: String(userData.id),
+      subject: String(userId),
       jwtid: jti,
     });
 
-    return { token, jti };
+    const { exp } = decode(token) as Payload;
+
+    return {
+      token,
+      jti,
+      expiration: new Date(exp! * 1000),
+    };
   }
 
-  public verify(token: string): TokenUserData & { jti: string } {
+  public verify(token: string): Payload {
     try {
       const payload = verify(token, this.jwtSecret, {
         issuer: this.tokenIssuer,
-      }) as TokenUserData & { jti: string };
+      }) as Payload;
 
       return payload;
     } catch (error) {
