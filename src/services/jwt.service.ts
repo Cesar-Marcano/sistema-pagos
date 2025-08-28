@@ -8,7 +8,7 @@ import createHttpError from "http-errors";
 
 type TokenUserData = Omit<User, "password">;
 
-interface ITokenService {
+export interface ITokenService {
   sign(userData: TokenUserData): { token: string; jti: string };
   verify(token: string): TokenUserData & { jti: string };
 }
