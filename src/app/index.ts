@@ -4,6 +4,7 @@ import { container } from "../config/container";
 import { PassportConfig } from "../config/passport";
 import passport from "passport";
 import { errorHandler } from "../config/globalErrorHandler";
+import { router } from "../routes";
 
 export async function run() {
   const app = express();
@@ -16,6 +17,10 @@ export async function run() {
   passportConfig.setup();
 
   app.use(passport.initialize());
+
+  // Routes
+
+  app.use(router);
 
   // error handler
   app.use(errorHandler);
