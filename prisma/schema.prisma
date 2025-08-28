@@ -13,9 +13,9 @@ model User {
     username String
     password String
 
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    deletedAt DateTime?
+    createdAt DateTime  @default(now()) @db.Timestamptz()
+    updatedAt DateTime  @updatedAt @db.Timestamptz()
+    deletedAt DateTime? @db.Timestamptz()
 
     AuditLog AuditLog[]
     Session  Session[]
@@ -27,12 +27,12 @@ model SchoolYear {
     id Int @id @default(autoincrement())
 
     name      String
-    startDate DateTime
-    endDate   DateTime
+    startDate DateTime @db.Timestamptz()
+    endDate   DateTime @db.Timestamptz()
 
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    deletedAt DateTime?
+    createdAt DateTime  @default(now()) @db.Timestamptz()
+    updatedAt DateTime  @updatedAt @db.Timestamptz()
+    deletedAt DateTime? @db.Timestamptz()
 
     SchoolPeriod SchoolPeriod[]
     StudentGrade StudentGrade[]
@@ -46,9 +46,9 @@ model SchoolPeriod {
     schoolYear SchoolYear @relation(fields: [schoolYearId], references: [id])
     month      Int
 
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    deletedAt DateTime?
+    createdAt DateTime  @default(now()) @db.Timestamptz()
+    updatedAt DateTime  @updatedAt @db.Timestamptz()
+    deletedAt DateTime? @db.Timestamptz()
 
     schoolYearId    Int
     MonthlyFee      MonthlyFee[]
@@ -63,9 +63,9 @@ model Student {
 
     name String
 
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    deletedAt DateTime?
+    createdAt DateTime  @default(now()) @db.Timestamptz()
+    updatedAt DateTime  @updatedAt @db.Timestamptz()
+    deletedAt DateTime? @db.Timestamptz()
 
     StudentGrade    StudentGrade[]
     Payment         Payment[]
@@ -81,9 +81,9 @@ model MonthlyFee {
     amount        Decimal      @db.Decimal(15, 2)
     effectiveFrom SchoolPeriod @relation(fields: [schoolPeriodId], references: [id])
 
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    deletedAt DateTime?
+    createdAt DateTime  @default(now()) @db.Timestamptz()
+    updatedAt DateTime  @updatedAt @db.Timestamptz()
+    deletedAt DateTime? @db.Timestamptz()
 
     schoolPeriodId  Int
     GradeFeeHistory GradeFeeHistory[]
@@ -111,9 +111,9 @@ model Grade {
 
     name String
 
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    deletedAt DateTime?
+    createdAt DateTime  @default(now()) @db.Timestamptz()
+    updatedAt DateTime  @updatedAt @db.Timestamptz()
+    deletedAt DateTime? @db.Timestamptz()
 
     StudentGrade    StudentGrade[]
     GradeFeeHistory GradeFeeHistory[]
@@ -128,9 +128,9 @@ model StudentGrade {
     grade      Grade      @relation(fields: [gradeId], references: [id])
     student    Student    @relation(fields: [studentId], references: [id])
 
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    deletedAt DateTime?
+    createdAt DateTime  @default(now()) @db.Timestamptz()
+    updatedAt DateTime  @updatedAt @db.Timestamptz()
+    deletedAt DateTime? @db.Timestamptz()
 
     schoolYearId Int
     gradeId      Int
@@ -147,9 +147,9 @@ model Discount {
     amount       Decimal @db.Decimal(15, 2)
     isPercentage Boolean @default(true)
 
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    deletedAt DateTime?
+    createdAt DateTime  @default(now()) @db.Timestamptz()
+    updatedAt DateTime  @updatedAt @db.Timestamptz()
+    deletedAt DateTime? @db.Timestamptz()
 
     StudentDiscount StudentDiscount[]
 
@@ -161,9 +161,9 @@ model StudentDiscount {
     student  Student  @relation(fields: [studentId], references: [id])
     discount Discount @relation(fields: [discountId], references: [id])
 
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    deletedAt DateTime?
+    createdAt DateTime  @default(now()) @db.Timestamptz()
+    updatedAt DateTime  @updatedAt @db.Timestamptz()
+    deletedAt DateTime? @db.Timestamptz()
 
     studentId      Int
     discountId     Int
@@ -180,9 +180,9 @@ model PaymentMethod {
     requiresManualVerification Boolean @default(true)
     requiresReferenceId        Boolean @default(true)
 
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    deletedAt DateTime?
+    createdAt DateTime  @default(now()) @db.Timestamptz()
+    updatedAt DateTime  @updatedAt @db.Timestamptz()
+    deletedAt DateTime? @db.Timestamptz()
 
     Payment Payment[]
 
@@ -210,9 +210,9 @@ model Payment {
 
     gradeFeeHistory GradeFeeHistory @relation(fields: [gradeFeeHistoryId], references: [id])
 
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    deletedAt DateTime?
+    createdAt DateTime  @default(now()) @db.Timestamptz()
+    updatedAt DateTime  @updatedAt @db.Timestamptz()
+    deletedAt DateTime? @db.Timestamptz()
 
     studentId         Int
     schoolPeriodId    Int
@@ -250,7 +250,7 @@ model AuditLog {
     changes   String?
     action    AuditLogActions
     byUser    User              @relation(fields: [userId], references: [id])
-    createdAt DateTime          @default(now())
+    createdAt DateTime          @default(now()) @db.Timestamptz()
     userId    Int
 }
 
@@ -259,9 +259,9 @@ model Session {
 
     jti        String @unique
     user       User     @relation(fields: [userId], references: [id])
-    expiration DateTime
+    expiration DateTime @db.Timestamptz()
 
-    createdAt DateTime @default(now())
+    createdAt DateTime @default(now()) @db.Timestamptz()
 
     userId Int
 }
