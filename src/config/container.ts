@@ -18,7 +18,7 @@ container.bind<ITokenService>(TYPES.ITokenService).to(JwtService);
 
 // Features
 container.bind<UserFeature>(TYPES.UserFeature).to(UserFeature);
-container.bind<SessionFeature>(TYPES.UserFeature).to(SessionFeature);
+container.bind<SessionFeature>(TYPES.SessionFeature).to(SessionFeature);
 
 container.bind<PassportConfig>(PassportConfig).toSelf();
 
