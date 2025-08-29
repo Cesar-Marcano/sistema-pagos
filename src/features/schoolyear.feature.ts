@@ -6,6 +6,7 @@ import {
   SearchResult,
   searchWithPaginationAndCriteria,
 } from "../lib/search";
+import createHttpError from "http-errors";
 
 @injectable()
 export class SchoolYearFeature {
@@ -36,6 +37,25 @@ export class SchoolYearFeature {
       endDate?: Date;
     }
   ): Promise<SchoolYear> {
+    const schoolYear = await this.prisma.schoolYear.findUnique({
+      where: {
+        id,
+        deletedAt: null,
+      },
+    });
+
+    if (!schoolYear) throw createHttpError(404, "Año escolar no encontrado.");
+
+    const start = data.startDate ?? schoolYear.startDate;
+    const end = data.endDate ?? schoolYear.endDate;
+
+    if (start.getTime() > end.getTime()) {
+      throw createHttpError(
+        400,
+        "El año de inicio no puede ser mayor al año de finalización."
+      );
+    }
+
     return await this.prisma.schoolYear.update({
       where: {
         id,
