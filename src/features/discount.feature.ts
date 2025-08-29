@@ -100,11 +100,11 @@ export class DiscountFeature {
     });
   }
 
-  public async findById(id: number) {
+  public async findById(id: number, includeDeleted: boolean) {
     return await this.prisma.discount.findUnique({
       where: {
         id,
-        deletedAt: null,
+        ...(includeDeleted ? {} : { deletedAt: null }),
       },
     });
   }
