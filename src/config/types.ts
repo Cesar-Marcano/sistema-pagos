@@ -10,4 +10,5 @@ export const TYPES = {
   SessionFeature: Symbol.for("SessionFeature"),
   SchoolYearFeature: Symbol.for("SchoolYearFeature"),
   GradeFeature: Symbol.for("GradeFeature"),
+  SchoolPeriodFeature: Symbol.for("SchoolPeriodFeature"),
 };

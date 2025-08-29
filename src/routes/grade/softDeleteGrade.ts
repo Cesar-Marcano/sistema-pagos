@@ -8,5 +8,5 @@ export async function softDeleteGrade(req: Request, res: Response) {
 
   const grade = await gradeFeature.softDelete(Number(req.params.id));
 
-  res.json({ schoolYear: grade });
+  res.json({ grade });
 }

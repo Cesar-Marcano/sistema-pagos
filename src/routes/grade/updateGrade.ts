@@ -18,5 +18,5 @@ export async function updateGrade(req: Request, res: Response) {
     validatedData.name
   );
 
-  res.json({ schoolYear: grade });
+  res.json({ grade });
 }

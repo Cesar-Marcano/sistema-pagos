@@ -3,6 +3,11 @@ import { TYPES } from "../config/types";
 import { PrismaClient, SchoolPeriod, SchoolYear } from "@prisma/client";
 import createHttpError from "http-errors";
 import { differenceInMonths } from "date-fns";
+import {
+  SearchArgs,
+  SearchResult,
+  searchWithPaginationAndCriteria,
+} from "../lib/search";
 
 @injectable()
 export class SchoolPeriodFeature {
@@ -51,7 +56,7 @@ export class SchoolPeriodFeature {
   }
   public async update(
     id: number,
-    data: Partial<{ schoolYearId: number; month: number; name?: string }>
+    data: Partial<{ schoolYearId: number; month: number; name: string }>
   ): Promise<SchoolPeriod> {
     const period = await this.prisma.schoolPeriod.findUnique({
       where: {
@@ -125,6 +130,52 @@ export class SchoolPeriodFeature {
         name: data.name ?? period.name,
       },
     });
+  }
+
+  public async softDelete(id: number): Promise<SchoolPeriod> {
+    return await this.prisma.schoolPeriod.update({
+      where: { id, deletedAt: null },
+      data: { deletedAt: new Date() },
+    });
+  }
+
+  public async hardDelete(id: number): Promise<SchoolPeriod> {
+    return await this.prisma.schoolPeriod.delete({
+      where: { id, deletedAt: null },
+    });
+  }
+
+  public async findById(
+    id: number,
+    includeDeleted: boolean
+  ): Promise<SchoolPeriod | null> {
+    return await this.prisma.schoolPeriod.findUnique({
+      where: {
+        id,
+        ...(includeDeleted ? {} : { deletedAt: null }),
+      },
+    });
+  }
+
+  public async search(
+    args: SearchArgs<
+      Partial<
+        Omit<SchoolPeriod, "id" | "deletedAt" | "createdAt" | "updatedAt">
+      > & {
+        deletedAt?: {
+          not: null;
+        };
+      }
+    >
+  ): Promise<SearchResult<SchoolPeriod>> {
+    return searchWithPaginationAndCriteria(
+      this.prisma.schoolPeriod.findMany,
+      this.prisma.schoolPeriod.count,
+      {
+        ...args,
+        where: { ...args.where, deletedAt: null },
+      }
+    );
   }
 
   private validateMonth(schoolYear: SchoolYear, month: number): void {

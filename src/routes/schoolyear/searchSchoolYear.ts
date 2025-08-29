@@ -3,12 +3,6 @@ import { z } from "zod";
 import { createSearchController } from "../../lib/searchController";
 import { TYPES } from "../../config/types";
 
-const searchSchoolYearSchema = z.object({
-  name: z.string().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-});
-
 const schoolYearSearchCriteria = z.object({
   name: z.string().optional(),
   startDate: z.string().optional(),
