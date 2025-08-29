@@ -79,7 +79,9 @@ export class StudentFeature {
     return await this.prisma.student.delete({
       where: {
         id,
-        deletedAt: null,
+        deletedAt: {
+          not: null,
+        },
       },
     });
   }

@@ -141,7 +141,12 @@ export class SchoolPeriodFeature {
 
   public async hardDelete(id: number): Promise<SchoolPeriod> {
     return await this.prisma.schoolPeriod.delete({
-      where: { id, deletedAt: null },
+      where: {
+        id,
+        deletedAt: {
+          not: null,
+        },
+      },
     });
   }
 

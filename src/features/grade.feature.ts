@@ -68,6 +68,9 @@ export class GradeFeature {
     return this.prisma.grade.delete({
       where: {
         id,
+        deletedAt: {
+          not: null,
+        },
       },
     });
   }
