@@ -11,6 +11,7 @@ import { GradeFeature } from "../features/grade.feature";
 import { SchoolPeriodFeature } from "../features/schoolPeriod.feature";
 import { StudentFeature } from "../features/student.feature";
 import { MonthlyFeeFeature } from "../features/monthlyFee.feature";
+import { DiscountFeature } from "../features/discount.feature";
 
 const container = new Container();
 
@@ -32,7 +33,10 @@ container
   .bind<SchoolPeriodFeature>(TYPES.SchoolPeriodFeature)
   .to(SchoolPeriodFeature);
 container.bind<StudentFeature>(TYPES.StudentFeature).to(StudentFeature);
-container.bind<MonthlyFeeFeature>(TYPES.MonthlyFeeFeature).to(MonthlyFeeFeature);
+container
+  .bind<MonthlyFeeFeature>(TYPES.MonthlyFeeFeature)
+  .to(MonthlyFeeFeature);
+container.bind<DiscountFeature>(TYPES.DiscountFeature).to(DiscountFeature);
 
 container.bind<PassportConfig>(PassportConfig).toSelf();
 
