@@ -12,11 +12,7 @@ import {
 export class MonthlyFeeFeature {
   constructor(@inject(TYPES.Prisma) private readonly prisma: PrismaClient) {}
 
-  public async create(
-    description: string,
-    amount: number,
-    effectiveFromPeriodId: number
-  ) {
+  public async create(description: string, amount: number) {
     const existentMonthlyFeeWithDescriptionCount =
       await this.prisma.monthlyFee.count({
         where: {
@@ -35,11 +31,6 @@ export class MonthlyFeeFeature {
       data: {
         description,
         amount,
-        effectiveFrom: {
-          connect: {
-            id: effectiveFromPeriodId,
-          },
-        },
       },
     });
   }
