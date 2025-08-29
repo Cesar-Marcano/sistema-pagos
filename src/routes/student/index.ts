@@ -7,6 +7,7 @@ import { updateStudent } from "./updateStudent";
 import { softDeleteStudent } from "./softDeleteStudent";
 import { registerStudentToGrade } from "./registerStudentToGrade";
 import { unregisterStudentFromGrade } from "./unregisterStudentToGrade";
+import { hasGrade } from "./hasGrade";
 
 export const studentRoutes: Router = Router();
 
@@ -49,4 +50,9 @@ studentRoutes.get(
   "/studentGrades",
   passport.authenticate("jwt", { session: false }),
   searchStudent
+);
+studentRoutes.get(
+  "/hasGrade",
+  passport.authenticate("jwt", { session: false }),
+  hasGrade
 );
