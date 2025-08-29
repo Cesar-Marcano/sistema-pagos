@@ -31,11 +31,11 @@ export class SchoolYearFeature {
 
   public async update(
     id: number,
-    data: {
-      name?: string;
-      startDate?: Date;
-      endDate?: Date;
-    }
+    data: Partial<{
+      name: string;
+      startDate: Date;
+      endDate: Date;
+    }>
   ): Promise<SchoolYear> {
     const schoolYear = await this.prisma.schoolYear.findUnique({
       where: {
