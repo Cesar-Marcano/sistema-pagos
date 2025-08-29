@@ -1,7 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
 import { PrismaClient, Session } from "@prisma/client";
-import ms, { StringValue } from "ms";
 
 @injectable()
 export class SessionFeature {
