@@ -6,6 +6,7 @@ import { searchStudent } from "./searchStudent";
 import { updateStudent } from "./updateStudent";
 import { softDeleteStudent } from "./softDeleteStudent";
 import { registerStudentToGrade } from "./registerStudentToGrade";
+import { unregisterStudentFromGrade } from "./unregisterStudentToGrade";
 
 export const studentRoutes: Router = Router();
 
@@ -38,4 +39,9 @@ studentRoutes.post(
   "/registerStudentToGrade",
   passport.authenticate("jwt", { session: false }),
   registerStudentToGrade
+);
+studentRoutes.delete(
+  "/unregisterStudentFromGrade",
+  passport.authenticate("jwt", { session: false }),
+  unregisterStudentFromGrade
 );
