@@ -13,6 +13,6 @@ const gradeWhereMapper = (queryParams: any) => ({
 
 export const searchGrade = createSearchController(
   gradeSearchCriteria,
-  TYPES.SchoolYearFeature,
+  TYPES.GradeFeature,
   gradeWhereMapper
 );
