@@ -1,7 +1,12 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { PrismaClient } from "@prisma/client";
+import { Grade, PrismaClient } from "@prisma/client";
 import createHttpError from "http-errors";
+import {
+  SearchArgs,
+  SearchResult,
+  searchWithPaginationAndCriteria,
+} from "../lib/search";
 
 @injectable()
 export class GradeFeature {
@@ -74,5 +79,24 @@ export class GradeFeature {
         ...(includeDeleted ? {} : { deletedAt: null }),
       },
     });
+  }
+
+  public async search(
+    args: SearchArgs<
+      Partial<Omit<Grade, "id" | "deletedAt" | "createdAt" | "updatedAt">> & {
+        deletedAt?: {
+          not: null;
+        };
+      }
+    >
+  ): Promise<SearchResult<Grade>> {
+    return searchWithPaginationAndCriteria(
+      this.prisma.grade.findMany,
+      this.prisma.grade.count,
+      {
+        ...args,
+        where: { ...args.where, deletedAt: null },
+      }
+    );
   }
 }
