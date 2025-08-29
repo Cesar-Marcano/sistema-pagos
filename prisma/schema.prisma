@@ -45,6 +45,7 @@ model SchoolPeriod {
 
     schoolYear SchoolYear @relation(fields: [schoolYearId], references: [id])
     month      Int
+    name       String?
 
     createdAt DateTime  @default(now()) @db.Timestamptz()
     updatedAt DateTime  @updatedAt @db.Timestamptz()
@@ -257,7 +258,7 @@ model AuditLog {
 model Session {
     id Int @id @default(autoincrement())
 
-    jti        String @unique
+    jti        String   @unique
     user       User     @relation(fields: [userId], references: [id])
     expiration DateTime @db.Timestamptz()
 
