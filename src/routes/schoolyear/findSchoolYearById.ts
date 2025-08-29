@@ -3,6 +3,7 @@ import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
 import { SchoolYearFeature } from "../../features/schoolyear.feature";
 import z from "zod";
+import createHttpError from "http-errors";
 
 const paramsSchema = z.object({
   includeDeleted: z
@@ -21,6 +22,8 @@ export async function findSchoolYearById(req: Request, res: Response) {
     Number(req.params.id),
     queryParams.includeDeleted
   );
+
+  if (!schoolYear) throw createHttpError(404, "Año escolar no encontrado.");
 
   res.json({ schoolYear });
 }
