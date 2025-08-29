@@ -8,7 +8,7 @@ const updateGradeSchema = z.object({
   name: z.string().trim().toUpperCase().min(3),
 });
 
-export async function updateSchoolYear(req: Request, res: Response) {
+export async function updateGrade(req: Request, res: Response) {
   const validatedData = updateGradeSchema.parse(req.body);
 
   const gradeFeature = container.get<GradeFeature>(TYPES.GradeFeature);
