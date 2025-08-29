@@ -12,4 +12,5 @@ export const TYPES = {
   GradeFeature: Symbol.for("GradeFeature"),
   SchoolPeriodFeature: Symbol.for("SchoolPeriodFeature"),
   StudentFeature: Symbol.for("StudentFeature"),
+  MonthlyFeeFeature: Symbol.for("MonthlyFeeFeature"),
 };
