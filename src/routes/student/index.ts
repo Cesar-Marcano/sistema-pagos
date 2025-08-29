@@ -45,3 +45,8 @@ studentRoutes.delete(
   passport.authenticate("jwt", { session: false }),
   unregisterStudentFromGrade
 );
+studentRoutes.get(
+  "/studentGrades",
+  passport.authenticate("jwt", { session: false }),
+  searchStudent
+);
