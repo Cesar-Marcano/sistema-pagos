@@ -74,7 +74,7 @@ export class MonthlyFeeFeature {
         deletedAt: null,
       },
       data: {
-        updatedAt: new Date(),
+        deletedAt: new Date(),
       },
     });
   }
