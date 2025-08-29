@@ -66,4 +66,13 @@ export class GradeFeature {
       },
     });
   }
+
+  public async findGradeById(id: number, includeDeleted: boolean) {
+    return this.prisma.grade.findUnique({
+      where: {
+        id,
+        ...(includeDeleted ? {} : { deletedAt: null }),
+      },
+    });
+  }
 }
