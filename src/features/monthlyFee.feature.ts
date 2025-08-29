@@ -50,6 +50,7 @@ export class MonthlyFeeFeature {
         where: {
           description,
           deletedAt: null,
+          NOT: { id },
         },
       });
 
