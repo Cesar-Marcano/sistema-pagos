@@ -20,6 +20,17 @@ export class SchoolYearFeature {
     startDate: Date,
     endDate: Date
   ): Promise<SchoolYear> {
+    const existingSchoolYear = await this.prisma.schoolYear.findFirst({
+      where: {
+        name,
+        deletedAt: null,
+      },
+    });
+
+    if (existingSchoolYear) {
+      throw createHttpError(409, "Ya existe un año escolar con este nombre.");
+    }
+
     return await this.prisma.schoolYear.create({
       data: {
         name,
@@ -44,7 +55,22 @@ export class SchoolYearFeature {
       },
     });
 
-    if (!schoolYear) throw createHttpError(404, "Año escolar no encontrado.");
+    if (!schoolYear) {
+      throw createHttpError(404, "Año escolar no encontrado.");
+    }
+
+    if (data.name && data.name !== schoolYear.name) {
+      const existingSchoolYear = await this.prisma.schoolYear.findFirst({
+        where: {
+          name: data.name,
+          deletedAt: null,
+        },
+      });
+
+      if (existingSchoolYear) {
+        throw createHttpError(409, "Ya existe un año escolar con este nombre.");
+      }
+    }
 
     const start = data.startDate ?? schoolYear.startDate;
     const end = data.endDate ?? schoolYear.endDate;
