@@ -2,7 +2,7 @@ import { Router } from "express";
 import passport from "passport";
 import { createSchoolYear } from "./createSchoolYear";
 import { updateSchoolYear } from "./updateSchoolYear";
-import { softDeleteSchoolYear } from "./softDelete";
+import { softDeleteSchoolYear } from "./softDeleteSchoolYear";
 
 export const schoolYearRoutes: Router = Router();
 
