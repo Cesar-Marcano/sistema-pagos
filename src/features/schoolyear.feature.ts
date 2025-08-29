@@ -20,14 +20,14 @@ export class SchoolYearFeature {
     startDate: Date,
     endDate: Date
   ): Promise<SchoolYear> {
-    const existingSchoolYear = await this.prisma.schoolYear.findFirst({
+    const existingSchoolYear = await this.prisma.schoolYear.count({
       where: {
         name,
         deletedAt: null,
       },
     });
 
-    if (existingSchoolYear) {
+    if (existingSchoolYear > 0) {
       throw createHttpError(409, "Ya existe un año escolar con este nombre.");
     }
 
@@ -60,14 +60,14 @@ export class SchoolYearFeature {
     }
 
     if (data.name && data.name !== schoolYear.name) {
-      const existingSchoolYear = await this.prisma.schoolYear.findFirst({
+      const existingSchoolYear = await this.prisma.schoolYear.count({
         where: {
           name: data.name,
           deletedAt: null,
         },
       });
 
-      if (existingSchoolYear) {
+      if (existingSchoolYear > 0) {
         throw createHttpError(409, "Ya existe un año escolar con este nombre.");
       }
     }
