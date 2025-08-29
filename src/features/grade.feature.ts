@@ -30,7 +30,7 @@ export class GradeFeature {
     });
   }
 
-  public async updateGrade(id: number, name: string) {
+  public async update(id: number, name: string) {
     const existingGrades = await this.prisma.grade.count({
       where: {
         name,
@@ -52,7 +52,7 @@ export class GradeFeature {
     });
   }
 
-  public async softDeleteGrade(id: number) {
+  public async softDelete(id: number) {
     return this.prisma.grade.update({
       where: {
         id,
@@ -64,7 +64,7 @@ export class GradeFeature {
     });
   }
 
-  public async hardDeleteGrade(id: number) {
+  public async hardDelete(id: number) {
     return this.prisma.grade.delete({
       where: {
         id,
@@ -72,7 +72,7 @@ export class GradeFeature {
     });
   }
 
-  public async findGradeById(id: number, includeDeleted: boolean) {
+  public async findById(id: number, includeDeleted: boolean) {
     return this.prisma.grade.findUnique({
       where: {
         id,

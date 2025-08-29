@@ -13,7 +13,7 @@ export async function updateGrade(req: Request, res: Response) {
 
   const gradeFeature = container.get<GradeFeature>(TYPES.GradeFeature);
 
-  const grade = await gradeFeature.updateGrade(
+  const grade = await gradeFeature.update(
     Number(req.params.id),
     validatedData.name
   );

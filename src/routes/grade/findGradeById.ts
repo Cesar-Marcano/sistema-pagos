@@ -16,7 +16,7 @@ export async function findGradeById(req: Request, res: Response) {
 
   const queryParams = paramsSchema.parse(req.query);
 
-  const grade = await gradeFeature.findGradeById(
+  const grade = await gradeFeature.findById(
     Number(req.params.id),
     queryParams.includeDeleted
   );
