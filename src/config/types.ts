@@ -8,4 +8,5 @@ export const TYPES = {
   // Features
   UserFeature: Symbol.for("UserFeature"),
   SessionFeature: Symbol.for("SessionFeature"),
+  SchoolYearFeature: Symbol.for("SchoolYearFeature"),
 };
