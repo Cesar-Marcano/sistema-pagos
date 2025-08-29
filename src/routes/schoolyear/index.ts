@@ -3,6 +3,7 @@ import passport from "passport";
 import { createSchoolYear } from "./createSchoolYear";
 import { updateSchoolYear } from "./updateSchoolYear";
 import { softDeleteSchoolYear } from "./softDeleteSchoolYear";
+import { findSchoolYearById } from "./findSchoolYearById";
 
 export const schoolYearRoutes: Router = Router();
 
@@ -20,4 +21,9 @@ schoolYearRoutes.delete(
   "/:id",
   passport.authenticate("jwt", { session: false }),
   softDeleteSchoolYear
+);
+schoolYearRoutes.get(
+  "/:id",
+  passport.authenticate("jwt", { session: false }),
+  findSchoolYearById
 );
