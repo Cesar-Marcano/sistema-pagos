@@ -1,7 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
 import { PrismaClient, SchoolYear } from "@prisma/client";
-import createHttpError from "http-errors";
 import {
   SearchArgs,
   SearchResult,
