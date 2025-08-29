@@ -168,4 +168,50 @@ export class StudentFeature {
 
     return newStudentGrade;
   }
+
+  public async unregisterStudentFromGrade(
+    studentGradeId: number
+  ): Promise<StudentGrade> {
+    return await this.prisma.studentGrade.update({
+      where: {
+        id: studentGradeId,
+        deletedAt: null,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+  }
+
+  public async findStudentGrades(
+    studentId: number,
+    schoolYearId: number | null = null,
+    includeDeleted: boolean = false
+  ) {
+    return await this.prisma.studentGrade.findMany({
+      where: {
+        studentId,
+        ...(schoolYearId ? { schoolYearId } : {}),
+        ...(includeDeleted ? {} : { deletedAt: null }),
+      },
+      include: {
+        grade: true,
+      },
+      omit: {
+        schoolYearId: true,
+        studentId: true,
+      },
+    });
+  }
+
+  public async hasGrade(studentId: number, gradeId: number): Promise<boolean> {
+    return (
+      (await this.prisma.studentGrade.count({
+        where: {
+          studentId,
+          gradeId,
+        },
+      })) > 0
+    );
+  }
 }
