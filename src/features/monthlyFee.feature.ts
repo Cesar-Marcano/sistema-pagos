@@ -1,6 +1,11 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { MonthlyFee, PrismaClient } from "@prisma/client";
+import {
+  MonthlyFee,
+  MonthlyFeeOnGrade,
+  Prisma,
+  PrismaClient,
+} from "@prisma/client";
 import createHttpError from "http-errors";
 import {
   SearchArgs,
@@ -105,6 +110,95 @@ export class MonthlyFeeFeature {
     return searchWithPaginationAndCriteria(
       this.prisma.monthlyFee.findMany,
       this.prisma.monthlyFee.count,
+      {
+        ...args,
+        where: { ...args.where, deletedAt: null },
+      }
+    );
+  }
+
+  public async assignFeeToGrades(
+    gradeIds: number[],
+    monthlyFeeId: number,
+    effectiveFromPeriodId: number
+  ) {
+    if (gradeIds.length < 1) {
+      throw createHttpError(400, "No se proporcionaron grados.");
+    }
+
+    const assignmentsToCreate = gradeIds.map((gradeId) => ({
+      monthlyFeeId,
+      gradeId,
+      schoolPeriodId: effectiveFromPeriodId,
+    }));
+
+    const uniqueAssignments = this.getUniqueAssignments(assignmentsToCreate);
+
+    return await this.prisma.monthlyFeeOnGrade.createMany({
+      data: uniqueAssignments,
+      skipDuplicates: true,
+    });
+  }
+
+  public async unassignFeeFromGrades(ids: number[]) {
+    return await this.prisma.monthlyFeeOnGrade.updateMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+  }
+
+  private getUniqueAssignments(
+    assignments: {
+      monthlyFeeId: number;
+      gradeId: number;
+      schoolPeriodId: number;
+    }[]
+  ) {
+    const seen = new Set<string>();
+    return assignments.filter((item) => {
+      const key = `${item.monthlyFeeId}-${item.gradeId}-${item.schoolPeriodId}`;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+  }
+
+  public async findMonthlyFeeOnGradeById(id: number, includeDeleted: boolean) {
+    return await this.prisma.monthlyFeeOnGrade.findUnique({
+      where: {
+        id,
+        ...(includeDeleted ? {} : { deletedAt: null }),
+      },
+      include: {
+        monthlyFee: true,
+        grade: true,
+        effectiveFromPeriod: true,
+      },
+    });
+  }
+
+  public async searchMonthlyFeeOnGrade(
+    args: SearchArgs<
+      Partial<
+        Omit<MonthlyFeeOnGrade, "id" | "deletedAt" | "createdAt" | "updatedAt">
+      > & {
+        deletedAt?: {
+          not: null;
+        };
+      }
+    >
+  ): Promise<SearchResult<MonthlyFeeOnGrade>> {
+    return searchWithPaginationAndCriteria(
+      this.prisma.monthlyFeeOnGrade.findMany,
+      this.prisma.monthlyFeeOnGrade.count,
       {
         ...args,
         where: { ...args.where, deletedAt: null },

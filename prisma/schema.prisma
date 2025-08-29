@@ -93,7 +93,7 @@ model MonthlyFeeOnGrade {
     id Int @id @default(autoincrement())
 
     monthlyFee          MonthlyFee   @relation(fields: [monthlyFeeId], references: [id])
-    grades              Grade[]
+    grade               Grade        @relation(fields: [gradeId], references: [id])
     effectiveFromPeriod SchoolPeriod @relation(fields: [schoolPeriodId], references: [id])
 
     createdAt DateTime  @default(now()) @db.Timestamptz()
@@ -102,6 +102,9 @@ model MonthlyFeeOnGrade {
 
     monthlyFeeId   Int
     schoolPeriodId Int
+    gradeId        Int
+
+    @@unique([monthlyFeeId, gradeId, schoolPeriodId, deletedAt])
 }
 
 model Grade {
