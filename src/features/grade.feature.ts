@@ -24,4 +24,26 @@ export class GradeFeature {
       },
     });
   }
+
+  public async updateGrade(id: number, name: string) {
+    const existingGrades = await this.prisma.grade.count({
+      where: {
+        name,
+        deletedAt: null,
+      },
+    });
+
+    if (existingGrades > 0)
+      throw createHttpError(409, "Ya existe un grado con ese nombre.");
+
+    return this.prisma.grade.update({
+      where: {
+        id,
+        deletedAt: null,
+      },
+      data: {
+        name,
+      },
+    });
+  }
 }
