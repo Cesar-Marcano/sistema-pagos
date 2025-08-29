@@ -46,4 +46,24 @@ export class GradeFeature {
       },
     });
   }
+
+  public async softDeleteGrade(id: number) {
+    return this.prisma.grade.update({
+      where: {
+        id,
+        deletedAt: null,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+  }
+
+  public async hardDeleteGrade(id: number) {
+    return this.prisma.grade.delete({
+      where: {
+        id,
+      },
+    });
+  }
 }
