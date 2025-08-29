@@ -37,4 +37,15 @@ export class SessionFeature {
       },
     });
   }
+
+  public async sessionExists(jti: string, userId: number): Promise<boolean> {
+    return (
+      (await this.prisma.session.count({
+        where: {
+          jti,
+          userId
+        },
+      })) > 0
+    );
+  }
 }

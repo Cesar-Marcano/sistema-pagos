@@ -7,6 +7,7 @@ import { UserFeature } from "../features/user.feature";
 import { env } from "./env";
 import { SessionFeature } from "../features/session.feature";
 import { ITokenService, Payload } from "../services/jwt.service";
+import logger from "../app/logger";
 
 @injectable()
 export class PassportConfig {
@@ -51,9 +52,28 @@ export class PassportConfig {
         },
         async (jwtPayload: Payload, done) => {
           try {
-            const user = await this.userFeature.findById(Number(jwtPayload.sub!));
+            const user = await this.userFeature.findById(
+              Number(jwtPayload.sub!)
+            );
 
-            if (user) {
+            if (!jwtPayload.jti) {
+              logger.error("El token no contiene JTI");
+
+              return done(null, false);
+            }
+
+            if (!jwtPayload.sub) {
+              logger.error("El token no contiene subject");
+
+              return done(null, false);
+            }
+
+            const sessionExists = await this.sessionFeature.sessionExists(
+              jwtPayload.jti,
+              Number(jwtPayload.sub),
+            );
+
+            if (user && sessionExists) {
               return done(null, user);
             } else {
               return done(null, false);
