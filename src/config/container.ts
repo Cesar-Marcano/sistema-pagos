@@ -9,6 +9,7 @@ import { SessionFeature } from "../features/session.feature";
 import { SchoolYearFeature } from "../features/schoolyear.feature";
 import { GradeFeature } from "../features/grade.feature";
 import { SchoolPeriodFeature } from "../features/schoolPeriod.feature";
+import { StudentFeature } from "../features/student.feature";
 
 const container = new Container();
 
@@ -29,6 +30,7 @@ container.bind<GradeFeature>(TYPES.GradeFeature).to(GradeFeature);
 container
   .bind<SchoolPeriodFeature>(TYPES.SchoolPeriodFeature)
   .to(SchoolPeriodFeature);
+container.bind<StudentFeature>(TYPES.StudentFeature).to(StudentFeature);
 
 container.bind<PassportConfig>(PassportConfig).toSelf();
 
