@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { PrismaClient, Student } from "@prisma/client";
+import { PrismaClient, Student, StudentGrade } from "@prisma/client";
 import createHttpError from "http-errors";
 import {
   SearchArgs,
@@ -113,5 +113,57 @@ export class StudentFeature {
         where: { ...args.where, deletedAt: null },
       }
     );
+  }
+
+  public async registerStudentToGrade(
+    studentId: number,
+    gradeId: number,
+    schoolYearId: number
+  ): Promise<StudentGrade> {
+    const [student, schoolYear, grade] = await this.prisma.$transaction([
+      this.prisma.student.findUnique({
+        where: { id: studentId, deletedAt: null },
+      }),
+      this.prisma.schoolYear.findUnique({
+        where: { id: schoolYearId, deletedAt: null },
+      }),
+      this.prisma.grade.findUnique({ where: { id: gradeId, deletedAt: null } }),
+    ]);
+
+    if (!student) {
+      throw createHttpError(404, "Estudiante no encontrado.");
+    }
+    if (!schoolYear) {
+      throw createHttpError(404, "Año escolar no encontrado.");
+    }
+    if (!grade) {
+      throw createHttpError(404, "Grado no encontrado.");
+    }
+
+    const existingStudentGrade = await this.prisma.studentGrade.findFirst({
+      where: {
+        studentId,
+        schoolYearId,
+        gradeId,
+        deletedAt: null,
+      },
+    });
+
+    if (existingStudentGrade) {
+      throw createHttpError(
+        409,
+        "El estudiante ya está asignado a este grado en este año escolar."
+      );
+    }
+
+    const newStudentGrade = await this.prisma.studentGrade.create({
+      data: {
+        studentId,
+        schoolYearId,
+        gradeId,
+      },
+    });
+
+    return newStudentGrade;
   }
 }
