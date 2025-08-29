@@ -5,6 +5,7 @@ import { findStudentById } from "./findStudentById";
 import { searchStudent } from "./searchStudent";
 import { updateStudent } from "./updateStudent";
 import { softDeleteStudent } from "./softDeleteStudent";
+import { registerStudentToGrade } from "./registerStudentToGrade";
 
 export const studentRoutes: Router = Router();
 
@@ -32,4 +33,9 @@ studentRoutes.get(
   "/",
   passport.authenticate("jwt", { session: false }),
   searchStudent
+);
+studentRoutes.post(
+  "/registerStudentToGrade",
+  passport.authenticate("jwt", { session: false }),
+  registerStudentToGrade
 );
