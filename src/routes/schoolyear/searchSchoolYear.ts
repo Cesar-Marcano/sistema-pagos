@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { SchoolYearFeature } from "../../features/schoolyear.feature";
 import { z } from "zod";
 import { createSearchController } from "../../lib/searchController";
 import { TYPES } from "../../config/types";
