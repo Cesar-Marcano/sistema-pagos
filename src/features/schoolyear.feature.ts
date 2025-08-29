@@ -2,6 +2,11 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
 import { PrismaClient, SchoolYear } from "@prisma/client";
 import createHttpError from "http-errors";
+import {
+  SearchArgs,
+  SearchResult,
+  searchWithPaginationAndCriteria,
+} from "../lib/search";
 
 @injectable()
 export class SchoolYearFeature {
@@ -74,5 +79,26 @@ export class SchoolYearFeature {
         ...(includeDeleted ? {} : { deletedAt: null }),
       },
     });
+  }
+
+  public async search(
+    args: SearchArgs<
+      Partial<
+        Omit<SchoolYear, "id" | "deletedAt" | "createdAt" | "updatedAt">
+      > & {
+        deletedAt?: {
+          not: null;
+        };
+      }
+    >
+  ): Promise<SearchResult<SchoolYear>> {
+    return searchWithPaginationAndCriteria(
+      this.prisma.schoolYear.findMany,
+      this.prisma.schoolYear.count,
+      {
+        ...args,
+        where: { ...args.where, deletedAt: null },
+      }
+    );
   }
 }
