@@ -51,10 +51,9 @@ model SchoolPeriod {
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    schoolYearId    Int
-    MonthlyFee      MonthlyFee[]
-    GradeFeeHistory GradeFeeHistory[]
-    Payment         Payment[]
+    schoolYearId      Int
+    Payment           Payment[]
+    MonthlyFeeOnGrade MonthlyFeeOnGrade[]
 
     @@unique([month, schoolYearId, deletedAt])
 }
@@ -78,33 +77,31 @@ model Student {
 model MonthlyFee {
     id Int @id @default(autoincrement())
 
-    description   String
-    amount        Decimal      @db.Decimal(15, 2)
-    effectiveFrom SchoolPeriod @relation(fields: [schoolPeriodId], references: [id])
+    description String
+    amount      Decimal @db.Decimal(15, 2)
 
     createdAt DateTime  @default(now()) @db.Timestamptz()
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    schoolPeriodId  Int
-    GradeFeeHistory GradeFeeHistory[]
+    MonthlyFeeOnGrade MonthlyFeeOnGrade[]
 
     @@unique([description, deletedAt])
 }
 
-model GradeFeeHistory {
+model MonthlyFeeOnGrade {
     id Int @id @default(autoincrement())
 
-    monthlyFee   MonthlyFee   @relation(fields: [monthlyFeeId], references: [id])
-    grade        Grade        @relation(fields: [gradeId], references: [id])
-    schoolPeriod SchoolPeriod @relation(fields: [schoolPeriodId], references: [id])
+    monthlyFee          MonthlyFee   @relation(fields: [monthlyFeeId], references: [id])
+    grades              Grade[]
+    effectiveFromPeriod SchoolPeriod @relation(fields: [schoolPeriodId], references: [id])
+
+    createdAt DateTime  @default(now()) @db.Timestamptz()
+    updatedAt DateTime  @updatedAt @db.Timestamptz()
+    deletedAt DateTime? @db.Timestamptz()
 
     monthlyFeeId   Int
-    gradeId        Int
     schoolPeriodId Int
-    Payment        Payment[]
-
-    @@unique([gradeId, schoolPeriodId])
 }
 
 model Grade {
@@ -116,8 +113,8 @@ model Grade {
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    StudentGrade    StudentGrade[]
-    GradeFeeHistory GradeFeeHistory[]
+    StudentGrade      StudentGrade[]
+    MonthlyFeeOnGrade MonthlyFeeOnGrade[]
 
     @@unique([name, deletedAt])
 }
@@ -166,10 +163,10 @@ model StudentDiscount {
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    studentId      Int
-    discountId     Int
-    schoolPeriodId Int?
-    Payment        Payment[]
+    studentId       Int
+    discountId      Int
+    schoolPeriodId  Int?
+    PaymentDiscount PaymentDiscount[]
 
     @@unique([studentId, discountId, schoolPeriodId, deletedAt])
 }
@@ -203,24 +200,37 @@ model Payment {
     student      Student      @relation(fields: [studentId], references: [id])
     schoolPeriod SchoolPeriod @relation(fields: [schoolPeriodId], references: [id])
     amount       Decimal      @db.Decimal(15, 2)
+    paymentType  PaymentType
 
-    paymentMethod     PaymentMethod    @relation(fields: [paymentMethodId], references: [id])
-    reference         String?
-    discountApplied   StudentDiscount? @relation(fields: [studentDiscountId], references: [id])
-    studentDiscountId Int?
-
-    gradeFeeHistory GradeFeeHistory @relation(fields: [gradeFeeHistoryId], references: [id])
+    paymentMethod    PaymentMethod     @relation(fields: [paymentMethodId], references: [id])
+    reference        String?
+    discountsApplied PaymentDiscount[]
 
     createdAt DateTime  @default(now()) @db.Timestamptz()
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    studentId         Int
-    schoolPeriodId    Int
-    gradeFeeHistoryId Int
-    paymentMethodId   Int
+    studentId       Int
+    schoolPeriodId  Int
+    paymentMethodId Int
 
-    @@unique([reference, deletedAt])
+    @@unique([paymentMethodId, reference, deletedAt])
+}
+
+model PaymentDiscount {
+    id Int @id @default(autoincrement())
+
+    payment         Payment         @relation(fields: [paymentId], references: [id])
+    studentDiscount StudentDiscount @relation(fields: [studentDiscountId], references: [id])
+
+    createdAt DateTime  @default(now()) @db.Timestamptz()
+    updatedAt DateTime  @updatedAt @db.Timestamptz()
+    deletedAt DateTime? @db.Timestamptz()
+
+    paymentId         Int
+    studentDiscountId Int
+
+    @@unique([paymentId, studentDiscountId, deletedAt])
 }
 
 enum AuditableEntities {
@@ -229,13 +239,13 @@ enum AuditableEntities {
     SCHOOL_PERIOD
     STUDENT
     MONTHLY_FEE
-    GRADE_FEE_HISTORY
     GRADE
     STUDENT_GRADE
     DISCOUNT
     STUDENT_DISCOUNT
     PAYMENT_METHOD
     PAYMENT
+    PAYMENT_DISCOUNT
 }
 
 enum AuditLogActions {
