@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
-import { SchoolYearFeature } from "../../features/schoolyear.feature";
 import z from "zod";
 import createHttpError from "http-errors";
 import { SchoolPeriodFeature } from "../../features/schoolPeriod.feature";
