@@ -13,6 +13,7 @@ import { StudentFeature } from "../features/student.feature";
 import { MonthlyFeeFeature } from "../features/monthlyFee.feature";
 import { DiscountFeature } from "../features/discount.feature";
 import { PaymentMethodFeature } from "../features/paymentMethod.feature";
+import { PaymentFeature } from "../features/payment.feature";
 
 const container = new Container();
 
@@ -41,6 +42,7 @@ container.bind<DiscountFeature>(TYPES.DiscountFeature).to(DiscountFeature);
 container
   .bind<PaymentMethodFeature>(TYPES.PaymentMethodFeature)
   .to(PaymentMethodFeature);
+container.bind<PaymentFeature>(TYPES.PaymentFeature).to(PaymentFeature);
 
 container.bind<PassportConfig>(PassportConfig).toSelf();
 

@@ -15,4 +15,5 @@ export const TYPES = {
   MonthlyFeeFeature: Symbol.for("MonthlyFeeFeature"),
   DiscountFeature: Symbol.for("DiscountFeature"),
   PaymentMethodFeature: Symbol.for("PaymentMethodFeature"),
+  PaymentFeature: Symbol.for("PaymentFeature"),
 };
