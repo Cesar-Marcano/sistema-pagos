@@ -4,7 +4,7 @@ import { container } from "../../config/container";
 import { z } from "zod";
 import { PaymentMethodFeature } from "../../features/paymentMethod.feature";
 
-const createGradeSchema = z.object({
+const createPaymentMethodSchema = z.object({
   name: z.string().trim().toUpperCase().min(3),
   requiresManualVerification: z.boolean(),
   requiresReferenceId: z.boolean(),
@@ -12,7 +12,7 @@ const createGradeSchema = z.object({
 
 export async function createPaymentMethod(req: Request, res: Response) {
   const { name, requiresManualVerification, requiresReferenceId } =
-    createGradeSchema.parse(req.body);
+    createPaymentMethodSchema.parse(req.body);
 
   const paymentMethodFeature = container.get<PaymentMethodFeature>(
     TYPES.PaymentMethodFeature
