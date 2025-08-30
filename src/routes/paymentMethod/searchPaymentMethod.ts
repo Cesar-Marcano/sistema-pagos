@@ -19,10 +19,10 @@ const paymentMethodSearchCriteria = z.object({
 
 const paymentMethodWhereMapper = (queryParams: any) => ({
   ...(queryParams.name && { name: queryParams.name }),
-  ...(queryParams.requiresManualVerification && {
+  ...(queryParams.requiresManualVerification !== undefined && {
     requiresManualVerification: queryParams.requiresManualVerification,
   }),
-  ...(queryParams.requiresReferenceId && {
+  ...(queryParams.requiresReferenceId !== undefined && {
     requiresReferenceId: queryParams.requiresReferenceId,
   }),
 });
