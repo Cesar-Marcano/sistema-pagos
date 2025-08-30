@@ -16,10 +16,10 @@ export async function applyDiscountToStudent(req: Request, res: Response) {
 
   const discountFeature = container.get<DiscountFeature>(TYPES.DiscountFeature);
 
-  const discountApplyed = await discountFeature.applyDiscountToStudent(
+  const discountApplied = await discountFeature.applyDiscountToStudent(
     discountId,
     studentId
   );
 
-  res.json({ discountApplyed });
+  res.json({ discountApplied });
 }
