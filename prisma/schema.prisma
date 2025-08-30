@@ -153,6 +153,7 @@ model Discount {
     deletedAt DateTime? @db.Timestamptz()
 
     StudentDiscount StudentDiscount[]
+    PaymentDiscount PaymentDiscount[]
 
     @@unique([name, deletedAt])
 }
@@ -167,9 +168,8 @@ model StudentDiscount {
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    studentId       Int
-    discountId      Int
-    PaymentDiscount PaymentDiscount[]
+    studentId  Int
+    discountId Int
 
     @@unique([studentId, discountId, deletedAt])
 }
@@ -225,17 +225,17 @@ model Payment {
 model PaymentDiscount {
     id Int @id @default(autoincrement())
 
-    payment         Payment         @relation(fields: [paymentId], references: [id])
-    studentDiscount StudentDiscount @relation(fields: [studentDiscountId], references: [id])
+    payment  Payment  @relation(fields: [paymentId], references: [id])
+    discount Discount @relation(fields: [discountId], references: [id])
 
     createdAt DateTime  @default(now()) @db.Timestamptz()
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    paymentId         Int
-    studentDiscountId Int
+    paymentId  Int
+    discountId Int
 
-    @@unique([paymentId, studentDiscountId, deletedAt])
+    @@unique([paymentId, discountId, deletedAt])
 }
 
 enum AuditableEntities {
