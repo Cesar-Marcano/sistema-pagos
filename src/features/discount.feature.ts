@@ -142,7 +142,7 @@ export class DiscountFeature {
     });
   }
 
-  public async unapplyDiscountToStudent(id: number) {
+  public async unapplyDiscountFromStudent(id: number) {
     return await this.prisma.studentDiscount.update({
       where: {
         id,
