@@ -158,7 +158,8 @@ model Discount {
 }
 
 model StudentDiscount {
-    id       Int      @id @default(autoincrement())
+    id Int @id @default(autoincrement())
+
     student  Student  @relation(fields: [studentId], references: [id])
     discount Discount @relation(fields: [discountId], references: [id])
 

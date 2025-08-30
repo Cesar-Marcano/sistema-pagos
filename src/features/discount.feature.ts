@@ -55,6 +55,9 @@ export class DiscountFeature {
         where: {
           name: data.name,
           deletedAt: null,
+          id: {
+            not: id,
+          },
         },
       });
 
@@ -128,5 +131,38 @@ export class DiscountFeature {
         where: { ...args.where },
       }
     );
+  }
+
+  public async applyDiscountToStudent(discountId: number, studentId: number) {
+    return await this.prisma.studentDiscount.create({
+      data: {
+        discountId,
+        studentId,
+      },
+    });
+  }
+
+  public async unapplyDiscountToStudent(id: number) {
+    return await this.prisma.studentDiscount.update({
+      where: {
+        id,
+        deletedAt: null,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+  }
+
+  public async listStudentDiscounts(studentId: number) {
+    return await this.prisma.studentDiscount.findMany({
+      where: {
+        studentId,
+        deletedAt: null,
+      },
+      include: {
+        discount: true,
+      },
+    });
   }
 }
