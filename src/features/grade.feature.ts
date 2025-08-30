@@ -98,7 +98,7 @@ export class GradeFeature {
       this.prisma.grade.count,
       {
         ...args,
-        where: { ...args.where, deletedAt: null },
+        where: { ...args.where },
       }
     );
   }

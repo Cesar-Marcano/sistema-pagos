@@ -142,7 +142,7 @@ export class SchoolYearFeature {
       this.prisma.schoolYear.count,
       {
         ...args,
-        where: { ...args.where, deletedAt: null },
+        where: { ...args.where },
       }
     );
   }

@@ -125,7 +125,7 @@ export class DiscountFeature {
       this.prisma.discount.count,
       {
         ...args,
-        where: { ...args.where, deletedAt: null },
+        where: { ...args.where },
       }
     );
   }

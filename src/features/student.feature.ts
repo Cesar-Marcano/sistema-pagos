@@ -112,7 +112,7 @@ export class StudentFeature {
       this.prisma.student.count,
       {
         ...args,
-        where: { ...args.where, deletedAt: null },
+        where: { ...args.where },
       }
     );
   }

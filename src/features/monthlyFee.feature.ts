@@ -112,7 +112,7 @@ export class MonthlyFeeFeature {
       this.prisma.monthlyFee.count,
       {
         ...args,
-        where: { ...args.where, deletedAt: null },
+        where: { ...args.where },
       }
     );
   }
@@ -146,6 +146,7 @@ export class MonthlyFeeFeature {
         id: {
           in: ids,
         },
+        deletedAt: null,
       },
       data: {
         deletedAt: new Date(),
@@ -201,7 +202,17 @@ export class MonthlyFeeFeature {
       this.prisma.monthlyFeeOnGrade.count,
       {
         ...args,
-        where: { ...args.where, deletedAt: null },
+        where: { ...args.where },
+        include: {
+          monthlyFee: true,
+          grade: true,
+          effectiveFromPeriod: true,
+        },
+        omit: {
+          monthlyFeeId: true,
+          gradeId: true,
+          schoolPeriodId: true,
+        },
       }
     );
   }

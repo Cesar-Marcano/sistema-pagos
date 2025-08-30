@@ -1,11 +1,14 @@
 export interface SearchCriteria<T> {
   where?: T;
   orderBy?: any;
+  include?: any;
+  omit?: any;
 }
 
 export interface SearchArgs<T> extends SearchCriteria<T> {
   page?: number;
   pageSize?: number;
+  includeDeleted?: boolean;
 }
 
 export interface SearchResult<T> {
@@ -21,7 +24,15 @@ export async function searchWithPaginationAndCriteria<T>(
   count: (args: any) => Promise<number>,
   args: SearchArgs<any> = {}
 ): Promise<SearchResult<T>> {
-  const { page = 1, pageSize = 10, where, orderBy } = args;
+  const {
+    page = 1,
+    pageSize = 10,
+    where,
+    orderBy,
+    include,
+    omit,
+    includeDeleted,
+  } = args;
 
   const processedWhere = where
     ? Object.entries(where).reduce((acc: Record<string, any>, [key, value]) => {
@@ -40,14 +51,21 @@ export async function searchWithPaginationAndCriteria<T>(
 
   const skip = (page - 1) * pageSize;
 
+  const finalWhere = {
+    ...(includeDeleted ? {} : { deletedAt: null }),
+    ...processedWhere,
+  };
+
   const [results, total] = await Promise.all([
     findMany({
       skip,
       take: pageSize,
-      where: processedWhere,
+      where: finalWhere,
       orderBy,
+      include,
+      omit,
     }),
-    count({ where: processedWhere }),
+    count({ where: finalWhere }),
   ]);
 
   const totalPages = Math.ceil(total / pageSize);
