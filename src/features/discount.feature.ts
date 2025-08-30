@@ -165,4 +165,61 @@ export class DiscountFeature {
       },
     });
   }
+
+  public async assignDiscountToPayment(discountId: number, paymentId: number) {
+    const existentDiscountAssignedToPaymentCount =
+      await this.prisma.paymentDiscount.count({
+        where: {
+          discountId,
+          paymentId,
+          deletedAt: null,
+        },
+      });
+
+    if (existentDiscountAssignedToPaymentCount > 0)
+      throw createHttpError(409, "Ya el descuento fue asignado al pago.");
+
+    return await this.prisma.paymentDiscount.create({
+      data: {
+        discountId,
+        paymentId,
+      },
+    });
+  }
+
+  public async unassignDiscountFromPayment(id: number) {
+    return await this.prisma.paymentDiscount.update({
+      where: {
+        id,
+        deletedAt: null,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+  }
+
+  public async findPaymentDiscount(id: number) {
+    return await this.prisma.paymentDiscount.findUnique({
+      where: {
+        id,
+        deletedAt: null,
+      },
+      include: {
+        discount: true,
+      },
+    });
+  }
+
+  public async listPaymentDiscounts(paymentId: number) {
+    return await this.prisma.paymentDiscount.findMany({
+      where: {
+        paymentId,
+        deletedAt: null,
+      },
+      include: {
+        discount: true,
+      },
+    });
+  }
 }
