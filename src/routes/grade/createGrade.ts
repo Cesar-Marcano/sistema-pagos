@@ -11,9 +11,9 @@ const createGradeSchema = z.object({
 export async function createGrade(req: Request, res: Response) {
   const { name } = createGradeSchema.parse(req.body);
 
-  const GradeFeature = container.get<GradeFeature>(TYPES.GradeFeature);
+  const gradeFeature = container.get<GradeFeature>(TYPES.GradeFeature);
 
-  const grade = await GradeFeature.create(name);
+  const grade = await gradeFeature.create(name);
 
   res.json({ grade });
 }
