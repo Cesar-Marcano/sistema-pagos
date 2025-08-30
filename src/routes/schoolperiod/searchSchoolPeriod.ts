@@ -5,7 +5,7 @@ import { TYPES } from "../../config/types";
 
 const schoolPeriodSearchCriteria = z.object({
   name: z.string().optional(),
-  month: z.number().optional(),
+  month: z.string().optional().transform(Number),
   schoolYearId: z.number().optional(),
 });
 

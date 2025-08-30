@@ -6,8 +6,11 @@ import { TYPES } from "../../config/types";
 const discountSearchCriteria = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
-  amount: z.number().optional(),
-  isPercentage: z.boolean().optional(),
+  amount: z.string().optional().transform(Number),
+  isPercentage: z
+    .string()
+    .optional()
+    .transform((val) => val === "true"),
 });
 
 const discountWhereMapper = (queryParams: any) => ({

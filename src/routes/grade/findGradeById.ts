@@ -7,7 +7,9 @@ import createHttpError from "http-errors";
 
 const paramsSchema = z.object({
   includeDeleted: z
-    .boolean("Include deleted debe ser tipo boolean.")
+    .string()
+    .optional()
+    .transform((val) => val === "true")
     .default(false),
 });
 

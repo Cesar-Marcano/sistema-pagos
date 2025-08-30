@@ -7,7 +7,9 @@ import { StudentFeature } from "../../features/student.feature";
 
 const paramsSchema = z.object({
   includeDeleted: z
-    .boolean("Include deleted debe ser tipo boolean.")
+    .string()
+    .optional()
+    .transform((val) => val === "true")
     .default(false),
 });
 

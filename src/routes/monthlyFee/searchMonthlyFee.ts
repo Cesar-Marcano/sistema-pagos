@@ -5,7 +5,7 @@ import { TYPES } from "../../config/types";
 
 const monthlyFeeSearchCriteria = z.object({
   description: z.string().optional(),
-  amount: z.number().optional(),
+  amount: z.string().optional().transform(Number),
 });
 
 const monthlyFeeWhereMapper = (queryParams: any) => ({

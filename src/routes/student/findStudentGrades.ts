@@ -7,7 +7,11 @@ import z from "zod";
 const queryParamsSchema = z.object({
   studentId: z.number(),
   shoolYearId: z.number().nullable().default(null),
-  includeDeleted: z.boolean().optional(),
+  includeDeleted: z
+    .string()
+    .optional()
+    .transform((val) => val === "true")
+    .default(false),
 });
 
 export async function findStudentGrades(req: Request, res: Response) {
