@@ -14,4 +14,5 @@ export const TYPES = {
   StudentFeature: Symbol.for("StudentFeature"),
   MonthlyFeeFeature: Symbol.for("MonthlyFeeFeature"),
   DiscountFeature: Symbol.for("DiscountFeature"),
+  PaymentMethodFeature: Symbol.for("PaymentMethodFeature"),
 };
