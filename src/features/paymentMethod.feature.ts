@@ -92,7 +92,7 @@ export class PaymentMethodFeature {
     });
   }
 
-  public async findbyId(
+  public async findById(
     id: number,
     includeDeleted: boolean
   ): Promise<PaymentMethod | null> {
