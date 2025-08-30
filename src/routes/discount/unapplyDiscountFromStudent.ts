@@ -6,9 +6,9 @@ import { DiscountFeature } from "../../features/discount.feature";
 export async function unapplyDiscountFromStudent(req: Request, res: Response) {
   const discountFeature = container.get<DiscountFeature>(TYPES.DiscountFeature);
 
-  const discountUnapplyed = await discountFeature.unapplyDiscountFromStudent(
+  const discountUnapplied = await discountFeature.unapplyDiscountFromStudent(
     Number(req.params.id)
   );
 
-  res.json({ discountUnapplyed });
+  res.json({ discountUnapplied });
 }
