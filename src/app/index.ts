@@ -5,6 +5,7 @@ import { PassportConfig } from "../config/passport";
 import passport from "passport";
 import { errorHandler } from "../config/globalErrorHandler";
 import { router } from "../routes";
+import { setupSwagger } from "../config/swagger";
 
 export async function run() {
   const app = express();
@@ -18,8 +19,9 @@ export async function run() {
 
   app.use(passport.initialize());
 
-  // Routes
+  setupSwagger(app);
 
+  // Routes
   app.use(router);
 
   // error handler
