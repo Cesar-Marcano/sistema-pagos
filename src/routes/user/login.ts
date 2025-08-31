@@ -13,6 +13,6 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       return res.status(403).json({ message: "Credenciales inválidos." });
     }
 
-    return res.json({ token: result.token });
+    return res.status(200).json({ token: result.token });
   })(req, res, next);
 }

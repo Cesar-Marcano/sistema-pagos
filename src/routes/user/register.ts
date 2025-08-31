@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { UserFeature } from "../../features/user.feature";
 import { container } from "../../config/container";
-import { z } from "zod";
 import { ITokenService } from "../../services/jwt.service";
 import { SessionFeature } from "../../features/session.feature";
 import { RegisterSchema } from "./schemas";
@@ -23,5 +22,5 @@ export async function register(req: Request, res: Response) {
 
   await sessionFeature.createSession(user.id, jti, expiration);
 
-  res.json({ token });
+  res.status(201).json({ token });
 }
