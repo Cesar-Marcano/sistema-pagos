@@ -51,9 +51,10 @@ model SchoolPeriod {
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    schoolYearId      Int
-    Payment           Payment[]
-    MonthlyFeeOnGrade MonthlyFeeOnGrade[]
+    schoolYearId          Int
+    Payment               Payment[]
+    MonthlyFeeOnGrade     MonthlyFeeOnGrade[]
+    StudentPeriodDiscount StudentPeriodDiscount[]
 
     @@unique([month, schoolYearId, deletedAt])
 }
@@ -67,9 +68,10 @@ model Student {
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    StudentGrade    StudentGrade[]
-    Payment         Payment[]
-    StudentDiscount StudentDiscount[]
+    StudentGrade          StudentGrade[]
+    Payment               Payment[]
+    StudentDiscount       StudentDiscount[]
+    StudentPeriodDiscount StudentPeriodDiscount[]
 
     @@unique([name, deletedAt])
 }
@@ -152,8 +154,8 @@ model Discount {
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    StudentDiscount StudentDiscount[]
-    PaymentDiscount PaymentDiscount[]
+    StudentDiscount       StudentDiscount[]
+    StudentPeriodDiscount StudentPeriodDiscount[]
 
     @@unique([name, deletedAt])
 }
@@ -206,14 +208,12 @@ model Payment {
     amount       Decimal      @db.Decimal(15, 2)
     paymentType  PaymentType
 
-    paymentMethod    PaymentMethod     @relation(fields: [paymentMethodId], references: [id])
-    reference        String?
-    verified         Boolean?
-    discountsApplied PaymentDiscount[]
-
-    createdAt DateTime  @default(now()) @db.Timestamptz()
-    updatedAt DateTime  @updatedAt @db.Timestamptz()
-    deletedAt DateTime? @db.Timestamptz()
+    paymentMethod PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+    reference     String?
+    verified      Boolean?
+    createdAt     DateTime      @default(now()) @db.Timestamptz()
+    updatedAt     DateTime      @updatedAt @db.Timestamptz()
+    deletedAt     DateTime?     @db.Timestamptz()
 
     studentId       Int
     schoolPeriodId  Int
@@ -222,20 +222,22 @@ model Payment {
     @@unique([paymentMethodId, reference, deletedAt])
 }
 
-model PaymentDiscount {
+model StudentPeriodDiscount {
     id Int @id @default(autoincrement())
 
-    payment  Payment  @relation(fields: [paymentId], references: [id])
-    discount Discount @relation(fields: [discountId], references: [id])
+    student  Student      @relation(fields: [studentId], references: [id])
+    period   SchoolPeriod @relation(fields: [schoolPeriodId], references: [id])
+    discount Discount     @relation(fields: [discountId], references: [id])
 
     createdAt DateTime  @default(now()) @db.Timestamptz()
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    paymentId  Int
-    discountId Int
+    discountId     Int
+    studentId      Int
+    schoolPeriodId Int
 
-    @@unique([paymentId, discountId, deletedAt])
+    @@unique([discountId, studentId, schoolPeriodId, deletedAt])
 }
 
 enum AuditableEntities {
@@ -250,7 +252,6 @@ enum AuditableEntities {
     STUDENT_DISCOUNT
     PAYMENT_METHOD
     PAYMENT
-    PAYMENT_DISCOUNT
 }
 
 enum AuditLogActions {

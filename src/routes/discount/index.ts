@@ -8,6 +8,9 @@ import { softDeleteDiscount } from "./softDeleteDiscount";
 import { applyDiscountToStudent } from "./applyDiscountToStudent";
 import { unapplyDiscountFromStudent } from "./unapplyDiscountFromStudent";
 import { listStudentDiscounts } from "./listStudentDiscounts";
+import { applyDiscountToStudentPeriod } from "./applyDiscountToStudentPeriod";
+import { unapplyDiscountFromStudentPeriod } from "./unapplyDiscountFromPayment";
+import { listStudentPeriodDiscounts } from "./listStudentPeriodDiscounts";
 
 export const discountRoutes: Router = Router();
 
@@ -26,10 +29,25 @@ discountRoutes.delete(
   passport.authenticate("jwt", { session: false }),
   unapplyDiscountFromStudent
 );
+discountRoutes.post(
+  "/applyDiscountToStudentPeriod",
+  passport.authenticate("jwt", { session: false }),
+  applyDiscountToStudentPeriod
+);
+discountRoutes.delete(
+  "/unapplyDiscountFromStudentPeriod/:id",
+  passport.authenticate("jwt", { session: false }),
+  unapplyDiscountFromStudentPeriod
+);
 discountRoutes.get(
   "/studentDiscounts/:id",
   passport.authenticate("jwt", { session: false }),
   listStudentDiscounts
+);
+discountRoutes.get(
+  "/studentPeriodDiscounts/:id",
+  passport.authenticate("jwt", { session: false }),
+  listStudentPeriodDiscounts
 );
 discountRoutes.patch(
   "/:id",

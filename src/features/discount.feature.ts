@@ -166,29 +166,38 @@ export class DiscountFeature {
     });
   }
 
-  public async assignDiscountToPayment(discountId: number, paymentId: number) {
-    const existentDiscountAssignedToPaymentCount =
-      await this.prisma.paymentDiscount.count({
+  public async applyDiscountToStudentPeriod(
+    discountId: number,
+    schoolPeriodId: number,
+    studentId: number
+  ) {
+    const existentDiscountAssignedToPeriodCount =
+      await this.prisma.studentPeriodDiscount.count({
         where: {
           discountId,
-          paymentId,
+          schoolPeriodId,
+          studentId,
           deletedAt: null,
         },
       });
 
-    if (existentDiscountAssignedToPaymentCount > 0)
-      throw createHttpError(409, "Ya el descuento fue asignado al pago.");
+    if (existentDiscountAssignedToPeriodCount > 0)
+      throw createHttpError(
+        409,
+        "Ya el descuento fue asignado al periodo del estudiante."
+      );
 
-    return await this.prisma.paymentDiscount.create({
+    return await this.prisma.studentPeriodDiscount.create({
       data: {
         discountId,
-        paymentId,
+        schoolPeriodId,
+        studentId,
       },
     });
   }
 
-  public async unassignDiscountFromPayment(id: number) {
-    return await this.prisma.paymentDiscount.update({
+  public async unapplyDiscountFromStudentPeriod(id: number) {
+    return await this.prisma.studentPeriodDiscount.update({
       where: {
         id,
         deletedAt: null,
@@ -199,22 +208,10 @@ export class DiscountFeature {
     });
   }
 
-  public async findPaymentDiscount(id: number) {
-    return await this.prisma.paymentDiscount.findUnique({
+  public async listStudentPeriodDiscounts(schoolPeriodId: number) {
+    return await this.prisma.studentPeriodDiscount.findMany({
       where: {
-        id,
-        deletedAt: null,
-      },
-      include: {
-        discount: true,
-      },
-    });
-  }
-
-  public async listPaymentDiscounts(paymentId: number) {
-    return await this.prisma.paymentDiscount.findMany({
-      where: {
-        paymentId,
+        schoolPeriodId,
         deletedAt: null,
       },
       include: {
