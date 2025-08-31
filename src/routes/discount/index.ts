@@ -9,7 +9,7 @@ import { applyDiscountToStudent } from "./applyDiscountToStudent";
 import { unapplyDiscountFromStudent } from "./unapplyDiscountFromStudent";
 import { listStudentDiscounts } from "./listStudentDiscounts";
 import { applyDiscountToStudentPeriod } from "./applyDiscountToStudentPeriod";
-import { unapplyDiscountFromStudentPeriod } from "./unapplyDiscountFromPayment";
+import { unapplyDiscountFromStudentPeriod } from "./unapplyDiscountFromStudentPeriod";
 import { listStudentPeriodDiscounts } from "./listStudentPeriodDiscounts";
 
 export const discountRoutes: Router = Router();
