@@ -12,6 +12,7 @@
   "license": "ISC",
   "packageManager": "pnpm@10.11.0",
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.1.0",
     "@prisma/client": "6.15.0",
     "argon2": "^0.44.0",
     "date-fns": "^4.1.0",
@@ -26,7 +27,6 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.2.2",
-    "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
