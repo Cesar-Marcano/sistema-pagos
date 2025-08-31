@@ -10,6 +10,8 @@ export const userRoutes: Router = Router();
 const registry = getRegistry();
 
 registry.registerPath({
+  description: "Registrar usuario",
+  tags: ["auth"],
   method: "post",
   path: "/user/register",
   request: {
@@ -29,7 +31,7 @@ registry.registerPath({
   },
   responses: {
     201: {
-      description: "Registrar usuario",
+      description: "Usuario registrado",
       content: {
         "application/json": {
           schema: z.object({
@@ -43,6 +45,8 @@ registry.registerPath({
 userRoutes.post("/register", register);
 
 registry.registerPath({
+  description: "Iniciar sesión",
+  tags: ["auth"],
   method: "post",
   path: "/user/login",
   request: {
@@ -61,8 +65,11 @@ registry.registerPath({
     },
   },
   responses: {
+    403: {
+      description: "Credenciales incorrectas",
+    },
     201: {
-      description: "Iniciar sesión",
+      description: "Sesión iniciada",
       content: {
         "application/json": {
           schema: z.object({
