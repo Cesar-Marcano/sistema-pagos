@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const StudentSchema = z.object({
+export const UserSchema = z.object({
   username: z
     .string()
     .trim()
@@ -20,7 +20,7 @@ export const StudentSchema = z.object({
   updatedAt: z.date(),
 });
 
-export const RegisterSchema = StudentSchema.pick({
+export const RegisterSchema = UserSchema.pick({
   username: true,
   password: true,
 });
