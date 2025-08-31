@@ -14,7 +14,7 @@ export class PaymentFeature {
 
   public async create(
     studentId: number,
-    periodId: number,
+    schoolPeriodId: number,
     paymentType: PaymentType,
     amount: number,
     paymentMethodId: number,
@@ -50,7 +50,7 @@ export class PaymentFeature {
     return await this.prisma.payment.create({
       data: {
         studentId,
-        schoolPeriodId: periodId,
+        schoolPeriodId,
         paymentType,
         amount,
         paymentMethodId,

@@ -6,7 +6,7 @@ import { PaymentType } from "@prisma/client";
 
 const paymentSearchCriteria = z.object({
   studentId: z.string().transform(Number).optional(),
-  periodId: z.string().transform(Number).optional(),
+  schoolPeriodId: z.string().transform(Number).optional(),
   paymentType: z.enum(PaymentType).optional(),
   amount: z.string().transform(Number).optional(),
   paymentMethodId: z.string().transform(Number).optional(),
@@ -26,7 +26,7 @@ const paymentSearchCriteria = z.object({
 
 const paymentWhereMapper = (queryParams: any) => ({
   ...(queryParams.studentId && { studentId: queryParams.studentId }),
-  ...(queryParams.periodId && { schoolPeriodId: queryParams.periodId }),
+  ...(queryParams.schoolPeriodId && { schoolPeriodId: queryParams.schoolPeriodId }),
   ...(queryParams.paymentType && { paymentType: queryParams.paymentType }),
   ...(queryParams.amount && { amount: queryParams.amount }),
   ...(queryParams.paymentMethodId && {

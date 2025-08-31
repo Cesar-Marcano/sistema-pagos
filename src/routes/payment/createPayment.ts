@@ -7,7 +7,7 @@ import { PaymentType } from "@prisma/client";
 
 const createPaymentSchema = z.object({
   studentId: z.number().positive(),
-  periodId: z.number().positive(),
+  schoolPeriodId: z.number().positive(),
   paymentType: z.enum(PaymentType),
   amount: z.number().positive().min(0.01),
   paymentMethodId: z.number().positive(),
@@ -20,7 +20,7 @@ export async function createPayment(req: Request, res: Response) {
     amount,
     paymentMethodId,
     paymentType,
-    periodId,
+    schoolPeriodId,
     reference,
     studentId,
     verified,
@@ -30,7 +30,7 @@ export async function createPayment(req: Request, res: Response) {
 
   const payment = await paymentFeature.create(
     studentId,
-    periodId,
+    schoolPeriodId,
     paymentType,
     amount,
     paymentMethodId,
