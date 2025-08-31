@@ -1,14 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import passport from "passport";
-import { z } from "zod";
-
-const loginSchema = z.object({
-  username: z.string().trim().toLowerCase(),
-  password: z.string(),
-});
+import { LoginSchema } from "./schemas";
 
 export async function login(req: Request, res: Response, next: NextFunction) {
-  loginSchema.parse(req.body);
+  LoginSchema.parse(req.body);
 
   passport.authenticate("local", (err: unknown, result: { token: string }) => {
     if (err) {
