@@ -131,7 +131,7 @@ studentRoutes.delete(
 
 registry.registerPath({
   description: "Buscar grados de estudiantes",
-  tags: ["student", "grade"],
+  tags: ["student"],
   method: "get",
   path: "/student/studentGrades",
   security: [{ Bearer: [] }],
@@ -164,7 +164,7 @@ studentRoutes.get(
 
 registry.registerPath({
   description: "Ver si un estudiante está registrado en un grado específico",
-  tags: ["student", "grade"],
+  tags: ["student"],
   method: "get",
   path: "/student/hasGrade",
   security: [{ Bearer: [] }],
@@ -247,7 +247,7 @@ studentRoutes.get(
 
 registry.registerPath({
   description: "Registrar estudiante a un grado",
-  tags: ["student", "grade"],
+  tags: ["student"],
   method: "post",
   path: "/student/registerStudentToGrade",
   security: [{ Bearer: [] }],
@@ -279,7 +279,7 @@ studentRoutes.post(
 
 registry.registerPath({
   description: "Eliminar estudiante a un grado",
-  tags: ["student", "grade"],
+  tags: ["student"],
   method: "delete",
   path: "/student/unregisterStudentFromGrade/{id}",
   security: [{ Bearer: [] }],
