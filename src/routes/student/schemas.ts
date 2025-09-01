@@ -1,6 +1,7 @@
 import z from "zod";
 import { getRegistry } from "../../config/openApiRegistry";
 import { FindByIdParamsSchema } from "../../lib/findByIdParamsSchema";
+import { StudentGrade } from "@prisma/client";
 
 const registry = getRegistry();
 
@@ -25,16 +26,21 @@ export const CreateStudentSchema = registry.register(
 export const FindStudentByGradesQuerySchema = registry.register(
   "FindStudentByGradesQuery",
   FindByIdParamsSchema.extend({
-    studentId: z.number(),
-    shoolYearId: z.number().nullable().default(null),
+    studentId: z.string().transform(Number).pipe(z.number().positive()),
+    shoolYearId: z
+      .string()
+      .transform(Number)
+      .pipe(z.number().positive())
+      .nullable()
+      .default(null),
   })
 );
 
 export const HasGradeQueryParamsSchema = registry.register(
   "HasGradeQuery",
   z.object({
-    studentId: z.number(),
-    gradeId: z.number(),
+    studentId: z.string().transform(Number).pipe(z.number().positive()),
+    gradeId: z.string().transform(Number).pipe(z.number().positive()),
   })
 );
 
@@ -58,5 +64,18 @@ export const UpdateStudentSchema = registry.register(
   "UpdateStudentSchema",
   StudentSchema.pick({
     name: true,
+  })
+);
+
+export const StudentGradeSchema = registry.register(
+  "StudentGradeSchema",
+  z.object({
+    createdAt: z.date(),
+    deletedAt: z.date().nullable(),
+    gradeId: z.number().positive(),
+    id: z.number().positive(),
+    schoolYearId: z.number().positive(),
+    studentId: z.number().positive(),
+    updatedAt: z.date(),
   })
 );
