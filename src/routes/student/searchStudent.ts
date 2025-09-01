@@ -10,5 +10,8 @@ const studentWhereMapper = (queryParams: any) => ({
 export const searchStudent = createSearchController(
   StudentSearchCriteriaQueryParamsSchema,
   TYPES.StudentFeature,
-  studentWhereMapper
+  studentWhereMapper,
+  {
+    searchResultName: "students"
+  }
 );
