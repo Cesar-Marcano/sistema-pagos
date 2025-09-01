@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { userRoutes } from "./user";
-import { schoolYearRoutes } from "./schoolyear";
+import { schoolYearRoutes } from "./schoolYear";
 import { gradeRoutes } from "./grade";
 import { schoolPeriodRoutes } from "./schoolperiod";
 import { studentRoutes } from "./student";
