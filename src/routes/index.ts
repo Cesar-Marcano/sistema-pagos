@@ -2,7 +2,7 @@ import { Router } from "express";
 import { userRoutes } from "./user";
 import { schoolYearRoutes } from "./schoolYear";
 import { gradeRoutes } from "./grade";
-import { schoolPeriodRoutes } from "./schoolperiod";
+import { schoolPeriodRoutes } from "./schoolPeriod";
 import { studentRoutes } from "./student";
 import { monthlyFeeRoutes } from "./monthlyFee";
 import { discountRoutes } from "./discount";
