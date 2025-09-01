@@ -1,18 +1,12 @@
 import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
-import { z } from "zod";
 import { StudentFeature } from "../../features/student.feature";
-
-const registerStudentToGradeSchema = z.object({
-  studentId: z.number(),
-  gradeId: z.number(),
-  schoolYearId: z.number(),
-});
+import { RegisterStudentToGradeSchema } from "./schemas";
 
 export async function registerStudentToGrade(req: Request, res: Response) {
   const { studentId, gradeId, schoolYearId } =
-    registerStudentToGradeSchema.parse(req.body);
+    RegisterStudentToGradeSchema.parse(req.body);
 
   const studentFeature = container.get<StudentFeature>(TYPES.StudentFeature);
 

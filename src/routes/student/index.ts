@@ -11,36 +11,6 @@ import { hasGrade } from "./hasGrade";
 
 export const studentRoutes: Router = Router();
 
-/**
- * @openapi
- * /student:
- *   post:
- *     summary: Crear un nuevo estudiante
- *     tags:
- *       - Student
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 example: "Juan Pérez"
- *     responses:
- *       200:
- *         description: Estudiante creado exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 student:
- *                   $ref: '#/components/schemas/Student'
- */
 studentRoutes.post(
   "/",
   passport.authenticate("jwt", { session: false }),

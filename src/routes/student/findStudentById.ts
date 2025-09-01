@@ -1,22 +1,14 @@
 import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
-import z from "zod";
 import createHttpError from "http-errors";
 import { StudentFeature } from "../../features/student.feature";
-
-const paramsSchema = z.object({
-  includeDeleted: z
-    .string()
-    .optional()
-    .transform((val) => val === "true")
-    .default(false),
-});
+import { FindByIdParamsSchema } from "../../lib/findByIdParamsSchema";
 
 export async function findStudentById(req: Request, res: Response) {
   const studentFeature = container.get<StudentFeature>(TYPES.StudentFeature);
 
-  const queryParams = paramsSchema.parse(req.query);
+  const queryParams = FindByIdParamsSchema.parse(req.query);
 
   const student = await studentFeature.findById(
     Number(req.params.id),
@@ -25,5 +17,5 @@ export async function findStudentById(req: Request, res: Response) {
 
   if (!student) throw createHttpError(404, "Estudiante no encontrado.");
 
-  res.json({ student });
+  res.status(200).json({ student });
 }

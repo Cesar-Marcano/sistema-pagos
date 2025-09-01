@@ -3,21 +3,13 @@ import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
 import { StudentFeature } from "../../features/student.feature";
 import z from "zod";
+import { FindStudentByGradesQuerySchema } from "./schemas";
 
-const queryParamsSchema = z.object({
-  studentId: z.number(),
-  shoolYearId: z.number().nullable().default(null),
-  includeDeleted: z
-    .string()
-    .optional()
-    .transform((val) => val === "true")
-    .default(false),
-});
 
 export async function findStudentGrades(req: Request, res: Response) {
   const studentFeature = container.get<StudentFeature>(TYPES.StudentFeature);
 
-  const { studentId, shoolYearId, includeDeleted } = queryParamsSchema.parse(
+  const { studentId, shoolYearId, includeDeleted } = FindStudentByGradesQuerySchema.parse(
     req.query
   );
 
@@ -27,5 +19,5 @@ export async function findStudentGrades(req: Request, res: Response) {
     includeDeleted
   );
 
-  res.json({ studentGrades });
+  res.status(200).json({ studentGrades });
 }
