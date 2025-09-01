@@ -1,15 +1,11 @@
 import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
-import { z } from "zod";
 import { StudentFeature } from "../../features/student.feature";
-
-const updateStudentSchema = z.object({
-  name: z.string().trim().toUpperCase().min(3),
-});
+import { UpdateStudentSchema } from "./schemas";
 
 export async function updateStudent(req: Request, res: Response) {
-  const validatedData = updateStudentSchema.parse(req.body);
+  const validatedData = UpdateStudentSchema.parse(req.body);
 
   const studentFeature = container.get<StudentFeature>(TYPES.StudentFeature);
 
