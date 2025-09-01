@@ -34,5 +34,5 @@ export async function updateSchoolYear(req: Request, res: Response) {
     updateData
   );
 
-  res.json({ schoolYear });
+  res.status(200).json({ schoolYear });
 }

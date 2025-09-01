@@ -10,5 +10,5 @@ export async function softDeleteSchoolYear(req: Request, res: Response) {
 
   const schoolYear = await schoolYearFeature.softDelete(Number(req.params.id));
 
-  res.json({ schoolYear });
+  res.status(200).json({ schoolYear });
 }

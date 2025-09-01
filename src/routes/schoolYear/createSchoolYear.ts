@@ -17,5 +17,5 @@ export async function createSchoolYear(req: Request, res: Response) {
     new Date(endDate)
   );
 
-  res.json({ schoolYear });
+  res.status(201).json({ schoolYear });
 }

@@ -19,5 +19,5 @@ export async function findSchoolYearById(req: Request, res: Response) {
 
   if (!schoolYear) throw createHttpError(404, "Año escolar no encontrado.");
 
-  res.json({ schoolYear });
+  res.status(200).json({ schoolYear });
 }
