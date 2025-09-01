@@ -1,18 +1,12 @@
 import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
-import { z } from "zod";
 import { PaymentMethodFeature } from "../../features/paymentMethod.feature";
-
-const createPaymentMethodSchema = z.object({
-  name: z.string().trim().toUpperCase().min(3),
-  requiresManualVerification: z.boolean(),
-  requiresReferenceId: z.boolean(),
-});
+import { CreatePaymentMethodSchemea } from "./schemas";
 
 export async function createPaymentMethod(req: Request, res: Response) {
   const { name, requiresManualVerification, requiresReferenceId } =
-    createPaymentMethodSchema.parse(req.body);
+    CreatePaymentMethodSchemea.parse(req.body);
 
   const paymentMethodFeature = container.get<PaymentMethodFeature>(
     TYPES.PaymentMethodFeature
