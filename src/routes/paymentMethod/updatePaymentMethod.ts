@@ -16,5 +16,5 @@ export async function updatePaymentMethod(req: Request, res: Response) {
     validatedData.name
   );
 
-  res.json({ paymentMethod });
+  res.status(200).json({ paymentMethod });
 }

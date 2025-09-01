@@ -12,5 +12,5 @@ export async function softDeletePaymentMethod(req: Request, res: Response) {
     Number(req.params.id)
   );
 
-  res.json({ paymentMethod });
+  res.status(200).json({ paymentMethod });
 }

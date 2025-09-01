@@ -19,5 +19,5 @@ export async function createSchoolPeriod(req: Request, res: Response) {
     name
   );
 
-  res.json({ schoolPeriod });
+  res.status(201).json({ schoolPeriod });
 }

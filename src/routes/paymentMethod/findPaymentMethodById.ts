@@ -19,5 +19,5 @@ export async function findPaymentMethodById(req: Request, res: Response) {
 
   if (!paymentMethod) throw createHttpError(404, "Metodo de pago no encontrado.");
 
-  res.json({ paymentMethod });
+  res.status(200).json({ paymentMethod });
 }

@@ -16,5 +16,5 @@ export async function updateSchoolPeriod(req: Request, res: Response) {
     updateData
   );
 
-  res.json({ schoolPeriod });
+  res.status(200).json({ schoolPeriod });
 }

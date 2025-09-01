@@ -20,5 +20,5 @@ export async function findSchoolPeriodById(req: Request, res: Response) {
   if (!schoolPeriod)
     throw createHttpError(404, "Periodo escolar no encontrado.");
 
-  res.json({ schoolPeriod });
+  res.status(200).json({ schoolPeriod });
 }

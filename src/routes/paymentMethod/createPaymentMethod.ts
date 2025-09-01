@@ -18,5 +18,5 @@ export async function createPaymentMethod(req: Request, res: Response) {
     requiresReferenceId
   );
 
-  res.json({ paymentMethod });
+  res.status(201).json({ paymentMethod });
 }

@@ -12,5 +12,5 @@ export async function softDeleteSchoolPeriod(req: Request, res: Response) {
     Number(req.params.id)
   );
 
-  res.json({ schoolPeriod });
+  res.status(200).json({ schoolPeriod });
 }
