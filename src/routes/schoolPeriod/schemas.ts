@@ -12,7 +12,7 @@ export const SchoolPeriodSchema = registry.register(
     updatedAt: z.date(),
     month: z.number().min(1),
     schoolYearId: z.number().min(1),
-    name: z.string().uppercase().trim().optional(),
+    name: z.string().toUpperCase().trim().optional(),
   })
 );
 

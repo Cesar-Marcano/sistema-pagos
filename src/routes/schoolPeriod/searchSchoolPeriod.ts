@@ -12,5 +12,8 @@ const schoolPeriodWhereMapper = (queryParams: any) => ({
 export const searchSchoolPeriod = createSearchController(
   SchoolPeriodSearchCriteriaQueryParamsSchema,
   TYPES.SchoolPeriodFeature,
-  schoolPeriodWhereMapper
+  schoolPeriodWhereMapper,
+  {
+    searchResultName: "schoolPeriods"
+  }
 );
