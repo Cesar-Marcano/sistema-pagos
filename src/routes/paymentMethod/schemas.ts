@@ -1,6 +1,5 @@
 import z from "zod";
 import { getRegistry } from "../../config/openApiRegistry";
-import { PaymentMethod } from "@prisma/client";
 
 const registry = getRegistry();
 

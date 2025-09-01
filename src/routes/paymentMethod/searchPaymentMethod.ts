@@ -16,5 +16,8 @@ const paymentMethodWhereMapper = (queryParams: any) => ({
 export const searchPaymentMethod = createSearchController(
   PaymentMethodSearchCriteriaQueryParams,
   TYPES.PaymentMethodFeature,
-  paymentMethodWhereMapper
+  paymentMethodWhereMapper,
+  {
+    searchResultName: "paymentMethods"
+  }
 );
