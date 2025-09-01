@@ -34,6 +34,13 @@ export function errorHandler(
         target: err.meta?.target,
       });
     }
+
+    if (err.code === "P2025") {
+      return res.status(404).json({
+        message: "El registro no fue encontrado para la operación.",
+        target: err.meta?.target,
+      });
+    }
   }
 
   logger.error(err);
