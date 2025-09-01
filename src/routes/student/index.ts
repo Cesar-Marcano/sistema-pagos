@@ -54,7 +54,7 @@ registry.registerPath({
       description: "Estudiante registrado",
       content: {
         "application/json": {
-          schema: StudentSchema.openapi({}),
+          schema: z.object({ student: StudentSchema }),
         },
       },
     },
@@ -91,7 +91,7 @@ registry.registerPath({
       description: "Estudiante actualizado",
       content: {
         "application/json": {
-          schema: StudentSchema.openapi({}),
+          schema: z.object({ student: StudentSchema }),
         },
       },
     },
@@ -117,7 +117,7 @@ registry.registerPath({
       description: "Estudiante eliminado",
       content: {
         "application/json": {
-          schema: StudentSchema.openapi({}),
+          schema: z.object({ student: StudentSchema }),
         },
       },
     },
@@ -205,7 +205,7 @@ registry.registerPath({
       description: "Estudiante",
       content: {
         "application/json": {
-          schema: StudentSchema.openapi({}),
+          schema: z.object({ student: StudentSchema }),
         },
       },
     },
@@ -255,7 +255,7 @@ registry.registerPath({
     body: {
       content: {
         "application/json": {
-          schema: RegisterStudentToGradeSchema.openapi({}),
+          schema: z.object({ studentGrade: RegisterStudentToGradeSchema }),
         },
       },
     },
@@ -291,7 +291,7 @@ registry.registerPath({
       description: "Estudiante eliminado de un grado",
       content: {
         "application/json": {
-          schema: StudentGradeSchema.openapi({}),
+          schema: z.object({ studentGrade: StudentGradeSchema }),
         },
       },
     },
