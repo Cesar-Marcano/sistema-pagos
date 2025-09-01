@@ -2,23 +2,15 @@ import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
 import { SchoolYearFeature } from "../../features/schoolyear.feature";
-import z from "zod";
 import createHttpError from "http-errors";
-
-const paramsSchema = z.object({
-  includeDeleted: z
-    .string()
-    .optional()
-    .transform((val) => val === "true")
-    .default(false),
-});
+import { FindByIdParamsSchema } from "../../lib/findByIdParamsSchema";
 
 export async function findSchoolYearById(req: Request, res: Response) {
   const schoolYearFeature = container.get<SchoolYearFeature>(
     TYPES.SchoolYearFeature
   );
 
-  const queryParams = paramsSchema.parse(req.query);
+  const queryParams = FindByIdParamsSchema.parse(req.query);
 
   const schoolYear = await schoolYearFeature.findById(
     Number(req.params.id),

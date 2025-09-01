@@ -1,13 +1,7 @@
 import { Request, Response } from "express";
-import { z } from "zod";
 import { createSearchController } from "../../lib/searchController";
 import { TYPES } from "../../config/types";
-
-const schoolYearSearchCriteria = z.object({
-  name: z.string().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-});
+import { SchoolYearSearchCriteriaQueryParamsSchema } from "./schemas";
 
 const schoolYearWhereMapper = (queryParams: any) => ({
   ...(queryParams.name && { name: queryParams.name }),
@@ -18,7 +12,7 @@ const schoolYearWhereMapper = (queryParams: any) => ({
 });
 
 export const searchSchoolYear = createSearchController(
-  schoolYearSearchCriteria,
+  SchoolYearSearchCriteriaQueryParamsSchema,
   TYPES.SchoolYearFeature,
   schoolYearWhereMapper
 );
