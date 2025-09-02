@@ -8,5 +8,5 @@ export async function softDeletePayment(req: Request, res: Response) {
 
   const payment = await paymentFeature.softDelete(Number(req.params.id));
 
-  res.json({ payment });
+  res.status(200).json({ payment });
 }

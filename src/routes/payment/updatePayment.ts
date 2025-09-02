@@ -1,16 +1,11 @@
 import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
-import { z } from "zod";
 import { PaymentFeature } from "../../features/payment.feature";
-
-const updatePaymentSchema = z.object({
-  reference: z.string().trim().optional(),
-  verified: z.boolean().optional(),
-});
+import { UpdatePaymentSchema } from "./schemas";
 
 export async function updatePayment(req: Request, res: Response) {
-  const validatedData = updatePaymentSchema.parse(req.body);
+  const validatedData = UpdatePaymentSchema.parse(req.body);
 
   const paymentFeature = container.get<PaymentFeature>(TYPES.PaymentFeature);
 
@@ -19,5 +14,5 @@ export async function updatePayment(req: Request, res: Response) {
     validatedData
   );
 
-  res.json({ payment });
+  res.status(200).json({ payment });
 }
