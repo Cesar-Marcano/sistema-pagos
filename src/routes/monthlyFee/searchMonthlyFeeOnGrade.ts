@@ -1,13 +1,7 @@
 import { Request, Response } from "express";
-import { z } from "zod";
 import { createSearchController } from "../../lib/searchController";
 import { TYPES } from "../../config/types";
-
-const monthlyFeeOnGradeSearchCriteria = z.object({
-  monthlyFeeId: z.string().optional().transform(Number),
-  gradeId: z.string().optional().transform(Number),
-  effectiveFromPeriodId: z.string().optional().transform(Number),
-});
+import { MonthlyFeeOnGradeSearchCriteriaQueryParams } from "./schemas";
 
 const monthlyFeeOnGradeWhereMapper = (queryParams: any) => ({
   ...(queryParams.monthlyFeeId && { monthlyFeeId: queryParams.monthlyFeeId }),
@@ -18,7 +12,7 @@ const monthlyFeeOnGradeWhereMapper = (queryParams: any) => ({
 });
 
 export const searchMonthlyFeeOnGrade = createSearchController(
-  monthlyFeeOnGradeSearchCriteria,
+  MonthlyFeeOnGradeSearchCriteriaQueryParams,
   TYPES.MonthlyFeeFeature,
   monthlyFeeOnGradeWhereMapper,
   {

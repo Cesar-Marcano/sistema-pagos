@@ -1,16 +1,11 @@
 import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
-import { z } from "zod";
 import { MonthlyFeeFeature } from "../../features/monthlyFee.feature";
-
-const createMonthlyFeeSchema = z.object({
-  description: z.string().trim().min(3),
-  amount: z.number().positive(),
-});
+import { CreateMonthlyFeeSchema } from "./schemas";
 
 export async function createMonthlyFee(req: Request, res: Response) {
-  const { description, amount } = createMonthlyFeeSchema.parse(req.body);
+  const { description, amount } = CreateMonthlyFeeSchema.parse(req.body);
 
   const monthlyFeeFeature = container.get<MonthlyFeeFeature>(
     TYPES.MonthlyFeeFeature
@@ -18,5 +13,5 @@ export async function createMonthlyFee(req: Request, res: Response) {
 
   const monthlyFee = await monthlyFeeFeature.create(description, amount);
 
-  res.json({ monthlyFee });
+  res.status(201).json({ monthlyFee });
 }

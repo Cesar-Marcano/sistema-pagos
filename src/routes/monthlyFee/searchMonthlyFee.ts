@@ -1,12 +1,7 @@
 import { Request, Response } from "express";
-import { z } from "zod";
 import { createSearchController } from "../../lib/searchController";
 import { TYPES } from "../../config/types";
-
-const monthlyFeeSearchCriteria = z.object({
-  description: z.string().optional(),
-  amount: z.string().optional().transform(Number),
-});
+import { MonthlyFeeSearchCriteriaQueryParams } from "./schemas";
 
 const monthlyFeeWhereMapper = (queryParams: any) => ({
   ...(queryParams.description && { description: queryParams.description }),
@@ -14,7 +9,7 @@ const monthlyFeeWhereMapper = (queryParams: any) => ({
 });
 
 export const searchMonthlyFee = createSearchController(
-  monthlyFeeSearchCriteria,
+  MonthlyFeeSearchCriteriaQueryParams,
   TYPES.MonthlyFeeFeature,
   monthlyFeeWhereMapper
 );
