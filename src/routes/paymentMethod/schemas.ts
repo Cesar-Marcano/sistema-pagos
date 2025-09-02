@@ -16,8 +16,8 @@ export const PaymentMethodSchema = registry.register(
   })
 );
 
-export const CreatePaymentMethodSchemea = registry.register(
-  "CreatePaymentMethodSchmea",
+export const CreatePaymentMethodSchema = registry.register(
+  "CreatePaymentMethodSchema",
   PaymentMethodSchema.pick({
     name: true,
     requiresManualVerification: true,
@@ -44,5 +44,5 @@ export const PaymentMethodSearchCriteriaQueryParams = registry.register(
 
 export const UpdatePaymentMethodSchema = registry.register(
   "UpdatePaymentMethodSchema",
-  CreatePaymentMethodSchemea.pick({ name: true })
+  CreatePaymentMethodSchema.pick({ name: true })
 );
