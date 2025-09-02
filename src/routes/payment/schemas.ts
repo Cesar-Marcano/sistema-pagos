@@ -48,15 +48,13 @@ export const PaymentSearchCriteriaQueryParamsSchema = registry.register(
     reference: z
       .string()
       .trim()
-      .transform((val) => (val === "null" ? null : val))
-      .optional()
-      .nullable(),
-    verified: z
-      .string()
-      .transform((val) => (val === "null" ? null : val))
       .optional()
       .nullable()
-      .transform((val) => (val === "true" ? true : false)),
+      .or(z.literal("").transform(() => null)),
+    verified: z
+      .string()
+      .transform((val) => val === "true")
+      .optional(),
   })
 );
 
