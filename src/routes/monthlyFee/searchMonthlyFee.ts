@@ -11,5 +11,8 @@ const monthlyFeeWhereMapper = (queryParams: any) => ({
 export const searchMonthlyFee = createSearchController(
   MonthlyFeeSearchCriteriaQueryParams,
   TYPES.MonthlyFeeFeature,
-  monthlyFeeWhereMapper
+  monthlyFeeWhereMapper,
+  {
+    searchResultName: "monthlyFees"
+  }
 );

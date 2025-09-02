@@ -1,5 +1,6 @@
 import z from "zod";
 import { getRegistry } from "../../config/openApiRegistry";
+import { MonthlyFeeOnGrade } from "@prisma/client";
 
 const registry = getRegistry();
 
@@ -7,7 +8,7 @@ export const MonthlyFeeSchema = registry.register(
   "MonthlyFeeSchema",
   z.object({
     description: z.string().trim().min(3),
-    amount: z.number().positive(),
+    amount: z.string(),
     createdAt: z.date(),
     deletedAt: z.date().nullable(),
     id: z.number().positive(),
@@ -25,7 +26,9 @@ export const GetEffectiveMonthlyFeeQueryParamsSchema = registry.register(
 
 export const CreateMonthlyFeeSchema = registry.register(
   "CreateMonthlyFee",
-  MonthlyFeeSchema.pick({ description: true, amount: true })
+  MonthlyFeeSchema.pick({ description: true, amount: true }).and(
+    z.object({ amount: z.number().positive().min(0.01) })
+  )
 );
 
 export const MonthlyFeeSearchCriteriaQueryParams = registry.register(
@@ -56,5 +59,26 @@ export const UpdateMonthlyFeeSchema = registry.register(
   "UpdateMonthlyFeeSchema",
   z.object({
     description: z.string().trim().min(3),
+  })
+);
+
+export const FeeOnGradeSchema = registry.register(
+  "FeeOnGradeSchema",
+  z.object({
+    createdAt: z.date(),
+    deletedAt: z.date().nullable(),
+    gradeId: z.number().positive(),
+    id: z.number().positive(),
+    monthlyFeeId: z.number().positive(),
+    schoolPeriodId: z.number().positive(),
+    updatedAt: z.date(),
+  })
+);
+
+export const AssignFeeToGradesSchema = registry.register(
+  "AssignFeeToGradesSchema",
+  FeeOnGradeSchema.pick({ monthlyFeeId: true }).extend({
+    gradeIds: z.array(z.number().positive()),
+    effectiveFromPeriodId: z.number().positive(),
   })
 );

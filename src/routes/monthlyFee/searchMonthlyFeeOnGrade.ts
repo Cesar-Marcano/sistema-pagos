@@ -17,5 +17,6 @@ export const searchMonthlyFeeOnGrade = createSearchController(
   monthlyFeeOnGradeWhereMapper,
   {
     searchMethodName: "searchMonthlyFeeOnGrade",
+    searchResultName: "feeOnGrades"
   }
 );
