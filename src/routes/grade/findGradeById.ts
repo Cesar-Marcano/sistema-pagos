@@ -1,22 +1,14 @@
 import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
-import z from "zod";
 import { GradeFeature } from "../../features/grade.feature";
 import createHttpError from "http-errors";
-
-const paramsSchema = z.object({
-  includeDeleted: z
-    .string()
-    .optional()
-    .transform((val) => val === "true")
-    .default(false),
-});
+import { FindByIdParamsSchema } from "../../lib/findByIdParamsSchema";
 
 export async function findGradeById(req: Request, res: Response) {
   const gradeFeature = container.get<GradeFeature>(TYPES.GradeFeature);
 
-  const queryParams = paramsSchema.parse(req.query);
+  const queryParams = FindByIdParamsSchema.parse(req.query);
 
   const grade = await gradeFeature.findById(
     Number(req.params.id),

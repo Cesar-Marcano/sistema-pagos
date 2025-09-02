@@ -13,3 +13,20 @@ export const GradeSchema = registry.register(
     updatedAt: z.date(),
   })
 );
+
+export const CreateGradeSchema = registry.register(
+  "CreateGradeSchema",
+  GradeSchema.pick({ name: true })
+);
+
+export const GradeSearchCriteriaQueryParams = registry.register(
+  "GradeSearchCriteriaQuery",
+  z.object({
+    name: z.string().optional(),
+  })
+);
+
+export const UpdateGradeSchema = registry.register(
+  "UpdateGradeSchema",
+  GradeSchema.pick({ name: true })
+);
