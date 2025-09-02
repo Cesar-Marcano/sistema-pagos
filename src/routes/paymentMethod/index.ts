@@ -7,7 +7,7 @@ import { updatePaymentMethod } from "./updatePaymentMethod";
 import { softDeletePaymentMethod } from "./softDeletePaymentMethod";
 import { getRegistry } from "../../config/openApiRegistry";
 import {
-  CreatePaymentMethodSchemea,
+  CreatePaymentMethodSchema,
   PaymentMethodSchema,
   PaymentMethodSearchCriteriaQueryParams,
   UpdatePaymentMethodSchema,
@@ -31,14 +31,14 @@ registry.registerPath({
     body: {
       content: {
         "application/json": {
-          schema: CreatePaymentMethodSchemea.openapi({}),
+          schema: CreatePaymentMethodSchema.openapi({}),
         },
       },
     },
   },
   responses: {
     201: {
-      description: "Periodo escolar registrado",
+      description: "Método de pago registrado",
       content: {
         "application/json": {
           schema: z.object({ paymentMethod: PaymentMethodSchema }),
@@ -73,7 +73,7 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: "Periodo escolar actualizado",
+      description: "Método de pago actualizado",
       content: {
         "application/json": {
           schema: z.object({ paymentMethod: PaymentMethodSchema }),
@@ -101,7 +101,7 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: "Periodo escolar eliminado",
+      description: "Método de pago eliminado",
       content: {
         "application/json": {
           schema: z.object({ paymentMethod: PaymentMethodSchema }),
@@ -130,7 +130,7 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: "Periodo escolar",
+      description: "Método de pago",
       content: {
         "application/json": {
           schema: z.object({ paymentMethod: PaymentMethodSchema }),
