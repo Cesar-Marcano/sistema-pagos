@@ -9,6 +9,7 @@ import { assignFeeToGrades } from "./assignFeeToGrades";
 import { unassignFeeFromGrades } from "./unassignFeeFromGrades";
 import { findMonthlyFeeOnGradeById } from "./findMonthlyFeeOnGradeById";
 import { searchMonthlyFeeOnGrade } from "./searchMonthlyFeeOnGrade";
+import { getEffectiveMonthlyFee } from "./getEffectiveMonthlyFee";
 
 export const monthlyFeeRoutes: Router = Router();
 
@@ -41,6 +42,11 @@ monthlyFeeRoutes.get(
   "/feeOnGrade/:id",
   passport.authenticate("jwt", { session: false }),
   findMonthlyFeeOnGradeById
+);
+monthlyFeeRoutes.get(
+  "/getEffectiveMonthlyFee",
+  passport.authenticate("jwt", { session: false }),
+  getEffectiveMonthlyFee
 );
 monthlyFeeRoutes.get(
   "/:id",
