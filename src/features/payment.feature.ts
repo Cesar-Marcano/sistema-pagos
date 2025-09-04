@@ -7,21 +7,70 @@ import {
   SearchResult,
   searchWithPaginationAndCriteria,
 } from "../lib/search";
+import { MonthlyFeeFeature } from "./monthlyFee.feature";
 
 @injectable()
 export class PaymentFeature {
-  constructor(@inject(TYPES.Prisma) private readonly prisma: PrismaClient) {}
+  constructor(
+    @inject(TYPES.Prisma) private readonly prisma: PrismaClient,
+    @inject(TYPES.MonthlyFeeFeature)
+    private readonly monthlyFeeFeature: MonthlyFeeFeature
+  ) {}
 
   public async create(
     studentId: number,
     schoolPeriodId: number,
-    paymentType: PaymentType,
+    paymentType: Exclude<PaymentType, "FULL" | "PARTIAL"> | null,
     amount: number,
     paymentMethodId: number,
     reference: string | null,
     verified: boolean | null
   ) {
     if (amount <= 0) throw createHttpError(400, "Monto de pago inválido.");
+
+    const schoolPeriod = await this.prisma.schoolPeriod.findUniqueOrThrow({
+      where: {
+        id: schoolPeriodId,
+        deletedAt: null,
+      },
+      select: {
+        schoolYearId: true,
+      },
+    });
+
+    const studentGrade = await this.prisma.studentGrade.findFirstOrThrow({
+      where: {
+        studentId: studentId,
+        schoolYear: {
+          id: schoolPeriod.schoolYearId,
+        },
+        deletedAt: null,
+      },
+      select: {
+        gradeId: true,
+      },
+    });
+
+    let pType: PaymentType | null = paymentType;
+
+    const monthlyFee = await this.monthlyFeeFeature.getEffectiveMonthlyFee(
+      studentGrade.gradeId,
+      schoolPeriodId
+    );
+
+    if (!monthlyFee)
+      throw createHttpError(
+        500,
+        "Mensualidad vigente no encontrada para el grado seleccionado en el periodo seleccionado."
+      );
+
+    if (pType === null) {
+      if (amount >= monthlyFee?.monthlyFee.amount.toNumber()) {
+        pType = PaymentType.FULL;
+      } else {
+        pType = PaymentType.PARTIAL;
+      }
+    }
 
     const paymentMethod = await this.prisma.paymentMethod.findUniqueOrThrow({
       where: {
@@ -51,7 +100,7 @@ export class PaymentFeature {
       data: {
         studentId,
         schoolPeriodId,
-        paymentType,
+        paymentType: pType!,
         amount,
         paymentMethodId,
         reference: paymentDetails.reference,
@@ -87,6 +136,21 @@ export class PaymentFeature {
       throw createHttpError(
         400,
         "El metodo de pago no necesita verificación manual."
+      );
+
+    const paymentWithSameReferenceCount = await this.prisma.payment.count({
+      where: {
+        id: {
+          not: id,
+        },
+        reference: data?.reference,
+      },
+    });
+
+    if (paymentWithSameReferenceCount > 0)
+      throw createHttpError(
+        400,
+        "El codigo de referencia ya ha sido usado en otro pago."
       );
 
     return await this.prisma.payment.update({

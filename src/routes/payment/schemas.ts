@@ -29,12 +29,15 @@ export const CreatePaymentSchema = registry.register(
   PaymentSchema.pick({
     studentId: true,
     schoolPeriodId: true,
-    paymentType: true,
     amount: true,
     paymentMethodId: true,
     reference: true,
     verified: true,
-  })
+  }).and(
+    z.object({
+      paymentType: z.enum(["OVERDUE", "REFUND"]).nullable(),
+    })
+  )
 );
 
 export const PaymentSearchCriteriaQueryParamsSchema = registry.register(
