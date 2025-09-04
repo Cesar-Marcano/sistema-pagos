@@ -25,7 +25,7 @@ import z from "zod";
 import { DefaultSearchSchema } from "../../lib/searchController";
 import { ZodSearchResponseSchemaBuilder } from "../../lib/zodSearchResponse";
 import { FindByIdParamsSchema } from "../../lib/findByIdParamsSchema";
-import { GradeSchema } from "../grade/schema";
+import { GradeSchema } from "../grade/schemas";
 import { SchoolYearSchema } from "../schoolYear/schemas";
 
 export const monthlyFeeRoutes: Router = Router();

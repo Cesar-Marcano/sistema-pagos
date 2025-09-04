@@ -24,7 +24,7 @@ import z from "zod";
 import { DefaultSearchSchema } from "../../lib/searchController";
 import { ZodSearchResponseSchemaBuilder } from "../../lib/zodSearchResponse";
 import { findStudentGrades } from "./findStudentGrades";
-import { GradeSchema } from "../grade/schema";
+import { GradeSchema } from "../grade/schemas";
 
 export const studentRoutes: Router = Router();
 

@@ -7,7 +7,7 @@ import { updateGrade } from "./updateGrade";
 import { softDeleteGrade } from "./softDeleteGrade";
 import z from "zod";
 import { getRegistry } from "../../config/openApiRegistry";
-import { CreateGradeSchema, GradeSchema, GradeSearchCriteriaQueryParams, UpdateGradeSchema } from "./schema";
+import { CreateGradeSchema, GradeSchema, GradeSearchCriteriaQueryParams, UpdateGradeSchema } from "./schemas";
 import { FindByIdParamsSchema } from "../../lib/findByIdParamsSchema";
 import { DefaultSearchSchema } from "../../lib/searchController";
 import { ZodSearchResponseSchemaBuilder } from "../../lib/zodSearchResponse";
