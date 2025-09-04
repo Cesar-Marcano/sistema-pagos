@@ -2,16 +2,7 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { createSearchController } from "../../lib/searchController";
 import { TYPES } from "../../config/types";
-
-const discountSearchCriteria = z.object({
-  name: z.string().optional(),
-  description: z.string().optional(),
-  amount: z.string().optional().transform(Number),
-  isPercentage: z
-    .string()
-    .optional()
-    .transform((val) => val === "true"),
-});
+import { DiscountSearchCriteriaQueryParams } from "./schemas";
 
 const discountWhereMapper = (queryParams: any) => ({
   ...(queryParams.name && { name: queryParams.name }),
@@ -23,7 +14,10 @@ const discountWhereMapper = (queryParams: any) => ({
 });
 
 export const searchDiscount = createSearchController(
-  discountSearchCriteria,
+  DiscountSearchCriteriaQueryParams,
   TYPES.DiscountFeature,
-  discountWhereMapper
+  discountWhereMapper,
+  {
+    searchResultName: "discounts",
+  }
 );

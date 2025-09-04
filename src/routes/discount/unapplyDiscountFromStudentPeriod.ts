@@ -14,5 +14,5 @@ export async function unapplyDiscountFromStudentPeriod(
       Number(req.params.id)
     );
 
-  res.json({ discountUnapplied });
+  res.status(200).json({ discountUnapplied });
 }

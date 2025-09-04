@@ -1,18 +1,11 @@
 import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
-import { z } from "zod";
 import { DiscountFeature } from "../../features/discount.feature";
-
-const updateDiscountSchema = z.object({
-  name: z.string().trim().min(3).optional(),
-  description: z.string().trim().min(3).optional(),
-  amount: z.number().positive().optional(),
-  isPercentage: z.boolean().optional(),
-});
+import { UpdateDiscountSchema } from "./schemas";
 
 export async function updateDiscount(req: Request, res: Response) {
-  const validatedData = updateDiscountSchema.parse(req.body);
+  const validatedData = UpdateDiscountSchema.parse(req.body);
 
   const discountFeature = container.get<DiscountFeature>(TYPES.DiscountFeature);
 
@@ -21,5 +14,5 @@ export async function updateDiscount(req: Request, res: Response) {
     validatedData
   );
 
-  res.json({ discount });
+  res.status(200).json({ discount });
 }

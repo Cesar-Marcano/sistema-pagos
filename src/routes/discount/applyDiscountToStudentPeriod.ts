@@ -1,21 +1,15 @@
 import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
-import { z } from "zod";
 import { DiscountFeature } from "../../features/discount.feature";
-
-const applyDiscountToStudentPeriodSchema = z.object({
-  discountId: z.number().positive(),
-  schoolPeriodId: z.number().positive(),
-  studentId: z.number().positive(),
-});
+import { ApplyDiscountToStudentPeriodSchema } from "./schemas";
 
 export async function applyDiscountToStudentPeriod(
   req: Request,
   res: Response
 ) {
   const { discountId, schoolPeriodId, studentId } =
-    applyDiscountToStudentPeriodSchema.parse(req.body);
+    ApplyDiscountToStudentPeriodSchema.parse(req.body);
 
   const discountFeature = container.get<DiscountFeature>(TYPES.DiscountFeature);
 
@@ -25,5 +19,5 @@ export async function applyDiscountToStudentPeriod(
     studentId
   );
 
-  res.json({ discountApplied });
+  res.status(201).json({ discountApplied });
 }

@@ -10,5 +10,5 @@ export async function unapplyDiscountFromStudent(req: Request, res: Response) {
     Number(req.params.id)
   );
 
-  res.json({ discountUnapplied });
+  res.status(200).json({ discountUnapplied });
 }

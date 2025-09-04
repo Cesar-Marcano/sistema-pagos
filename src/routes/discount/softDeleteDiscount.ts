@@ -8,5 +8,5 @@ export async function softDeleteDiscount(req: Request, res: Response) {
 
   const discount = await discountFeature.softDelete(Number(req.params.id));
 
-  res.json({ discount });
+  res.status(200).json({ discount });
 }

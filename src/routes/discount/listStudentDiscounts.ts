@@ -10,5 +10,5 @@ export async function listStudentDiscounts(req: Request, res: Response) {
     Number(req.params.id)
   );
 
-  res.json({ studentDiscounts });
+  res.status(200).json({ studentDiscounts });
 }

@@ -1,16 +1,13 @@
 import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
-import { z } from "zod";
 import { DiscountFeature } from "../../features/discount.feature";
+import { ApplyDiscountToStudentSchema } from "./schemas";
 
-const applyDiscountToStudentSchema = z.object({
-  studentId: z.number().positive(),
-  discountId: z.number().positive(),
-});
+
 
 export async function applyDiscountToStudent(req: Request, res: Response) {
-  const { discountId, studentId } = applyDiscountToStudentSchema.parse(
+  const { discountId, studentId } = ApplyDiscountToStudentSchema.parse(
     req.body
   );
 
@@ -21,5 +18,5 @@ export async function applyDiscountToStudent(req: Request, res: Response) {
     studentId
   );
 
-  res.json({ discountApplied });
+  res.status(201).json({ discountApplied });
 }
