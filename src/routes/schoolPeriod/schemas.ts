@@ -26,7 +26,7 @@ export const SchoolPeriodSearchCriteriaQueryParamsSchema = registry.register(
   z.object({
     name: z.string().optional(),
     month: z.string().optional().transform(Number),
-    schoolYearId: z.string().transform(Number).pipe(z.number().positive()),
+    schoolYearId: z.string().transform(Number).pipe(z.number().positive()).optional(),
   })
 );
 
