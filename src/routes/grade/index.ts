@@ -11,6 +11,9 @@ import { CreateGradeSchema, GradeSchema, GradeSearchCriteriaQueryParams, UpdateG
 import { FindByIdParamsSchema } from "../../lib/findByIdParamsSchema";
 import { DefaultSearchSchema } from "../../lib/searchController";
 import { ZodSearchResponseSchemaBuilder } from "../../lib/zodSearchResponse";
+import { findLastStudentGradeById } from "./findLastStudentGrade";
+import { findStudentsByGradeAndYear } from "./findStudentsByGradeAndYear";
+import { StudentSchema } from "../student/schemas";
 
 export const gradeRoutes: Router = Router();
 
@@ -47,6 +50,7 @@ gradeRoutes.post(
   passport.authenticate("jwt", { session: false }),
   createGrade
 );
+
 registry.registerPath({
   description: "Actualizar grado",
   tags: ["grade"],
@@ -81,6 +85,7 @@ gradeRoutes.patch(
   passport.authenticate("jwt", { session: false }),
   updateGrade
 );
+
 registry.registerPath({
   description: "Eliminar grado",
   tags: ["grade"],
@@ -108,6 +113,63 @@ gradeRoutes.delete(
   passport.authenticate("jwt", { session: false }),
   softDeleteGrade
 );
+
+registry.registerPath({
+  description: "Obtener ultimo grado de estudiante por id",
+  tags: ["grade"],
+  method: "get",
+  path: "/grade/findLastStudentGrade/{id}",
+  security: [{ Bearer: [] }],
+  request: {
+    params: z.object({
+      id: z.number().positive(),
+    })
+  },
+  responses: {
+    200: {
+      description: "Grado",
+      content: {
+        "application/json": {
+          schema: z.object({ grade: GradeSchema }),
+        },
+      },
+    },
+  },
+});
+gradeRoutes.get(
+  "/findLastStudentGradeById/:id",
+  passport.authenticate("jwt", { session: false }),
+  findLastStudentGradeById
+);
+
+registry.registerPath({
+  description: "Obtener estudiantes pertenecientes a un grado",
+  tags: ["grade"],
+  method: "get",
+  path: "/grade/findStudentsByGradeAndYear/{id}",
+  security: [{ Bearer: [] }],
+  request: {
+    params: z.object({
+      id: z.number().positive(),
+    })
+  },
+  responses: {
+    200: {
+      description: "Estudiantes",
+      content: {
+        "application/json": {
+          schema: z.object({ students: StudentSchema.array() }),
+        },
+      },
+    },
+  },
+});
+gradeRoutes.get(
+  "/findStudentsByGradeAndYear/:id",
+  passport.authenticate("jwt", { session: false }),
+  findStudentsByGradeAndYear
+);
+
 registry.registerPath({
   description: "Obtener grado por id",
   tags: ["grade"],
@@ -136,6 +198,8 @@ gradeRoutes.get(
   passport.authenticate("jwt", { session: false }),
   findGradeById
 );
+
+
 registry.registerPath({
   description: "Buscar grados",
   tags: ["grade"],

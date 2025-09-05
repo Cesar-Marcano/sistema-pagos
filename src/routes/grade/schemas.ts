@@ -26,6 +26,14 @@ export const GradeSearchCriteriaQueryParams = registry.register(
   })
 );
 
+export const FindStudentsByGradeAndYearQueryParams = registry.register(
+  "FindStudentsByGradeAndYearQueryParams",
+  z.object({
+    gradeId: z.number().positive(),
+    schoolYearId: z.number().positive(),
+  })
+);
+
 export const UpdateGradeSchema = registry.register(
   "UpdateGradeSchema",
   GradeSchema.pick({ name: true })

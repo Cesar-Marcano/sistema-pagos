@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { Grade, PrismaClient } from "@prisma/client";
+import { Grade, PrismaClient, Student } from "@prisma/client";
 import createHttpError from "http-errors";
 import {
   SearchArgs,
@@ -101,5 +101,51 @@ export class GradeFeature {
         where: { ...args.where },
       }
     );
+  }
+
+  public async findLastGrade(studentId: number) {
+    const studentGrade = await this.prisma.studentGrade.findFirst({
+      where: {
+        studentId,
+        deletedAt: null,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        grade: true,
+      },
+    });
+
+    if (!studentGrade) {
+      throw createHttpError(
+        404,
+        "No se encontró un grado para este estudiante."
+      );
+    }
+
+    return studentGrade.grade;
+  }
+
+  public async findStudentsByGradeAndYear(
+    gradeId: number,
+    schoolYearId: number
+  ): Promise<Student[]> {
+    const studentGrades = await this.prisma.studentGrade.findMany({
+      where: {
+        gradeId,
+        schoolYearId,
+        deletedAt: null,
+      },
+      include: {
+        student: true,
+      },
+    });
+
+    if (studentGrades.length === 0) {
+      return [];
+    }
+
+    return studentGrades.map((sg) => sg.student);
   }
 }
