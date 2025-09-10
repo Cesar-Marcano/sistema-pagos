@@ -1,16 +1,17 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { PrismaClient, Student, StudentGrade } from "@prisma/client";
+import { Student, StudentGrade } from "@prisma/client";
 import createHttpError from "http-errors";
 import {
   SearchArgs,
   SearchResult,
   searchWithPaginationAndCriteria,
 } from "../lib/search";
+import { ExtendedPrisma } from "../config/container";
 
 @injectable()
 export class StudentFeature {
-  constructor(@inject(TYPES.Prisma) private readonly prisma: PrismaClient) {}
+  constructor(@inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma) {}
 
   public async create(name: string): Promise<Student> {
     const existingStudentCount = await this.prisma.student.count({
@@ -107,9 +108,9 @@ export class StudentFeature {
       }
     >
   ): Promise<SearchResult<Student>> {
-    return searchWithPaginationAndCriteria(
+    return searchWithPaginationAndCriteria<Student>(
       this.prisma.student.findMany,
-      this.prisma.student.count,
+      this.prisma.student.similarity,
       {
         ...args,
         where: { ...args.where },
@@ -122,6 +123,23 @@ export class StudentFeature {
     gradeId: number,
     schoolYearId: number
   ): Promise<StudentGrade> {
+    const studentGradesInSchoolYearCount = await this.prisma.studentGrade.count(
+      {
+        where: {
+          studentId,
+          schoolYearId,
+          deletedAt: null,
+        },
+      }
+    );
+
+    if (studentGradesInSchoolYearCount > 0) {
+      throw createHttpError(
+        409,
+        "El estudiante ya está registrado en este año escolar."
+      );
+    }
+
     const [student, schoolYear, grade] = await this.prisma.$transaction([
       this.prisma.student.findUnique({
         where: { id: studentId, deletedAt: null },

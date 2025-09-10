@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { PrismaClient, SchoolPeriod, SchoolYear } from "@prisma/client";
+import { SchoolPeriod, SchoolYear } from "@prisma/client";
 import createHttpError from "http-errors";
 import { differenceInMonths } from "date-fns";
 import {
@@ -8,10 +8,11 @@ import {
   SearchResult,
   searchWithPaginationAndCriteria,
 } from "../lib/search";
+import { ExtendedPrisma } from "../config/container";
 
 @injectable()
 export class SchoolPeriodFeature {
-  constructor(@inject(TYPES.Prisma) private readonly prisma: PrismaClient) {}
+  constructor(@inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma) {}
 
   public async create(
     schoolYearId: number,
@@ -173,9 +174,9 @@ export class SchoolPeriodFeature {
       }
     >
   ): Promise<SearchResult<SchoolPeriod>> {
-    return searchWithPaginationAndCriteria(
+    return searchWithPaginationAndCriteria<SchoolPeriod>(
       this.prisma.schoolPeriod.findMany,
-      this.prisma.schoolPeriod.count,
+      this.prisma.schoolPeriod.similarity,
       {
         ...args,
         where: { ...args.where },

@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { Payment, PaymentType, PrismaClient } from "@prisma/client";
+import { Payment, PaymentType } from "@prisma/client";
 import createHttpError from "http-errors";
 import {
   SearchArgs,
@@ -8,11 +8,12 @@ import {
   searchWithPaginationAndCriteria,
 } from "../lib/search";
 import { MonthlyFeeFeature } from "./monthlyFee.feature";
+import { ExtendedPrisma } from "../config/container";
 
 @injectable()
 export class PaymentFeature {
   constructor(
-    @inject(TYPES.Prisma) private readonly prisma: PrismaClient,
+    @inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma,
     @inject(TYPES.MonthlyFeeFeature)
     private readonly monthlyFeeFeature: MonthlyFeeFeature
   ) {}
@@ -203,9 +204,9 @@ export class PaymentFeature {
       }
     >
   ): Promise<SearchResult<Payment>> {
-    return searchWithPaginationAndCriteria(
+    return searchWithPaginationAndCriteria<Payment>(
       this.prisma.payment.findMany,
-      this.prisma.payment.count,
+      this.prisma.payment.similarity,
       {
         ...args,
         where: { ...args.where },

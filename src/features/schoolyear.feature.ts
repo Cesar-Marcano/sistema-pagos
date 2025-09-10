@@ -7,12 +7,13 @@ import {
   searchWithPaginationAndCriteria,
 } from "../lib/search";
 import createHttpError from "http-errors";
+import { ExtendedPrisma } from "../config/container";
 
 @injectable()
 export class SchoolYearFeature {
   constructor(
     @inject(TYPES.Prisma)
-    private readonly prisma: PrismaClient
+    private readonly prisma: ExtendedPrisma
   ) {}
 
   public async create(
@@ -137,9 +138,9 @@ export class SchoolYearFeature {
       }
     >
   ): Promise<SearchResult<SchoolYear>> {
-    return searchWithPaginationAndCriteria(
-      this.prisma.schoolYear.findMany,
-      this.prisma.schoolYear.count,
+    return searchWithPaginationAndCriteria<SchoolYear>(
+      this.prisma.schoolYear.findMany.bind(this.prisma.schoolYear),
+      this.prisma.schoolYear.similarity.bind(this.prisma.schoolYear),
       {
         ...args,
         where: { ...args.where },

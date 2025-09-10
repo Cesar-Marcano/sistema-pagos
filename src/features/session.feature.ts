@@ -1,12 +1,13 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { PrismaClient, Session } from "@prisma/client";
+import { Session } from "@prisma/client";
+import { ExtendedPrisma } from "../config/container";
 
 @injectable()
 export class SessionFeature {
   constructor(
     @inject(TYPES.Prisma)
-    private readonly prisma: PrismaClient
+    private readonly prisma: ExtendedPrisma
   ) {}
 
   public async createSession(

@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
 import { IHasherService } from "../services/argon2.service";
-import { PrismaClient } from "@prisma/client";
 import createHttpError from "http-errors";
+import { ExtendedPrisma } from "../config/container";
 
 @injectable()
 export class UserFeature {
@@ -10,7 +10,7 @@ export class UserFeature {
     @inject(TYPES.IHasherService)
     private readonly hasherService: IHasherService,
     @inject(TYPES.Prisma)
-    private readonly prisma: PrismaClient
+    private readonly prisma: ExtendedPrisma
   ) {}
 
   async register(username: string, password: string) {

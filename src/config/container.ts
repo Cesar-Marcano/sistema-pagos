@@ -14,11 +14,15 @@ import { MonthlyFeeFeature } from "../features/monthlyFee.feature";
 import { DiscountFeature } from "../features/discount.feature";
 import { PaymentMethodFeature } from "../features/paymentMethod.feature";
 import { PaymentFeature } from "../features/payment.feature";
+import { withPgTrgm } from "prisma-extension-pg-trgm";
 
 const container = new Container();
 
-const prisma = new PrismaClient();
-container.bind<PrismaClient>(TYPES.Prisma).toConstantValue(prisma);
+const prisma = new PrismaClient().$extends(withPgTrgm({ logQueries: true }));;
+
+export type ExtendedPrisma = typeof prisma
+
+container.bind<ExtendedPrisma>(TYPES.Prisma).toConstantValue(prisma);
 
 // Services
 container.bind<IHasherService>(TYPES.IHasherService).to(Argon2Service);

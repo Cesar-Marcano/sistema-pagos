@@ -255,7 +255,7 @@ registry.registerPath({
     body: {
       content: {
         "application/json": {
-          schema: z.object({ studentGrade: RegisterStudentToGradeSchema }),
+          schema: RegisterStudentToGradeSchema,
         },
       },
     },

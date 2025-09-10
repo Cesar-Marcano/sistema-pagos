@@ -1,16 +1,17 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { Grade, PrismaClient, Student } from "@prisma/client";
+import { Grade, Student } from "@prisma/client";
 import createHttpError from "http-errors";
 import {
   SearchArgs,
   SearchResult,
   searchWithPaginationAndCriteria,
 } from "../lib/search";
+import { ExtendedPrisma } from "../config/container";
 
 @injectable()
 export class GradeFeature {
-  constructor(@inject(TYPES.Prisma) private readonly prisma: PrismaClient) {}
+  constructor(@inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma) {}
 
   public async create(name: string) {
     const existingGrades = await this.prisma.grade.count({
@@ -93,9 +94,9 @@ export class GradeFeature {
       }
     >
   ): Promise<SearchResult<Grade>> {
-    return searchWithPaginationAndCriteria(
+    return searchWithPaginationAndCriteria<Grade>(
       this.prisma.grade.findMany,
-      this.prisma.grade.count,
+      this.prisma.grade.similarity,
       {
         ...args,
         where: { ...args.where },

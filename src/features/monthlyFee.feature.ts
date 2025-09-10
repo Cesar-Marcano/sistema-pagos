@@ -1,21 +1,17 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import {
-  MonthlyFee,
-  MonthlyFeeOnGrade,
-  Prisma,
-  PrismaClient,
-} from "@prisma/client";
+import { MonthlyFee, MonthlyFeeOnGrade, Prisma } from "@prisma/client";
 import createHttpError from "http-errors";
 import {
   SearchArgs,
   SearchResult,
   searchWithPaginationAndCriteria,
 } from "../lib/search";
+import { ExtendedPrisma } from "../config/container";
 
 @injectable()
 export class MonthlyFeeFeature {
-  constructor(@inject(TYPES.Prisma) private readonly prisma: PrismaClient) {}
+  constructor(@inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma) {}
 
   public async create(description: string, amount: number) {
     const existentMonthlyFeeWithDescriptionCount =
@@ -107,9 +103,9 @@ export class MonthlyFeeFeature {
       }
     >
   ): Promise<SearchResult<MonthlyFee>> {
-    return searchWithPaginationAndCriteria(
+    return searchWithPaginationAndCriteria<MonthlyFee>(
       this.prisma.monthlyFee.findMany,
-      this.prisma.monthlyFee.count,
+      this.prisma.monthlyFee.similarity,
       {
         ...args,
         where: { ...args.where },
@@ -197,9 +193,9 @@ export class MonthlyFeeFeature {
       }
     >
   ): Promise<SearchResult<MonthlyFeeOnGrade>> {
-    return searchWithPaginationAndCriteria(
+    return searchWithPaginationAndCriteria<MonthlyFeeOnGrade>(
       this.prisma.monthlyFeeOnGrade.findMany,
-      this.prisma.monthlyFeeOnGrade.count,
+      this.prisma.monthlyFeeOnGrade.similarity,
       {
         ...args,
         where: { ...args.where },

@@ -137,7 +137,7 @@ registry.registerPath({
   },
 });
 gradeRoutes.get(
-  "/findLastStudentGradeById/:id",
+  "/findLastStudentGrade/:id",
   passport.authenticate("jwt", { session: false }),
   findLastStudentGradeById
 );

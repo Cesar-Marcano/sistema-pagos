@@ -1,3 +1,5 @@
+import { SimilarityResult } from "prisma-extension-pg-trgm/dist/similarity/types";
+
 export interface SearchCriteria<T> {
   where?: T;
   orderBy?: any;
@@ -21,7 +23,7 @@ export interface SearchResult<T> {
 
 export async function searchWithPaginationAndCriteria<T>(
   findMany: (args: any) => Promise<T[]>,
-  count: (args: any) => Promise<number>,
+  similarity: (args: any) => Promise<SimilarityResult<T, any>>,
   args: SearchArgs<any> = {}
 ): Promise<SearchResult<T>> {
   const {
@@ -34,39 +36,72 @@ export async function searchWithPaginationAndCriteria<T>(
     includeDeleted,
   } = args;
 
-  const processedWhere = where
-    ? Object.entries(where).reduce((acc: Record<string, any>, [key, value]) => {
-        if (
-          typeof value === "string" &&
-          !key.startsWith("$") &&
-          !key.startsWith("_")
-        ) {
-          acc[key] = { contains: value, mode: "insensitive" };
-        } else {
-          acc[key] = value;
-        }
-        return acc;
-      }, {})
-    : undefined;
+  let textQuery = {};
+  let otherFilters = {};
+  let useSimilarity = false;
 
-  const skip = (page - 1) * pageSize;
+  if (where) {
+    Object.entries(where).forEach(([key, value]) => {
+      if (
+        typeof value === "string" &&
+        !key.startsWith("$") &&
+        !key.startsWith("_")
+      ) {
+        useSimilarity = true;
+        textQuery = {
+          ...textQuery,
+          [key]: { word_similarity: { text: value, threshold: { gt: 0.47 } } },
+        };
+      } else {
+        otherFilters = { ...otherFilters, [key]: value };
+      }
+    });
+  }
 
   const finalWhere = {
     ...(includeDeleted ? {} : { deletedAt: null }),
-    ...processedWhere,
+    ...otherFilters,
   };
 
-  const [results, total] = await Promise.all([
-    findMany({
-      skip,
+  let results: T[];
+  let total: number;
+
+  if (useSimilarity) {
+    const similarityResults = await similarity({ query: textQuery });
+
+    const filteredResults = similarityResults.filter((item: any) => {
+      return Object.entries(finalWhere).every(([key, value]) => {
+        if (key === "deletedAt") {
+          return item.deletedAt === null;
+        }
+        return item[key] === value;
+      });
+    });
+
+    results = filteredResults.slice(
+      (page - 1) * pageSize,
+      page * pageSize
+    ) as T[];
+    total = filteredResults.length;
+  } else {
+    const findManyResults = await findMany({
+      skip: (page - 1) * pageSize,
       take: pageSize,
       where: finalWhere,
       orderBy,
       include,
       omit,
-    }),
-    count({ where: finalWhere }),
-  ]);
+    });
+
+    const findManyTotal = await findMany({
+      where: finalWhere,
+      include,
+      omit,
+    });
+
+    results = findManyResults;
+    total = findManyTotal.length;
+  }
 
   const totalPages = Math.ceil(total / pageSize);
 

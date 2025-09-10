@@ -1,16 +1,17 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { Discount, PrismaClient } from "@prisma/client";
+import { Discount } from "@prisma/client";
 import createHttpError from "http-errors";
 import {
   SearchArgs,
   SearchResult,
   searchWithPaginationAndCriteria,
 } from "../lib/search";
+import { ExtendedPrisma } from "../config/container";
 
 @injectable()
 export class DiscountFeature {
-  constructor(@inject(TYPES.Prisma) private readonly prisma: PrismaClient) {}
+  constructor(@inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma) {}
 
   public async create(
     name: string,
@@ -123,9 +124,9 @@ export class DiscountFeature {
       }
     >
   ): Promise<SearchResult<Discount>> {
-    return searchWithPaginationAndCriteria(
+    return searchWithPaginationAndCriteria<Discount>(
       this.prisma.discount.findMany,
-      this.prisma.discount.count,
+      this.prisma.discount.similarity,
       {
         ...args,
         where: { ...args.where },

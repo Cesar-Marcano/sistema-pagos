@@ -50,6 +50,9 @@ importers:
       passport-local:
         specifier: ^1.0.0
         version: 1.0.0
+      prisma-extension-pg-trgm:
+        specifier: ^1.1.0
+        version: 1.1.0(@prisma/client@6.15.0(prisma@6.15.0(typescript@5.9.2))(typescript@5.9.2))
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -801,6 +804,11 @@ packages:
 
   pkg-types@2.3.0:
     resolution: {integrity: sha512-SIqCzDRg0s9npO5XQ3tNZioRY1uK06lA41ynBC1YmFTmnY6FjUjVt6s4LoADmwoig1qqD0oK8h1p/8mlMx8Oig==}
+
+  prisma-extension-pg-trgm@1.1.0:
+    resolution: {integrity: sha512-EXRsW0OMoQU/5aQax67FLkU0jonfiF++R3pylj5lYvXicfVD1GvkEDB5hDnGzPwfIMwryT2RLbRplndNFpZ49w==}
+    peerDependencies:
+      '@prisma/client': latest
 
   prisma@6.15.0:
     resolution: {integrity: sha512-E6RCgOt+kUVtjtZgLQDBJ6md2tDItLJNExwI0XJeBc1FKL+Vwb+ovxXxuok9r8oBgsOXBA33fGDuE/0qDdCWqQ==}
@@ -1780,6 +1788,10 @@ snapshots:
       confbox: 0.2.2
       exsolve: 1.0.7
       pathe: 2.0.3
+
+  prisma-extension-pg-trgm@1.1.0(@prisma/client@6.15.0(prisma@6.15.0(typescript@5.9.2))(typescript@5.9.2)):
+    dependencies:
+      '@prisma/client': 6.15.0(prisma@6.15.0(typescript@5.9.2))(typescript@5.9.2)
 
   prisma@6.15.0(typescript@5.9.2):
     dependencies:
