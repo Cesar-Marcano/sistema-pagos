@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { container } from "../config/container";
-import { SettingsFeature } from "../features/settings.feature";
+import { SettingsService } from "../services/settings.service";
 import { TYPES } from "../config/types";
 import { Settings } from "@prisma/client";
 import createHttpError from "http-errors";
@@ -10,7 +10,7 @@ export async function canRegister(
   _res: Response,
   next: NextFunction
 ) {
-  const settingsFeature = container.get<SettingsFeature>(TYPES.SettingsFeature);
+  const settingsFeature = container.get<SettingsService>(TYPES.SettingsFeature);
 
   const isRegistrationEnabled = await settingsFeature.get(
     Settings.IS_USER_REGISTRATION_ENABLED

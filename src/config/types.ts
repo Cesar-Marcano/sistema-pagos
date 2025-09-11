@@ -4,6 +4,7 @@ export const TYPES = {
   // Services
   IHasherService: Symbol.for("HasherService"),
   ITokenService: Symbol.for("TokenService"),
+  SettingsService: Symbol.for("SettingsService"),
 
   // Features
   UserFeature: Symbol.for("UserFeature"),
@@ -16,5 +17,4 @@ export const TYPES = {
   DiscountFeature: Symbol.for("DiscountFeature"),
   PaymentMethodFeature: Symbol.for("PaymentMethodFeature"),
   PaymentFeature: Symbol.for("PaymentFeature"),
-  SettingsFeature: Symbol.for("SettingsFeature"),
 };

@@ -5,7 +5,7 @@ import { Settings } from "@prisma/client";
 import { defaultSettings, DefaultSettings } from "../config/defaultSettings";
 
 @injectable()
-export class SettingsFeature {
+export class SettingsService {
   constructor(@inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma) {}
 
   async set<K extends keyof DefaultSettings>(
