@@ -15,6 +15,7 @@ import { DiscountFeature } from "../features/discount.feature";
 import { PaymentMethodFeature } from "../features/paymentMethod.feature";
 import { PaymentFeature } from "../features/payment.feature";
 import { withPgTrgm } from "prisma-extension-pg-trgm";
+import { SettingsFeature } from "../features/settings.feature";
 
 const container = new Container();
 
@@ -47,6 +48,7 @@ container
   .bind<PaymentMethodFeature>(TYPES.PaymentMethodFeature)
   .to(PaymentMethodFeature);
 container.bind<PaymentFeature>(TYPES.PaymentFeature).to(PaymentFeature);
+container.bind<SettingsFeature>(TYPES.SettingsFeature).to(SettingsFeature);
 
 container.bind<PassportConfig>(PassportConfig).toSelf();
 
