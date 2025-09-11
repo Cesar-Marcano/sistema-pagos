@@ -50,6 +50,10 @@ export const defaultSettings = createDefaultSettings({
 
   // The fuzzy search threshold.
   SEARCH_THRESHOLD: 0.47,
+
+  // A boolean flag to allow or deny free registration on /users/register. 
+  // A value of 'false' means that users can only be registered by admins.
+  PUBLIC_REGISTRATION_ENABLED: true,
 });
 
 export type DefaultSettings = typeof defaultSettings;

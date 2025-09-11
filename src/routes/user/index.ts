@@ -4,6 +4,9 @@ import { login } from "./login";
 import { getRegistry } from "../../config/openApiRegistry";
 import { LoginSchema, RegisterSchema } from "./schemas";
 import z from "zod";
+import { canRegister } from "../../middlewares/canRegister";
+import passport from "passport";
+import { adminUserRegister } from "./adminUserRegister";
 
 export const userRoutes: Router = Router();
 
@@ -42,7 +45,46 @@ registry.registerPath({
     },
   },
 });
-userRoutes.post("/register", register);
+userRoutes.post("/register", canRegister, register);
+
+registry.registerPath({
+  description: "Registrar un usuario por personal autorizado",
+  tags: ["auth"],
+  method: "post",
+  path: "/user/adminPanel/register",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: RegisterSchema.openapi({
+            description: "Object with user register data",
+            default: {
+              username: "my.username",
+              password: "myStrong_P4ssw0rd!",
+            },
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    201: {
+      description: "Usuario registrado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            token: z.jwt(),
+          }),
+        },
+      },
+    },
+  },
+});
+userRoutes.post(
+  "/admin/register",
+  passport.authenticate("jwt", { session: false }),
+  adminUserRegister
+);
 
 registry.registerPath({
   description: "Iniciar sesión",

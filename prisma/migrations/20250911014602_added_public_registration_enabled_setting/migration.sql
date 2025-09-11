@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "public"."Settings" ADD VALUE 'PUBLIC_REGISTRATION_ENABLED';
