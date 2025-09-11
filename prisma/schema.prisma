@@ -275,6 +275,7 @@ enum AuditLogActions {
     UPDATE
     SOFT_DELETE
     DELETE
+    UPSERT
 }
 
 model AuditLog {

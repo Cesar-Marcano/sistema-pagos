@@ -1,12 +1,17 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
 import { ExtendedPrisma } from "../config/container";
-import { Settings } from "@prisma/client";
+import { AuditableEntities, AuditLogActions, Settings } from "@prisma/client";
 import { defaultSettings, DefaultSettings } from "../config/defaultSettings";
+import { AuditLogService } from "./auditLog.service";
 
 @injectable()
 export class SettingsService {
-  constructor(@inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma) {}
+  constructor(
+    @inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma,
+    @inject(TYPES.AuditLogService)
+    private readonly auditLogService: AuditLogService
+  ) {}
 
   async set<K extends keyof DefaultSettings>(
     key: K,
@@ -17,7 +22,7 @@ export class SettingsService {
         ? JSON.stringify(value)
         : String(value);
 
-    return await this.prisma.setting.upsert({
+    const setting = await this.prisma.setting.upsert({
       create: {
         name: key as Settings,
         value: stringValue,
@@ -29,6 +34,14 @@ export class SettingsService {
         name: key as Settings,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.SETTING,
+      AuditLogActions.UPSERT,
+      setting
+    );
+
+    return setting;
   }
 
   async get<K extends keyof DefaultSettings>(
