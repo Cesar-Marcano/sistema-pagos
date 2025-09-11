@@ -1,5 +1,5 @@
 generator client {
-    provider = "prisma-client-js"
+    provider        = "prisma-client-js"
     previewFeatures = ["postgresqlExtensions"]
 }
 
@@ -259,12 +259,14 @@ enum AuditableEntities {
     SCHOOL_PERIOD
     STUDENT
     MONTHLY_FEE
+    MONTHLY_FEE_ON_GRADE
     GRADE
     STUDENT_GRADE
     DISCOUNT
     STUDENT_DISCOUNT
     PAYMENT_METHOD
     PAYMENT
+    SETTING
 }
 
 enum AuditLogActions {

@@ -10,7 +10,7 @@ export async function canRegister(
   _res: Response,
   next: NextFunction
 ) {
-  const settingsFeature = container.get<SettingsService>(TYPES.SettingsFeature);
+  const settingsFeature = container.get<SettingsService>(TYPES.SettingsService);
 
   const isRegistrationEnabled = await settingsFeature.get(
     Settings.IS_USER_REGISTRATION_ENABLED
