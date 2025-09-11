@@ -310,6 +310,7 @@ enum Settings {
     CURRENCY_SYMBOL
     ACTUAL_SCHOOL_YEAR_ID
     ACTUAL_SCHOOL_PERIOD_ID
+    SEARCH_THRESHOLD
 }
 
 model Setting {
@@ -317,4 +318,20 @@ model Setting {
 
     name  Settings @unique
     value String
+}
+
+enum PurgableModels {
+    User
+    SchoolYear
+    SchoolPeriod
+    Student
+    MonthlyFee
+    MonthlyFeeOnGrade
+    Grade
+    StudentGrade
+    Discount
+    StudentDiscount
+    PaymentMethod
+    Payment
+    StudentPeriodDiscount
 }
