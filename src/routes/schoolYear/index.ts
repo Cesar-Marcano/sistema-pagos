@@ -16,6 +16,7 @@ import z from "zod";
 import { FindByIdParamsSchema } from "../../lib/findByIdParamsSchema";
 import { DefaultSearchSchema } from "../../lib/searchController";
 import { ZodSearchResponseSchemaBuilder } from "../../lib/zodSearchResponse";
+import { authenticateAndSetContext } from "../../middlewares/authenticateAndSetContext";
 
 export const schoolYearRoutes: Router = Router();
 
@@ -49,7 +50,7 @@ registry.registerPath({
 });
 schoolYearRoutes.post(
   "/",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   createSchoolYear
 );
 
@@ -84,7 +85,7 @@ registry.registerPath({
 });
 schoolYearRoutes.patch(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   updateSchoolYear
 );
 
@@ -112,7 +113,7 @@ registry.registerPath({
 });
 schoolYearRoutes.delete(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   softDeleteSchoolYear
 );
 
@@ -141,7 +142,7 @@ registry.registerPath({
 });
 schoolYearRoutes.get(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   findSchoolYearById
 );
 
@@ -169,6 +170,6 @@ registry.registerPath({
 });
 schoolYearRoutes.get(
   "/",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   searchSchoolYear
 );

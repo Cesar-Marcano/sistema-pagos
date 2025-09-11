@@ -25,6 +25,7 @@ import { DefaultSearchSchema } from "../../lib/searchController";
 import { ZodSearchResponseSchemaBuilder } from "../../lib/zodSearchResponse";
 import { findStudentGrades } from "./findStudentGrades";
 import { GradeSchema } from "../grade/schemas";
+import { authenticateAndSetContext } from "../../middlewares/authenticateAndSetContext";
 
 export const studentRoutes: Router = Router();
 
@@ -62,7 +63,7 @@ registry.registerPath({
 });
 studentRoutes.post(
   "/",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   createStudent
 );
 
@@ -99,7 +100,7 @@ registry.registerPath({
 });
 studentRoutes.patch(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   updateStudent
 );
 
@@ -125,7 +126,7 @@ registry.registerPath({
 });
 studentRoutes.delete(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   softDeleteStudent
 );
 
@@ -158,7 +159,7 @@ registry.registerPath({
 });
 studentRoutes.get(
   "/studentGrades",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   findStudentGrades
 );
 
@@ -186,7 +187,7 @@ registry.registerPath({
 });
 studentRoutes.get(
   "/hasGrade",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   hasGrade
 );
 
@@ -213,7 +214,7 @@ registry.registerPath({
 });
 studentRoutes.get(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   findStudentById
 );
 
@@ -241,7 +242,7 @@ registry.registerPath({
 });
 studentRoutes.get(
   "/",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   searchStudent
 );
 
@@ -273,7 +274,7 @@ registry.registerPath({
 });
 studentRoutes.post(
   "/registerStudentToGrade",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   registerStudentToGrade
 );
 
@@ -299,6 +300,6 @@ registry.registerPath({
 });
 studentRoutes.delete(
   "/unregisterStudentFromGrade/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   unregisterStudentFromGrade
 );

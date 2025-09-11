@@ -1,6 +1,10 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { PaymentMethod } from "@prisma/client";
+import {
+  AuditableEntities,
+  AuditLogActions,
+  PaymentMethod,
+} from "@prisma/client";
 import createHttpError from "http-errors";
 import {
   SearchArgs,
@@ -8,10 +12,15 @@ import {
   searchWithPaginationAndCriteria,
 } from "../lib/search";
 import { ExtendedPrisma } from "../config/container";
+import { AuditLogService } from "../services/auditLog.service";
 
 @injectable()
 export class PaymentMethodFeature {
-  constructor(@inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma) {}
+  constructor(
+    @inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma,
+    @inject(TYPES.AuditLogService)
+    private readonly auditLogService: AuditLogService
+  ) {}
 
   public async create(
     name: string,
@@ -32,13 +41,21 @@ export class PaymentMethodFeature {
         "Ya existe un metodo de pago con el nombre ingresado."
       );
 
-    return await this.prisma.paymentMethod.create({
+    const paymentMethod = await this.prisma.paymentMethod.create({
       data: {
         name,
         requiresManualVerification,
         requiresReferenceId,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.PAYMENT_METHOD,
+      AuditLogActions.CREATE,
+      paymentMethod
+    );
+
+    return paymentMethod;
   }
 
   public async update(id: number, name: string): Promise<PaymentMethod> {
@@ -59,7 +76,7 @@ export class PaymentMethodFeature {
         "Ya existe un metodo de pago con el nombre ingresado."
       );
 
-    return await this.prisma.paymentMethod.update({
+    const paymentMethod = await this.prisma.paymentMethod.update({
       where: {
         id,
         deletedAt: null,
@@ -68,10 +85,18 @@ export class PaymentMethodFeature {
         name,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.PAYMENT_METHOD,
+      AuditLogActions.UPDATE,
+      { name }
+    );
+
+    return paymentMethod;
   }
 
   public async softDelete(id: number): Promise<PaymentMethod> {
-    return await this.prisma.paymentMethod.update({
+    const paymentMethod = await this.prisma.paymentMethod.update({
       where: {
         id,
         deletedAt: null,
@@ -80,10 +105,18 @@ export class PaymentMethodFeature {
         deletedAt: null,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.PAYMENT_METHOD,
+      AuditLogActions.SOFT_DELETE,
+      { deletedAt: paymentMethod.deletedAt }
+    );
+
+    return paymentMethod;
   }
 
   public async hardDelete(id: number): Promise<PaymentMethod> {
-    return await this.prisma.paymentMethod.delete({
+    const paymentMethod = await this.prisma.paymentMethod.delete({
       where: {
         id,
         deletedAt: {
@@ -91,6 +124,14 @@ export class PaymentMethodFeature {
         },
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.PAYMENT_METHOD,
+      AuditLogActions.DELETE,
+      {}
+    );
+
+    return paymentMethod;
   }
 
   public async findById(

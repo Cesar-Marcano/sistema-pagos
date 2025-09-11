@@ -7,6 +7,7 @@ import z from "zod";
 import { canRegister } from "../../middlewares/canRegister";
 import passport from "passport";
 import { adminUserRegister } from "./adminUserRegister";
+import { authenticateAndSetContext } from "../../middlewares/authenticateAndSetContext";
 
 export const userRoutes: Router = Router();
 
@@ -81,8 +82,8 @@ registry.registerPath({
   },
 });
 userRoutes.post(
-  "/admin/register",
-  passport.authenticate("jwt", { session: false }),
+  "/adminPanel/register",
+  authenticateAndSetContext,
   adminUserRegister
 );
 

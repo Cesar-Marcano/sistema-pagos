@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { Discount } from "@prisma/client";
+import { AuditableEntities, AuditLogActions, Discount } from "@prisma/client";
 import createHttpError from "http-errors";
 import {
   SearchArgs,
@@ -8,10 +8,15 @@ import {
   searchWithPaginationAndCriteria,
 } from "../lib/search";
 import { ExtendedPrisma } from "../config/container";
+import { AuditLogService } from "../services/auditLog.service";
 
 @injectable()
 export class DiscountFeature {
-  constructor(@inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma) {}
+  constructor(
+    @inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma,
+    @inject(TYPES.AuditLogService)
+    private readonly auditLogService: AuditLogService
+  ) {}
 
   public async create(
     name: string,
@@ -32,7 +37,7 @@ export class DiscountFeature {
     if (amount <= 0)
       throw createHttpError(400, "Amount no puede ser menor o igual a cero.");
 
-    return await this.prisma.discount.create({
+    const newDiscount = await this.prisma.discount.create({
       data: {
         name,
         description,
@@ -40,6 +45,14 @@ export class DiscountFeature {
         isPercentage,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.DISCOUNT,
+      AuditLogActions.CREATE,
+      newDiscount
+    );
+
+    return newDiscount;
   }
 
   public async update(
@@ -72,17 +85,25 @@ export class DiscountFeature {
     if (data.amount && data.amount <= 0)
       throw createHttpError(400, "Amount no puede ser menor o igual a cero.");
 
-    return await this.prisma.discount.update({
+    const updatedDiscount = await this.prisma.discount.update({
       where: {
         id,
         deletedAt: null,
       },
       data,
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.DISCOUNT,
+      AuditLogActions.UPDATE,
+      data
+    );
+
+    return updatedDiscount;
   }
 
   public async softDelete(id: number) {
-    return await this.prisma.discount.update({
+    const discount = await this.prisma.discount.update({
       where: {
         id,
         deletedAt: null,
@@ -91,10 +112,18 @@ export class DiscountFeature {
         deletedAt: new Date(),
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.DISCOUNT,
+      AuditLogActions.SOFT_DELETE,
+      { deletedAt: discount.deletedAt }
+    );
+
+    return discount;
   }
 
   public async hardDelete(id: number) {
-    return await this.prisma.discount.delete({
+    const discount = await this.prisma.discount.delete({
       where: {
         id,
         deletedAt: {
@@ -102,6 +131,14 @@ export class DiscountFeature {
         },
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.DISCOUNT,
+      AuditLogActions.DELETE,
+      {}
+    );
+
+    return discount;
   }
 
   public async findById(id: number, includeDeleted: boolean) {
@@ -135,16 +172,24 @@ export class DiscountFeature {
   }
 
   public async applyDiscountToStudent(discountId: number, studentId: number) {
-    return await this.prisma.studentDiscount.create({
+    const studentDiscount = await this.prisma.studentDiscount.create({
       data: {
         discountId,
         studentId,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.STUDENT_DISCOUNT,
+      AuditLogActions.CREATE,
+      studentDiscount
+    );
+
+    return studentDiscount;
   }
 
   public async unapplyDiscountFromStudent(id: number) {
-    return await this.prisma.studentDiscount.update({
+    const studentDiscount = await this.prisma.studentDiscount.update({
       where: {
         id,
         deletedAt: null,
@@ -153,6 +198,14 @@ export class DiscountFeature {
         deletedAt: new Date(),
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.STUDENT_DISCOUNT,
+      AuditLogActions.SOFT_DELETE,
+      { deletedAt: studentDiscount.deletedAt }
+    );
+
+    return studentDiscount;
   }
 
   public async listStudentDiscounts(studentId: number) {
@@ -188,25 +241,43 @@ export class DiscountFeature {
         "Ya el descuento fue asignado al periodo del estudiante."
       );
 
-    return await this.prisma.studentPeriodDiscount.create({
-      data: {
-        discountId,
-        schoolPeriodId,
-        studentId,
-      },
-    });
+    const studentPeriodDiscount =
+      await this.prisma.studentPeriodDiscount.create({
+        data: {
+          discountId,
+          schoolPeriodId,
+          studentId,
+        },
+      });
+
+    this.auditLogService.createLog(
+      AuditableEntities.STUDENT_PERIOD_DISCOUNT,
+      AuditLogActions.CREATE,
+      studentPeriodDiscount
+    );
+
+    return studentPeriodDiscount;
   }
 
   public async unapplyDiscountFromStudentPeriod(id: number) {
-    return await this.prisma.studentPeriodDiscount.update({
-      where: {
-        id,
-        deletedAt: null,
-      },
-      data: {
-        deletedAt: new Date(),
-      },
-    });
+    const studentPeriodDiscount =
+      await this.prisma.studentPeriodDiscount.update({
+        where: {
+          id,
+          deletedAt: null,
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      });
+
+    this.auditLogService.createLog(
+      AuditableEntities.STUDENT_PERIOD_DISCOUNT,
+      AuditLogActions.SOFT_DELETE,
+      { deletedAt: studentPeriodDiscount.deletedAt }
+    );
+
+    return studentPeriodDiscount;
   }
 
   public async listStudentPeriodDiscounts(schoolPeriodId: number) {

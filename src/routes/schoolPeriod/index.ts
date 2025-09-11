@@ -16,6 +16,7 @@ import z from "zod";
 import { FindByIdParamsSchema } from "../../lib/findByIdParamsSchema";
 import { ZodSearchResponseSchemaBuilder } from "../../lib/zodSearchResponse";
 import { DefaultSearchSchema } from "../../lib/searchController";
+import { authenticateAndSetContext } from "../../middlewares/authenticateAndSetContext";
 
 export const schoolPeriodRoutes: Router = Router();
 
@@ -60,7 +61,7 @@ registry.registerPath({
 });
 schoolPeriodRoutes.post(
   "/",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   createSchoolPeriod
 );
 
@@ -95,7 +96,7 @@ registry.registerPath({
 });
 schoolPeriodRoutes.patch(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   updateSchoolPeriod
 );
 
@@ -123,7 +124,7 @@ registry.registerPath({
 });
 schoolPeriodRoutes.delete(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   softDeleteSchoolPeriod
 );
 
@@ -152,7 +153,7 @@ registry.registerPath({
 });
 schoolPeriodRoutes.get(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   findSchoolPeriodById
 );
 
@@ -183,6 +184,6 @@ registry.registerPath({
 });
 schoolPeriodRoutes.get(
   "/",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   searchSchoolPeriod
 );

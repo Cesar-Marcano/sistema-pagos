@@ -1,6 +1,12 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { MonthlyFee, MonthlyFeeOnGrade, Prisma } from "@prisma/client";
+import {
+  AuditableEntities,
+  AuditLogActions,
+  MonthlyFee,
+  MonthlyFeeOnGrade,
+  Prisma,
+} from "@prisma/client";
 import createHttpError from "http-errors";
 import {
   SearchArgs,
@@ -8,10 +14,15 @@ import {
   searchWithPaginationAndCriteria,
 } from "../lib/search";
 import { ExtendedPrisma } from "../config/container";
+import { AuditLogService } from "../services/auditLog.service";
 
 @injectable()
 export class MonthlyFeeFeature {
-  constructor(@inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma) {}
+  constructor(
+    @inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma,
+    @inject(TYPES.AuditLogService)
+    private readonly auditLogService: AuditLogService
+  ) {}
 
   public async create(description: string, amount: number) {
     const existentMonthlyFeeWithDescriptionCount =
@@ -28,12 +39,20 @@ export class MonthlyFeeFeature {
         "Ya hay una mensualidad con la misma descripción."
       );
 
-    return await this.prisma.monthlyFee.create({
+    const newMonthlyFee = await this.prisma.monthlyFee.create({
       data: {
         description,
         amount,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.MONTHLY_FEE,
+      AuditLogActions.CREATE,
+      newMonthlyFee
+    );
+
+    return newMonthlyFee;
   }
 
   public async update(id: number, description: string) {
@@ -52,16 +71,24 @@ export class MonthlyFeeFeature {
         "Ya hay una mensualidad con la misma descripción."
       );
 
-    return await this.prisma.monthlyFee.update({
+    const monthlyFee = await this.prisma.monthlyFee.update({
       where: { id, deletedAt: null },
       data: {
         description,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.MONTHLY_FEE,
+      AuditLogActions.UPDATE,
+      { description }
+    );
+
+    return monthlyFee;
   }
 
   public async softDelete(id: number) {
-    return await this.prisma.monthlyFee.update({
+    const monthlyFee = await this.prisma.monthlyFee.update({
       where: {
         id,
         deletedAt: null,
@@ -70,10 +97,18 @@ export class MonthlyFeeFeature {
         deletedAt: new Date(),
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.MONTHLY_FEE,
+      AuditLogActions.SOFT_DELETE,
+      { deletedAt: monthlyFee.deletedAt }
+    );
+
+    return monthlyFee;
   }
 
   public async hardDelete(id: number) {
-    return await this.prisma.monthlyFee.delete({
+    const monthlyFee = await this.prisma.monthlyFee.delete({
       where: {
         id,
         deletedAt: {
@@ -81,6 +116,14 @@ export class MonthlyFeeFeature {
         },
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.MONTHLY_FEE,
+      AuditLogActions.DELETE,
+      {}
+    );
+
+    return monthlyFee;
   }
 
   public async findById(id: number, includeDeleted: boolean) {
@@ -130,14 +173,23 @@ export class MonthlyFeeFeature {
 
     const uniqueAssignments = this.getUniqueAssignments(assignmentsToCreate);
 
-    return await this.prisma.monthlyFeeOnGrade.createMany({
+    const monthlyFeeOnGrades = await this.prisma.monthlyFeeOnGrade.createMany({
       data: uniqueAssignments,
       skipDuplicates: true,
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.MONTHLY_FEE_ON_GRADE,
+      AuditLogActions.CREATE,
+      uniqueAssignments
+    );
+
+    return monthlyFeeOnGrades;
   }
 
   public async unassignFeeFromGrades(ids: number[]) {
-    return await this.prisma.monthlyFeeOnGrade.updateMany({
+    const deletedAt = new Date();
+    const monthlyFeeOnGrades = await this.prisma.monthlyFeeOnGrade.updateMany({
       where: {
         id: {
           in: ids,
@@ -145,9 +197,17 @@ export class MonthlyFeeFeature {
         deletedAt: null,
       },
       data: {
-        deletedAt: new Date(),
+        deletedAt,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.MONTHLY_FEE_ON_GRADE,
+      AuditLogActions.CREATE,
+      ids.map((id) => ({ id, deletedAt }))
+    );
+
+    return monthlyFeeOnGrades;
   }
 
   private getUniqueAssignments(

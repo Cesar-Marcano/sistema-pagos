@@ -1,6 +1,11 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { Payment, PaymentType } from "@prisma/client";
+import {
+  AuditableEntities,
+  AuditLogActions,
+  Payment,
+  PaymentType,
+} from "@prisma/client";
 import createHttpError from "http-errors";
 import {
   SearchArgs,
@@ -9,13 +14,16 @@ import {
 } from "../lib/search";
 import { MonthlyFeeFeature } from "./monthlyFee.feature";
 import { ExtendedPrisma } from "../config/container";
+import { AuditLogService } from "../services/auditLog.service";
 
 @injectable()
 export class PaymentFeature {
   constructor(
     @inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma,
     @inject(TYPES.MonthlyFeeFeature)
-    private readonly monthlyFeeFeature: MonthlyFeeFeature
+    private readonly monthlyFeeFeature: MonthlyFeeFeature,
+    @inject(TYPES.AuditLogService)
+    private readonly auditLogService: AuditLogService
   ) {}
 
   public async create(
@@ -97,7 +105,7 @@ export class PaymentFeature {
     if (!paymentMethod.requiresManualVerification)
       paymentDetails.verified = null;
 
-    return await this.prisma.payment.create({
+    const payment = await this.prisma.payment.create({
       data: {
         studentId,
         schoolPeriodId,
@@ -108,6 +116,14 @@ export class PaymentFeature {
         verified: paymentDetails.verified,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.PAYMENT,
+      AuditLogActions.CREATE,
+      payment
+    );
+
+    return payment;
   }
 
   public async update(
@@ -154,17 +170,25 @@ export class PaymentFeature {
         "El codigo de referencia ya ha sido usado en otro pago."
       );
 
-    return await this.prisma.payment.update({
+    const updatedPayment = await this.prisma.payment.update({
       where: {
         id,
         deletedAt: null,
       },
       data,
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.PAYMENT,
+      AuditLogActions.UPDATE,
+      data
+    );
+
+    return updatedPayment;
   }
 
   public async softDelete(id: number) {
-    return await this.prisma.payment.update({
+    const payment = await this.prisma.payment.update({
       where: {
         id,
         deletedAt: null,
@@ -173,10 +197,18 @@ export class PaymentFeature {
         deletedAt: new Date(),
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.PAYMENT,
+      AuditLogActions.SOFT_DELETE,
+      { deletedAt: payment.deletedAt }
+    );
+
+    return payment;
   }
 
   public async hardDelete(id: number) {
-    return await this.prisma.payment.delete({
+    const payment = await this.prisma.payment.delete({
       where: {
         id,
         deletedAt: {
@@ -184,6 +216,14 @@ export class PaymentFeature {
         },
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.PAYMENT,
+      AuditLogActions.DELETE,
+      {}
+    );
+
+    return payment;
   }
 
   public async findById(id: number, includeDeleted: boolean) {

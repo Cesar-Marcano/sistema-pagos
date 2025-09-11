@@ -1,6 +1,11 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { Student, StudentGrade } from "@prisma/client";
+import {
+  AuditableEntities,
+  AuditLogActions,
+  Student,
+  StudentGrade,
+} from "@prisma/client";
 import createHttpError from "http-errors";
 import {
   SearchArgs,
@@ -8,10 +13,15 @@ import {
   searchWithPaginationAndCriteria,
 } from "../lib/search";
 import { ExtendedPrisma } from "../config/container";
+import { AuditLogService } from "../services/auditLog.service";
 
 @injectable()
 export class StudentFeature {
-  constructor(@inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma) {}
+  constructor(
+    @inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma,
+    @inject(TYPES.AuditLogService)
+    private readonly auditLogService: AuditLogService
+  ) {}
 
   public async create(name: string): Promise<Student> {
     const existingStudentCount = await this.prisma.student.count({
@@ -27,11 +37,19 @@ export class StudentFeature {
         "Ya se ha registrado un estudiante con el mismo nombre."
       );
 
-    return await this.prisma.student.create({
+    const student = await this.prisma.student.create({
       data: {
         name,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.STUDENT,
+      AuditLogActions.CREATE,
+      student
+    );
+
+    return student;
   }
 
   public async update(id: number, name: string): Promise<Student> {
@@ -53,7 +71,7 @@ export class StudentFeature {
         "Ya existe un estudiante con ese mismo nombre."
       );
 
-    return await this.prisma.student.update({
+    const updatedStudent = await this.prisma.student.update({
       where: {
         id,
         deletedAt: null,
@@ -62,10 +80,18 @@ export class StudentFeature {
         name,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.STUDENT,
+      AuditLogActions.UPDATE,
+      { name }
+    );
+
+    return updatedStudent;
   }
 
   public async softDelete(id: number): Promise<Student> {
-    return await this.prisma.student.update({
+    const student = await this.prisma.student.update({
       where: {
         id,
         deletedAt: null,
@@ -74,10 +100,18 @@ export class StudentFeature {
         deletedAt: new Date(),
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.STUDENT,
+      AuditLogActions.SOFT_DELETE,
+      { deletedAt: student.deletedAt }
+    );
+
+    return student;
   }
 
   public async hardDelete(id: number): Promise<Student> {
-    return await this.prisma.student.delete({
+    const student = await this.prisma.student.delete({
       where: {
         id,
         deletedAt: {
@@ -85,6 +119,14 @@ export class StudentFeature {
         },
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.STUDENT,
+      AuditLogActions.DELETE,
+      {}
+    );
+
+    return student;
   }
 
   public async findById(
@@ -184,13 +226,19 @@ export class StudentFeature {
       },
     });
 
+    this.auditLogService.createLog(
+      AuditableEntities.STUDENT_GRADE,
+      AuditLogActions.CREATE,
+      newStudentGrade
+    );
+
     return newStudentGrade;
   }
 
   public async unregisterStudentFromGrade(
     studentGradeId: number
   ): Promise<StudentGrade> {
-    return await this.prisma.studentGrade.update({
+    const studentGrade = await this.prisma.studentGrade.update({
       where: {
         id: studentGradeId,
         deletedAt: null,
@@ -199,6 +247,14 @@ export class StudentFeature {
         deletedAt: new Date(),
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.STUDENT_GRADE,
+      AuditLogActions.SOFT_DELETE,
+      { deletedAt: studentGrade.deletedAt }
+    );
+
+    return studentGrade;
   }
 
   public async findStudentGrades(

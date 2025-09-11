@@ -16,6 +16,7 @@ import z from "zod";
 import { FindByIdParamsSchema } from "../../lib/findByIdParamsSchema";
 import { DefaultSearchSchema } from "../../lib/searchController";
 import { ZodSearchResponseSchemaBuilder } from "../../lib/zodSearchResponse";
+import { authenticateAndSetContext } from "../../middlewares/authenticateAndSetContext";
 
 export const paymentMethodRoutes: Router = Router();
 
@@ -49,7 +50,7 @@ registry.registerPath({
 });
 paymentMethodRoutes.post(
   "/",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   createPaymentMethod
 );
 
@@ -84,7 +85,7 @@ registry.registerPath({
 });
 paymentMethodRoutes.patch(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   updatePaymentMethod
 );
 
@@ -112,7 +113,7 @@ registry.registerPath({
 });
 paymentMethodRoutes.delete(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   softDeletePaymentMethod
 );
 
@@ -141,7 +142,7 @@ registry.registerPath({
 });
 paymentMethodRoutes.get(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   findPaymentMethodById
 );
 
@@ -172,6 +173,6 @@ registry.registerPath({
 });
 paymentMethodRoutes.get(
   "/",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   searchPaymentMethod
 );

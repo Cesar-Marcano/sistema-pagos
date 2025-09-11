@@ -1,6 +1,11 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { SchoolPeriod, SchoolYear } from "@prisma/client";
+import {
+  AuditableEntities,
+  AuditLogActions,
+  SchoolPeriod,
+  SchoolYear,
+} from "@prisma/client";
 import createHttpError from "http-errors";
 import { differenceInMonths } from "date-fns";
 import {
@@ -9,10 +14,15 @@ import {
   searchWithPaginationAndCriteria,
 } from "../lib/search";
 import { ExtendedPrisma } from "../config/container";
+import { AuditLogService } from "../services/auditLog.service";
 
 @injectable()
 export class SchoolPeriodFeature {
-  constructor(@inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma) {}
+  constructor(
+    @inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma,
+    @inject(TYPES.AuditLogService)
+    private readonly auditLogService: AuditLogService
+  ) {}
 
   public async create(
     schoolYearId: number,
@@ -43,7 +53,7 @@ export class SchoolPeriodFeature {
         "Periodo escolar con el mes indicado ya ha sido creado."
       );
 
-    return await this.prisma.schoolPeriod.create({
+    const schoolPeriod = await this.prisma.schoolPeriod.create({
       data: {
         schoolYear: {
           connect: {
@@ -54,6 +64,14 @@ export class SchoolPeriodFeature {
         name: name ?? null,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.SCHOOL_PERIOD,
+      AuditLogActions.CREATE,
+      schoolPeriod
+    );
+
+    return schoolPeriod;
   }
   public async update(
     id: number,
@@ -117,7 +135,7 @@ export class SchoolPeriodFeature {
       }
     }
 
-    return await this.prisma.schoolPeriod.update({
+    const schoolPeriod = await this.prisma.schoolPeriod.update({
       where: {
         id,
       },
@@ -131,17 +149,33 @@ export class SchoolPeriodFeature {
         name: data.name ?? period.name,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.SCHOOL_PERIOD,
+      AuditLogActions.UPDATE,
+      data
+    );
+
+    return schoolPeriod;
   }
 
   public async softDelete(id: number): Promise<SchoolPeriod> {
-    return await this.prisma.schoolPeriod.update({
+    const schoolPeriod = await this.prisma.schoolPeriod.update({
       where: { id, deletedAt: null },
       data: { deletedAt: new Date() },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.SCHOOL_PERIOD,
+      AuditLogActions.SOFT_DELETE,
+      { deletedAt: schoolPeriod.deletedAt }
+    );
+
+    return schoolPeriod;
   }
 
   public async hardDelete(id: number): Promise<SchoolPeriod> {
-    return await this.prisma.schoolPeriod.delete({
+    const schoolPeriod = await this.prisma.schoolPeriod.delete({
       where: {
         id,
         deletedAt: {
@@ -149,6 +183,14 @@ export class SchoolPeriodFeature {
         },
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.SCHOOL_PERIOD,
+      AuditLogActions.DELETE,
+      {}
+    );
+
+    return schoolPeriod;
   }
 
   public async findById(

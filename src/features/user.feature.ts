@@ -3,6 +3,8 @@ import { TYPES } from "../config/types";
 import { IHasherService } from "../services/argon2.service";
 import createHttpError from "http-errors";
 import { ExtendedPrisma } from "../config/container";
+import { AuditLogService } from "../services/auditLog.service";
+import { AuditableEntities, AuditLogActions } from "@prisma/client";
 
 @injectable()
 export class UserFeature {
@@ -10,7 +12,9 @@ export class UserFeature {
     @inject(TYPES.IHasherService)
     private readonly hasherService: IHasherService,
     @inject(TYPES.Prisma)
-    private readonly prisma: ExtendedPrisma
+    private readonly prisma: ExtendedPrisma,
+    @inject(TYPES.AuditLogService)
+    private readonly auditLogService: AuditLogService
   ) {}
 
   async register(username: string, password: string) {
@@ -27,7 +31,7 @@ export class UserFeature {
 
     const hashedPassword = await this.hasherService.hash(password);
 
-    return await this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: {
         username,
         password: hashedPassword,
@@ -36,6 +40,15 @@ export class UserFeature {
         password: true,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.USER,
+      AuditLogActions.CREATE,
+      user,
+      user.id
+    );
+
+    return user;
   }
 
   async login(username: string, password: string) {

@@ -16,18 +16,21 @@ import { PaymentMethodFeature } from "../features/paymentMethod.feature";
 import { PaymentFeature } from "../features/payment.feature";
 import { withPgTrgm } from "prisma-extension-pg-trgm";
 import { SettingsService } from "../services/settings.service";
+import { AuditLogService } from "../services/auditLog.service";
 
 const container = new Container();
 
-const prisma = new PrismaClient().$extends(withPgTrgm({ logQueries: true }));;
+const prisma = new PrismaClient().$extends(withPgTrgm({ logQueries: true }));
 
-export type ExtendedPrisma = typeof prisma
+export type ExtendedPrisma = typeof prisma;
 
 container.bind<ExtendedPrisma>(TYPES.Prisma).toConstantValue(prisma);
 
 // Services
 container.bind<IHasherService>(TYPES.IHasherService).to(Argon2Service);
 container.bind<ITokenService>(TYPES.ITokenService).to(JwtService);
+container.bind<SettingsService>(TYPES.SettingsService).to(SettingsService);
+container.bind<AuditLogService>(TYPES.AuditLogService).to(AuditLogService);
 
 // Features
 container.bind<UserFeature>(TYPES.UserFeature).to(UserFeature);
@@ -48,7 +51,6 @@ container
   .bind<PaymentMethodFeature>(TYPES.PaymentMethodFeature)
   .to(PaymentMethodFeature);
 container.bind<PaymentFeature>(TYPES.PaymentFeature).to(PaymentFeature);
-container.bind<SettingsService>(TYPES.SettingsService).to(SettingsService);
 
 container.bind<PassportConfig>(PassportConfig).toSelf();
 

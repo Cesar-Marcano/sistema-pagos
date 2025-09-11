@@ -1,6 +1,11 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { Grade, Student } from "@prisma/client";
+import {
+  AuditableEntities,
+  AuditLogActions,
+  Grade,
+  Student,
+} from "@prisma/client";
 import createHttpError from "http-errors";
 import {
   SearchArgs,
@@ -8,10 +13,15 @@ import {
   searchWithPaginationAndCriteria,
 } from "../lib/search";
 import { ExtendedPrisma } from "../config/container";
+import { AuditLogService } from "../services/auditLog.service";
 
 @injectable()
 export class GradeFeature {
-  constructor(@inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma) {}
+  constructor(
+    @inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma,
+    @inject(TYPES.AuditLogService)
+    private readonly auditLogService: AuditLogService
+  ) {}
 
   public async create(name: string) {
     const existingGrades = await this.prisma.grade.count({
@@ -24,11 +34,19 @@ export class GradeFeature {
     if (existingGrades > 0)
       throw createHttpError(409, "Ya existe un grado con ese nombre.");
 
-    return this.prisma.grade.create({
+    const newGrade = await this.prisma.grade.create({
       data: {
         name,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.GRADE,
+      AuditLogActions.CREATE,
+      newGrade
+    );
+
+    return newGrade;
   }
 
   public async update(id: number, name: string) {
@@ -42,7 +60,7 @@ export class GradeFeature {
     if (existingGrades > 0)
       throw createHttpError(409, "Ya existe un grado con ese nombre.");
 
-    return this.prisma.grade.update({
+    const updatedGrade = await this.prisma.grade.update({
       where: {
         id,
         deletedAt: null,
@@ -51,10 +69,18 @@ export class GradeFeature {
         name,
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.GRADE,
+      AuditLogActions.UPDATE,
+      { name }
+    );
+
+    return updatedGrade;
   }
 
   public async softDelete(id: number) {
-    return this.prisma.grade.update({
+    const softDeletedGrade = await this.prisma.grade.update({
       where: {
         id,
         deletedAt: null,
@@ -63,10 +89,18 @@ export class GradeFeature {
         deletedAt: new Date(),
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.GRADE,
+      AuditLogActions.SOFT_DELETE,
+      { deletedAt: softDeletedGrade.deletedAt }
+    );
+
+    return softDeletedGrade;
   }
 
   public async hardDelete(id: number) {
-    return this.prisma.grade.delete({
+    const deletedGrade = await this.prisma.grade.delete({
       where: {
         id,
         deletedAt: {
@@ -74,6 +108,14 @@ export class GradeFeature {
         },
       },
     });
+
+    this.auditLogService.createLog(
+      AuditableEntities.GRADE,
+      AuditLogActions.DELETE,
+      {}
+    );
+
+    return deletedGrade
   }
 
   public async findById(id: number, includeDeleted: boolean) {

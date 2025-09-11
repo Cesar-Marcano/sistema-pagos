@@ -25,6 +25,7 @@ import {
 import z from "zod";
 import { DefaultSearchSchema } from "../../lib/searchController";
 import { ZodSearchResponseSchemaBuilder } from "../../lib/zodSearchResponse";
+import { authenticateAndSetContext } from "../../middlewares/authenticateAndSetContext";
 
 export const discountRoutes: Router = Router();
 
@@ -58,7 +59,7 @@ registry.registerPath({
 });
 discountRoutes.post(
   "/",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   createDiscount
 );
 
@@ -90,7 +91,7 @@ registry.registerPath({
 });
 discountRoutes.post(
   "/applyDiscountToStudent",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   applyDiscountToStudent
 );
 
@@ -118,7 +119,7 @@ registry.registerPath({
 });
 discountRoutes.delete(
   "/unapplyDiscountFromStudent/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   unapplyDiscountFromStudent
 );
 
@@ -150,7 +151,7 @@ registry.registerPath({
 });
 discountRoutes.post(
   "/applyDiscountToStudentPeriod",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   applyDiscountToStudentPeriod
 );
 
@@ -178,7 +179,7 @@ registry.registerPath({
 });
 discountRoutes.delete(
   "/unapplyDiscountFromStudentPeriod/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   unapplyDiscountFromStudentPeriod
 );
 
@@ -206,7 +207,7 @@ registry.registerPath({
 });
 discountRoutes.get(
   "/studentDiscounts/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   listStudentDiscounts
 );
 
@@ -236,7 +237,7 @@ registry.registerPath({
 });
 discountRoutes.get(
   "/studentPeriodDiscounts/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   listStudentPeriodDiscounts
 );
 
@@ -271,7 +272,7 @@ registry.registerPath({
 });
 discountRoutes.patch(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   updateDiscount
 );
 
@@ -299,7 +300,7 @@ registry.registerPath({
 });
 discountRoutes.delete(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   softDeleteDiscount
 );
 
@@ -327,7 +328,7 @@ registry.registerPath({
 });
 discountRoutes.get(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   findDiscountById
 );
 
@@ -353,6 +354,6 @@ registry.registerPath({
 });
 discountRoutes.get(
   "/",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   searchDiscount
 );

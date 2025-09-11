@@ -14,6 +14,7 @@ import { ZodSearchResponseSchemaBuilder } from "../../lib/zodSearchResponse";
 import { findLastStudentGradeById } from "./findLastStudentGrade";
 import { findStudentsByGradeAndYear } from "./findStudentsByGradeAndYear";
 import { StudentSchema } from "../student/schemas";
+import { authenticateAndSetContext } from "../../middlewares/authenticateAndSetContext";
 
 export const gradeRoutes: Router = Router();
 
@@ -47,7 +48,7 @@ registry.registerPath({
 });
 gradeRoutes.post(
   "/",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   createGrade
 );
 
@@ -82,7 +83,7 @@ registry.registerPath({
 });
 gradeRoutes.patch(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   updateGrade
 );
 
@@ -110,7 +111,7 @@ registry.registerPath({
 });
 gradeRoutes.delete(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   softDeleteGrade
 );
 
@@ -138,7 +139,7 @@ registry.registerPath({
 });
 gradeRoutes.get(
   "/findLastStudentGrade/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   findLastStudentGradeById
 );
 
@@ -166,7 +167,7 @@ registry.registerPath({
 });
 gradeRoutes.get(
   "/findStudentsByGradeAndYear/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   findStudentsByGradeAndYear
 );
 
@@ -195,7 +196,7 @@ registry.registerPath({
 });
 gradeRoutes.get(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   findGradeById
 );
 
@@ -227,6 +228,6 @@ registry.registerPath({
 });
 gradeRoutes.get(
   "/",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   searchGrade
 );

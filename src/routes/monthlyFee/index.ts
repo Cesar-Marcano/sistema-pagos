@@ -27,6 +27,7 @@ import { ZodSearchResponseSchemaBuilder } from "../../lib/zodSearchResponse";
 import { FindByIdParamsSchema } from "../../lib/findByIdParamsSchema";
 import { GradeSchema } from "../grade/schemas";
 import { SchoolYearSchema } from "../schoolYear/schemas";
+import { authenticateAndSetContext } from "../../middlewares/authenticateAndSetContext";
 
 export const monthlyFeeRoutes: Router = Router();
 
@@ -60,7 +61,7 @@ registry.registerPath({
 });
 monthlyFeeRoutes.post(
   "/",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   createMonthlyFee
 );
 
@@ -95,7 +96,7 @@ registry.registerPath({
 });
 monthlyFeeRoutes.patch(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   updateMonthlyFee
 );
 
@@ -131,7 +132,7 @@ registry.registerPath({
 });
 monthlyFeeRoutes.delete(
   "/unassignFeeFromGrades",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   unassignFeeFromGrades
 );
 
@@ -159,7 +160,7 @@ registry.registerPath({
 });
 monthlyFeeRoutes.delete(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   softDeleteMonthlyFee
 );
 
@@ -190,7 +191,7 @@ registry.registerPath({
 });
 monthlyFeeRoutes.get(
   "/feeOnGrade/search",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   searchMonthlyFeeOnGrade
 );
 
@@ -219,7 +220,7 @@ registry.registerPath({
 });
 monthlyFeeRoutes.get(
   "/feeOnGrade/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   findMonthlyFeeOnGradeById
 );
 
@@ -253,7 +254,7 @@ registry.registerPath({
 });
 monthlyFeeRoutes.get(
   "/feeOnGrade/getEffectiveMonthlyFee",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   getEffectiveMonthlyFee
 );
 
@@ -282,7 +283,7 @@ registry.registerPath({
 });
 monthlyFeeRoutes.get(
   "/:id",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   findMonthlyFeeById
 );
 
@@ -313,7 +314,7 @@ registry.registerPath({
 });
 monthlyFeeRoutes.get(
   "/",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   searchMonthlyFee
 );
 
@@ -349,6 +350,6 @@ registry.registerPath({
 });
 monthlyFeeRoutes.post(
   "/assignFeeToGrades",
-  passport.authenticate("jwt", { session: false }),
+  authenticateAndSetContext,
   assignFeeToGrades
 );
