@@ -27,7 +27,7 @@ export class Argon2Service implements IHasherService {
       return await argon2.verify(hash, password);
     } catch (err) {
       logger.error("Error al verificar la contraseña", err);
-      throw createHttpError(500, "Error al verificar la contraseña");
+      throw createHttpError(400, "Error al verificar la contraseña");
     }
   }
 }
