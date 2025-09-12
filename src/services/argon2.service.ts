@@ -24,11 +24,7 @@ export class Argon2Service implements IHasherService {
 
   public async compare(hash: string, password: string): Promise<boolean> {
     try {
-      if (await argon2.verify(hash, password)) {
-        return true;
-      } else {
-        return false;
-      }
+      return await argon2.verify(hash, password);
     } catch (err) {
       logger.error("Error al verificar la contraseña", err);
       throw createHttpError(500, "Error al verificar la contraseña");
