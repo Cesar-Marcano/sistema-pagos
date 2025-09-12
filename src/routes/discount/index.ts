@@ -279,7 +279,7 @@ discountRoutes.patch(
 registry.registerPath({
   description: "Eliminar descuento.",
   tags: ["discount"],
-  method: "patch",
+  method: "delete",
   path: "/discount/:id",
   security: [{ Bearer: [] }],
   request: {

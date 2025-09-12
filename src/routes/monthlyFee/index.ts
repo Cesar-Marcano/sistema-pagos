@@ -1,5 +1,4 @@
 import { Router } from "express";
-import passport from "passport";
 import { createMonthlyFee } from "./createMonthlyFee";
 import { findMonthlyFeeById } from "./findMonthlyFeeById";
 import { searchMonthlyFee } from "./searchMonthlyFee";
@@ -59,11 +58,7 @@ registry.registerPath({
     },
   },
 });
-monthlyFeeRoutes.post(
-  "/",
-  authenticateAndSetContext,
-  createMonthlyFee
-);
+monthlyFeeRoutes.post("/", authenticateAndSetContext, createMonthlyFee);
 
 registry.registerPath({
   description: "Actualizar mensualidad.",
@@ -94,11 +89,7 @@ registry.registerPath({
     },
   },
 });
-monthlyFeeRoutes.patch(
-  "/:id",
-  authenticateAndSetContext,
-  updateMonthlyFee
-);
+monthlyFeeRoutes.patch("/:id", authenticateAndSetContext, updateMonthlyFee);
 
 registry.registerPath({
   description: "Quitar mensualidad de grados.",
@@ -168,7 +159,7 @@ registry.registerPath({
   description: "Buscar mensualidades aplicadas a grados",
   tags: ["monthlyFee"],
   method: "get",
-  path: "/payment/feeOnGrade/search",
+  path: "/monthlyFee/feeOnGrade/search",
   security: [{ Bearer: [] }],
   request: {
     query: MonthlyFeeOnGradeSearchCriteriaQueryParams.extend(
@@ -199,7 +190,7 @@ registry.registerPath({
   description: "Buscar mensualidad aplicada a grado",
   tags: ["monthlyFee"],
   method: "get",
-  path: "/payment/feeOnGrade/{id}",
+  path: "/monthlyFee/feeOnGrade/{id}",
   security: [{ Bearer: [] }],
   request: {
     params: z.object({
@@ -228,7 +219,7 @@ registry.registerPath({
   description: "Buscar mensualidad vigente para un grado",
   tags: ["monthlyFee"],
   method: "get",
-  path: "/payment/feeOnGrade/getEffectiveMonthlyFee",
+  path: "/monthlyFee/feeOnGrade/getEffectiveMonthlyFee",
   security: [{ Bearer: [] }],
   request: {
     query: GetEffectiveMonthlyFeeQueryParamsSchema,
@@ -262,7 +253,7 @@ registry.registerPath({
   description: "Buscar mensualidad",
   tags: ["monthlyFee"],
   method: "get",
-  path: "/payment/{id}",
+  path: "/monthlyFee/{id}",
   security: [{ Bearer: [] }],
   request: {
     params: z.object({
@@ -281,17 +272,13 @@ registry.registerPath({
     },
   },
 });
-monthlyFeeRoutes.get(
-  "/:id",
-  authenticateAndSetContext,
-  findMonthlyFeeById
-);
+monthlyFeeRoutes.get("/:id", authenticateAndSetContext, findMonthlyFeeById);
 
 registry.registerPath({
   description: "Buscar mensualidad",
   tags: ["monthlyFee"],
   method: "get",
-  path: "/payment",
+  path: "/monthlyFee",
   security: [{ Bearer: [] }],
   request: {
     query: MonthlyFeeOnGradeSearchCriteriaQueryParams.extend(
@@ -312,17 +299,13 @@ registry.registerPath({
     },
   },
 });
-monthlyFeeRoutes.get(
-  "/",
-  authenticateAndSetContext,
-  searchMonthlyFee
-);
+monthlyFeeRoutes.get("/", authenticateAndSetContext, searchMonthlyFee);
 
 registry.registerPath({
   description: "Aplicar mensualidad a grados",
   tags: ["monthlyFee"],
-  method: "get",
-  path: "/payment",
+  method: "post",
+  path: "/monthlyFee/assignFeeToGrades",
   security: [{ Bearer: [] }],
   request: {
     body: {
