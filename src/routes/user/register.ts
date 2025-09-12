@@ -15,12 +15,12 @@ export async function register(req: Request, res: Response) {
 
   const user = await userFeature.register(username, password);
 
-  const { token, jti, expiration } = jwtService.sign(
+  const { token, jti, expiration, now } = jwtService.sign(
     user.username,
     user.id
   );
 
-  await sessionFeature.createSession(user.id, jti, expiration);
+  await sessionFeature.createSession(user.id, jti, expiration, now);
 
   res.status(201).json({ token });
 }

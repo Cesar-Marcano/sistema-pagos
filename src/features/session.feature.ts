@@ -13,12 +13,14 @@ export class SessionFeature {
   public async createSession(
     userId: number,
     jti: string,
-    expiration: Date
+    expiration: Date,
+    now: Date
   ): Promise<Session> {
     return await this.prisma.session.create({
       data: {
         jti,
         expiration,
+        createdAt: now,
         user: {
           connect: {
             id: userId,

@@ -1,6 +1,12 @@
 import { v4 } from "uuid";
-import { decode, JwtPayload, sign, verify } from "jsonwebtoken";
-import { StringValue } from "ms";
+import {
+  decode,
+  JwtPayload,
+  sign,
+  TokenExpiredError,
+  verify,
+} from "jsonwebtoken";
+import ms, { StringValue } from "ms";
 import { injectable } from "inversify";
 import createHttpError from "http-errors";
 import { env } from "../config/env";
@@ -17,6 +23,7 @@ export interface ITokenService {
     token: string;
     jti: string;
     expiration: Date;
+    now: Date;
   };
   verify(token: string): Payload;
 }
@@ -35,22 +42,23 @@ export class JwtService implements ITokenService {
     token: string;
     jti: string;
     expiration: Date;
+    now: Date;
   } {
     const jti = v4();
+    const now = Math.floor(Date.now() / 1000);
+    const exp = now + Math.floor(ms(this.tokenLifetime) / 1000);
 
-    const token = sign({ username }, this.jwtSecret, {
-      expiresIn: this.tokenLifetime,
+    const token = sign({ username, iat: now, exp }, this.jwtSecret, {
       issuer: this.tokenIssuer,
       subject: String(userId),
       jwtid: jti,
     });
 
-    const { exp } = decode(token) as Payload;
-
     return {
       token,
       jti,
-      expiration: new Date(exp! * 1000),
+      expiration: new Date(exp * 1000),
+      now: new Date(now * 1000),
     };
   }
 
@@ -62,6 +70,9 @@ export class JwtService implements ITokenService {
 
       return payload;
     } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        throw createHttpError(401, "Token expirado.");
+      }
       throw createHttpError(403, "Token inválido.");
     }
   }

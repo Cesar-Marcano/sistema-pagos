@@ -30,11 +30,11 @@ export class PassportConfig {
           try {
             const user = await this.userFeature.login(username, password);
 
-            const { token, jti, expiration } = this.jwtService.sign(
+            const { token, jti, expiration, now } = this.jwtService.sign(
               user.username,
               user.id
             );
-            await this.sessionFeature.createSession(user.id, jti, expiration);
+            await this.sessionFeature.createSession(user.id, jti, expiration, now);
 
             return done(null, { user, token });
           } catch (err) {
