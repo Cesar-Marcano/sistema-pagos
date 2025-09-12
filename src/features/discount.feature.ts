@@ -280,15 +280,64 @@ export class DiscountFeature {
     return studentPeriodDiscount;
   }
 
-  public async listStudentPeriodDiscounts(schoolPeriodId: number) {
+  public async listStudentPeriodDiscounts(
+    studentId: number,
+    schoolPeriodId: number
+  ) {
     return await this.prisma.studentPeriodDiscount.findMany({
       where: {
         schoolPeriodId,
+        studentId,
         deletedAt: null,
       },
       include: {
         discount: true,
       },
     });
+  }
+
+  public async applyStudentDiscountsToPeriod(
+    studentId: number,
+    schoolPeriodId: number
+  ) {
+    const studentDiscounts = await this.prisma.studentDiscount.findMany({
+      where: { studentId, deletedAt: null },
+    });
+
+    if (studentDiscounts.length === 0) return [];
+
+    const appliedDiscounts: any[] = [];
+
+    for (const discount of studentDiscounts) {
+      const existing = await this.prisma.studentPeriodDiscount.findFirst({
+        where: {
+          studentId,
+          schoolPeriodId,
+          discountId: discount.discountId,
+          deletedAt: null,
+        },
+      });
+
+      if (!existing) {
+        const studentPeriodDiscount =
+          await this.prisma.studentPeriodDiscount.create({
+            data: {
+              studentId,
+              schoolPeriodId,
+              discountId: discount.discountId,
+            },
+          });
+
+        this.auditLogService.createLog(
+          AuditableEntities.STUDENT_PERIOD_DISCOUNT,
+          AuditLogActions.CREATE,
+          studentPeriodDiscount
+        );
+
+        appliedDiscounts.push(studentPeriodDiscount);
+      }
+    }
+
+    return appliedDiscounts;
   }
 }

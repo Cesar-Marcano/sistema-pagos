@@ -215,11 +215,12 @@ registry.registerPath({
   description: "Listar descuentos del periodo de un estudiante.",
   tags: ["discount"],
   method: "get",
-  path: "/discount/studentPeriodDiscounts/:id",
+  path: "/studentPeriodDiscounts/student/{studentId}/period/{periodId}",
   security: [{ Bearer: [] }],
   request: {
     params: z.object({
-      id: z.number().positive(),
+      studentId: z.number().positive(),
+      periodId: z.number().positive(),
     }),
   },
   responses: {
@@ -236,7 +237,7 @@ registry.registerPath({
   },
 });
 discountRoutes.get(
-  "/studentPeriodDiscounts/:id",
+  "/studentPeriodDiscounts/student/:studentId/period/:periodId",
   authenticateAndSetContext,
   listStudentPeriodDiscounts
 );
@@ -317,10 +318,10 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: "Descuentos",
+      description: "Descuento",
       content: {
         "application/json": {
-          schema: z.object({ studentDiscounts: DiscountSchema.array() }),
+          schema: z.object({ discount: DiscountSchema }),
         },
       },
     },

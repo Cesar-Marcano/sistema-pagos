@@ -15,6 +15,7 @@ import {
 import { MonthlyFeeFeature } from "./monthlyFee.feature";
 import { ExtendedPrisma } from "../config/container";
 import { AuditLogService } from "../services/auditLog.service";
+import { DiscountFeature } from "./discount.feature";
 
 @injectable()
 export class PaymentFeature {
@@ -22,6 +23,8 @@ export class PaymentFeature {
     @inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma,
     @inject(TYPES.MonthlyFeeFeature)
     private readonly monthlyFeeFeature: MonthlyFeeFeature,
+    @inject(TYPES.DiscountFeature)
+    private readonly discountFeature: DiscountFeature,
     @inject(TYPES.AuditLogService)
     private readonly auditLogService: AuditLogService
   ) {}
@@ -104,6 +107,11 @@ export class PaymentFeature {
     if (!paymentMethod.requiresReferenceId) paymentDetails.reference = null;
     if (!paymentMethod.requiresManualVerification)
       paymentDetails.verified = null;
+
+    await this.discountFeature.applyStudentDiscountsToPeriod(
+      studentId,
+      schoolPeriodId
+    );
 
     const payment = await this.prisma.payment.create({
       data: {

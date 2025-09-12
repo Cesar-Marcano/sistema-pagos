@@ -7,7 +7,8 @@ export async function listStudentPeriodDiscounts(req: Request, res: Response) {
   const discountFeature = container.get<DiscountFeature>(TYPES.DiscountFeature);
 
   const studentPeriodDiscounts = await discountFeature.listStudentPeriodDiscounts(
-    Number(req.params.id)
+    Number(req.params.studentId),
+    Number(req.params.periodId)
   );
 
   res.status(200).json({ studentPeriodDiscounts });
