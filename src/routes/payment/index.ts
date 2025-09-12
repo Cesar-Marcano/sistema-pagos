@@ -1,5 +1,4 @@
 import { Router } from "express";
-import passport from "passport";
 import { createPayment } from "./createPayment";
 import { findPaymentById } from "./findPaymentById";
 import { searchPayment } from "./searchPayment";
@@ -11,7 +10,6 @@ import z from "zod";
 import { FindByIdParamsSchema } from "../../lib/findByIdParamsSchema";
 import { DefaultSearchSchema } from "../../lib/searchController";
 import { ZodSearchResponseSchemaBuilder } from "../../lib/zodSearchResponse";
-import { PaymentMethodSchema } from "../paymentMethod/schemas";
 import { authenticateAndSetContext } from "../../middlewares/authenticateAndSetContext";
 
 export const paymentRoutes: Router = Router();
@@ -160,7 +158,7 @@ registry.registerPath({
         "application/json": {
           schema: ZodSearchResponseSchemaBuilder(
             "payments",
-            PaymentMethodSchema
+            PaymentSchema
           ),
         },
       },
