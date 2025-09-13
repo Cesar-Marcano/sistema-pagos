@@ -5,6 +5,7 @@ import { DiscountFeature } from "./discount.feature";
 import { MonthlyFeeFeature } from "./monthlyFee.feature";
 import createHttpError from "http-errors";
 import { Decimal } from "@prisma/client/runtime/library";
+import { SettingsService } from "../services/settings.service";
 
 @injectable()
 export class ReportsFeature {
@@ -13,7 +14,9 @@ export class ReportsFeature {
     @inject(TYPES.DiscountFeature)
     private readonly discountFeature: DiscountFeature,
     @inject(TYPES.MonthlyFeeFeature)
-    private readonly monthlyFeeFeature: MonthlyFeeFeature
+    private readonly monthlyFeeFeature: MonthlyFeeFeature,
+    @inject(TYPES.SettingsService)
+    private readonly settingsService: SettingsService
   ) {}
 
   public async getStudentTotalMonthlyFee(
@@ -143,5 +146,100 @@ export class ReportsFeature {
       totalMonthlyFee,
       due,
     };
+  }
+
+  public async getStudentsInOverdue(periodId: number) {
+    const paymentDueDay = await this.settingsService.get("PAYMENT_DUE_DAY");
+    const daysUntilOverdue = await this.settingsService.get(
+      "DAYS_UNTIL_OVERDUE"
+    );
+
+    const period = await this.prisma.schoolPeriod.findUniqueOrThrow({
+      where: { id: periodId, deletedAt: null },
+      include: { schoolYear: true },
+    });
+
+    const periodMonthDate = this.addMonths(
+      period.schoolYear.startDate,
+      period.month - 1
+    );
+
+    const dueDate = new Date(
+      Date.UTC(
+        periodMonthDate.getUTCFullYear(),
+        periodMonthDate.getUTCMonth(),
+        paymentDueDay
+      )
+    );
+
+    const overdueDate = new Date(dueDate);
+    overdueDate.setUTCDate(overdueDate.getUTCDate() + daysUntilOverdue);
+
+    const today = new Date();
+
+    const studentGrades = await this.prisma.studentGrade.findMany({
+      where: {
+        deletedAt: null,
+        schoolYear: {
+          deletedAt: null,
+          SchoolPeriod: { some: { id: periodId, deletedAt: null } },
+        },
+      },
+      include: { student: true, grade: true },
+    });
+
+    const overdueStudents: any[] = [];
+
+    for (const sg of studentGrades) {
+      const totalFee = await this.getStudentTotalMonthlyFee(
+        sg.gradeId,
+        sg.studentId,
+        periodId
+      );
+
+      const payments = await this.prisma.payment.aggregate({
+        where: {
+          studentId: sg.studentId,
+          schoolPeriodId: periodId,
+          deletedAt: null,
+          verified: { not: false },
+        },
+        _sum: { amount: true },
+      });
+
+      const paid = payments._sum.amount ?? new Decimal(0);
+
+      if (paid.gte(totalFee)) continue;
+
+      if (today >= overdueDate) {
+        overdueStudents.push({
+          studentId: sg.studentId,
+          studentName: sg.student.name,
+          grade: sg.grade.name,
+          totalFee,
+          paid,
+          due: totalFee.minus(paid),
+          status: "OVERDUE",
+        });
+      } else if (today >= dueDate) {
+        overdueStudents.push({
+          studentId: sg.studentId,
+          studentName: sg.student.name,
+          grade: sg.grade.name,
+          totalFee,
+          paid,
+          due: totalFee.minus(paid),
+          status: "DUE",
+        });
+      }
+    }
+
+    return overdueStudents;
+  }
+
+  private addMonths(date: Date, months: number): Date {
+    const d = new Date(date);
+    d.setUTCMonth(d.getUTCMonth() + months);
+    return d;
   }
 }
