@@ -49,6 +49,99 @@ export class ReportsFeature {
 
     if (total.lessThan(0)) total = new Decimal(0);
 
-    return total.toNumber();
+    return total;
+  }
+
+  public async getPeriodRevenue(periodId: number) {
+    const payment = await this.prisma.payment.aggregate({
+      where: { schoolPeriodId: periodId, deletedAt: null },
+      _sum: {
+        amount: true,
+      },
+    });
+
+    const totalRevenue = payment._sum.amount ?? new Decimal(0);
+
+    const studentGrades = await this.prisma.studentGrade.findMany({
+      where: {
+        deletedAt: null,
+        schoolYear: {
+          deletedAt: null,
+          SchoolPeriod: {
+            some: { id: periodId, deletedAt: null },
+          },
+        },
+      },
+      include: {
+        student: true,
+        grade: true,
+      },
+    });
+
+    let expectedRevenue = new Decimal(0);
+    for (const studentGrade of studentGrades) {
+      const studentFee = await this.getStudentTotalMonthlyFee(
+        studentGrade.gradeId,
+        studentGrade.studentId,
+        periodId
+      );
+      expectedRevenue = expectedRevenue.plus(studentFee);
+    }
+
+    return {
+      expectedRevenue: expectedRevenue,
+      totalRevenue: totalRevenue,
+    };
+  }
+
+  public async getStudentDue(periodId: number, studentId: number) {
+    const studentGrade = await this.prisma.studentGrade.findFirstOrThrow({
+      where: {
+        deletedAt: null,
+        studentId,
+        schoolYear: {
+          deletedAt: null,
+          SchoolPeriod: {
+            some: {
+              id: periodId,
+              deletedAt: null,
+            },
+          },
+        },
+      },
+      select: {
+        gradeId: true,
+      },
+    });
+
+    const totalMonthlyFee = await this.getStudentTotalMonthlyFee(
+      studentGrade.gradeId,
+      studentId,
+      periodId
+    );
+
+    const totalStudentPayments = await this.prisma.payment.aggregate({
+      where: {
+        studentId,
+        schoolPeriodId: periodId,
+        deletedAt: null,
+        verified: {
+          not: false,
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    });
+
+    const totalPaid = totalStudentPayments._sum.amount ?? new Decimal(0);
+
+    const due = totalMonthlyFee.minus(totalPaid);
+
+    return {
+      totalPaid,
+      totalMonthlyFee,
+      due,
+    };
   }
 }
