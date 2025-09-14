@@ -36,7 +36,7 @@ model SchoolYear {
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    SchoolPeriod SchoolPeriod[]
+    SchoolMonth SchoolMonth[]
     StudentGrade StudentGrade[]
 
     @@unique([name, deletedAt])
@@ -44,7 +44,7 @@ model SchoolYear {
     @@index([startDate, endDate])
 }
 
-model SchoolPeriod {
+model SchoolMonth {
     id Int @id @default(autoincrement())
 
     schoolYear SchoolYear @relation(fields: [schoolYearId], references: [id])
@@ -58,7 +58,7 @@ model SchoolPeriod {
     schoolYearId          Int
     Payment               Payment[]
     MonthlyFeeOnGrade     MonthlyFeeOnGrade[]
-    StudentPeriodDiscount StudentPeriodDiscount[]
+    StudentMonthDiscount StudentMonthDiscount[]
 
     @@unique([month, schoolYearId, deletedAt])
     @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
@@ -77,7 +77,7 @@ model Student {
     StudentGrade          StudentGrade[]
     Payment               Payment[]
     StudentDiscount       StudentDiscount[]
-    StudentPeriodDiscount StudentPeriodDiscount[]
+    StudentMonthDiscount StudentMonthDiscount[]
 
     @@unique([name, deletedAt])
     @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
@@ -104,18 +104,18 @@ model MonthlyFeeOnGrade {
 
     monthlyFee          MonthlyFee   @relation(fields: [monthlyFeeId], references: [id])
     grade               Grade        @relation(fields: [gradeId], references: [id])
-    effectiveFromPeriod SchoolPeriod @relation(fields: [schoolPeriodId], references: [id])
+    effectiveFromMonth SchoolMonth @relation(fields: [schoolMonthId], references: [id])
 
     createdAt DateTime  @default(now()) @db.Timestamptz()
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
     monthlyFeeId   Int
-    schoolPeriodId Int
+    schoolMonthId Int
     gradeId        Int
 
-    @@unique([monthlyFeeId, gradeId, schoolPeriodId, deletedAt])
-    @@index([monthlyFeeId, gradeId, schoolPeriodId])
+    @@unique([monthlyFeeId, gradeId, schoolMonthId, deletedAt])
+    @@index([monthlyFeeId, gradeId, schoolMonthId])
 }
 
 model Grade {
@@ -165,7 +165,7 @@ model Discount {
     deletedAt DateTime? @db.Timestamptz()
 
     StudentDiscount       StudentDiscount[]
-    StudentPeriodDiscount StudentPeriodDiscount[]
+    StudentMonthDiscount StudentMonthDiscount[]
 
     @@unique([name, deletedAt])
     @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
@@ -216,7 +216,7 @@ model Payment {
     id Int @id @default(autoincrement())
 
     student      Student      @relation(fields: [studentId], references: [id])
-    schoolPeriod SchoolPeriod @relation(fields: [schoolPeriodId], references: [id])
+    schoolMonth SchoolMonth @relation(fields: [schoolMonthId], references: [id])
     amount       Decimal      @db.Decimal(15, 2)
     paymentType  PaymentType
 
@@ -228,18 +228,18 @@ model Payment {
     deletedAt     DateTime?     @db.Timestamptz()
 
     studentId       Int
-    schoolPeriodId  Int
+    schoolMonthId  Int
     paymentMethodId Int
 
     @@unique([paymentMethodId, reference, deletedAt])
-    @@index([studentId, schoolPeriodId, paymentMethodId])
+    @@index([studentId, schoolMonthId, paymentMethodId])
 }
 
-model StudentPeriodDiscount {
+model StudentMonthDiscount {
     id Int @id @default(autoincrement())
 
     student  Student      @relation(fields: [studentId], references: [id])
-    period   SchoolPeriod @relation(fields: [schoolPeriodId], references: [id])
+    schoolMonth   SchoolMonth @relation(fields: [schoolMonthId], references: [id])
     discount Discount     @relation(fields: [discountId], references: [id])
 
     createdAt DateTime  @default(now()) @db.Timestamptz()
@@ -248,15 +248,16 @@ model StudentPeriodDiscount {
 
     discountId     Int
     studentId      Int
-    schoolPeriodId Int
+    schoolMonthId Int
 
-    @@unique([discountId, studentId, schoolPeriodId, deletedAt])
+    @@unique([discountId, studentId, schoolMonthId, deletedAt])
 }
 
 enum AuditableEntities {
     USER
     SCHOOL_YEAR
     SCHOOL_PERIOD
+    SCHOOL_MONTH
     STUDENT
     MONTHLY_FEE
     MONTHLY_FEE_ON_GRADE
@@ -264,7 +265,7 @@ enum AuditableEntities {
     STUDENT_GRADE
     DISCOUNT
     STUDENT_DISCOUNT
-    STUDENT_PERIOD_DISCOUNT
+    STUDENT_MONTH_DISCOUNT
     PAYMENT_METHOD
     PAYMENT
     SETTING
@@ -314,6 +315,7 @@ enum Settings {
     CURRENCY_SYMBOL
     ACTUAL_SCHOOL_YEAR_ID
     ACTUAL_SCHOOL_PERIOD_ID
+    ACTUAL_SCHOOL_MONTH_ID
     SEARCH_THRESHOLD
     PUBLIC_REGISTRATION_ENABLED
 }
@@ -338,5 +340,5 @@ enum PurgableModels {
     StudentDiscount
     PaymentMethod
     Payment
-    StudentPeriodDiscount
+    StudentMonthDiscount
 }
