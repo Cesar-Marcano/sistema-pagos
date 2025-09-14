@@ -8,7 +8,7 @@ import { ITokenService, JwtService } from "../services/jwt.service";
 import { SessionFeature } from "../features/session.feature";
 import { SchoolYearFeature } from "../features/schoolyear.feature";
 import { GradeFeature } from "../features/grade.feature";
-import { SchoolPeriodFeature } from "../features/schoolPeriod.feature";
+import { SchoolMonthFeature } from "../features/schoolMonth.feature";
 import { StudentFeature } from "../features/student.feature";
 import { MonthlyFeeFeature } from "../features/monthlyFee.feature";
 import { DiscountFeature } from "../features/discount.feature";
@@ -40,8 +40,8 @@ container
   .to(SchoolYearFeature);
 container.bind<GradeFeature>(TYPES.GradeFeature).to(GradeFeature);
 container
-  .bind<SchoolPeriodFeature>(TYPES.SchoolPeriodFeature)
-  .to(SchoolPeriodFeature);
+  .bind<SchoolMonthFeature>(TYPES.SchoolMonthFeature)
+  .to(SchoolMonthFeature);
 container.bind<StudentFeature>(TYPES.StudentFeature).to(StudentFeature);
 container
   .bind<MonthlyFeeFeature>(TYPES.MonthlyFeeFeature)

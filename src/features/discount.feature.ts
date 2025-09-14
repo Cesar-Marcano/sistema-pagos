@@ -220,48 +220,48 @@ export class DiscountFeature {
     });
   }
 
-  public async applyDiscountToStudentPeriod(
+  public async applyDiscountToStudentMonth(
     discountId: number,
-    schoolPeriodId: number,
+    schoolMonthId: number,
     studentId: number
   ) {
-    const existentDiscountAssignedToPeriodCount =
-      await this.prisma.studentPeriodDiscount.count({
+    const existentDiscountAssignedToMonthCount =
+      await this.prisma.studentMonthDiscount.count({
         where: {
           discountId,
-          schoolPeriodId,
+          schoolMonthId,
           studentId,
           deletedAt: null,
         },
       });
 
-    if (existentDiscountAssignedToPeriodCount > 0)
+    if (existentDiscountAssignedToMonthCount > 0)
       throw createHttpError(
         409,
-        "Ya el descuento fue asignado al periodo del estudiante."
+        "Ya el descuento fue asignado al mes del estudiante."
       );
 
-    const studentPeriodDiscount =
-      await this.prisma.studentPeriodDiscount.create({
+    const studentMonthDiscount =
+      await this.prisma.studentMonthDiscount.create({
         data: {
           discountId,
-          schoolPeriodId,
+          schoolMonthId,
           studentId,
         },
       });
 
     this.auditLogService.createLog(
-      AuditableEntities.STUDENT_PERIOD_DISCOUNT,
+      AuditableEntities.STUDENT_MONTH_DISCOUNT,
       AuditLogActions.CREATE,
-      studentPeriodDiscount
+      studentMonthDiscount
     );
 
-    return studentPeriodDiscount;
+    return studentMonthDiscount;
   }
 
-  public async unapplyDiscountFromStudentPeriod(id: number) {
-    const studentPeriodDiscount =
-      await this.prisma.studentPeriodDiscount.update({
+  public async unapplyDiscountFromStudentMonth(id: number) {
+    const studentMonthDiscount =
+      await this.prisma.studentMonthDiscount.update({
         where: {
           id,
           deletedAt: null,
@@ -272,21 +272,21 @@ export class DiscountFeature {
       });
 
     this.auditLogService.createLog(
-      AuditableEntities.STUDENT_PERIOD_DISCOUNT,
+      AuditableEntities.STUDENT_MONTH_DISCOUNT,
       AuditLogActions.SOFT_DELETE,
-      { deletedAt: studentPeriodDiscount.deletedAt }
+      { deletedAt: studentMonthDiscount.deletedAt }
     );
 
-    return studentPeriodDiscount;
+    return studentMonthDiscount;
   }
 
-  public async listStudentPeriodDiscounts(
+  public async listStudentMonthDiscounts(
     studentId: number,
-    schoolPeriodId: number
+    schoolMonthId: number
   ) {
-    return await this.prisma.studentPeriodDiscount.findMany({
+    return await this.prisma.studentMonthDiscount.findMany({
       where: {
-        schoolPeriodId,
+        schoolMonthId,
         studentId,
         deletedAt: null,
       },
@@ -296,9 +296,9 @@ export class DiscountFeature {
     });
   }
 
-  public async applyStudentDiscountsToPeriod(
+  public async applyStudentDiscountsToMonth(
     studentId: number,
-    schoolPeriodId: number
+    schoolMonthId: number
   ) {
     const studentDiscounts = await this.prisma.studentDiscount.findMany({
       where: { studentId, deletedAt: null },
@@ -309,32 +309,32 @@ export class DiscountFeature {
     const appliedDiscounts: any[] = [];
 
     for (const discount of studentDiscounts) {
-      const existing = await this.prisma.studentPeriodDiscount.findFirst({
+      const existing = await this.prisma.studentMonthDiscount.findFirst({
         where: {
           studentId,
-          schoolPeriodId,
+          schoolMonthId,
           discountId: discount.discountId,
           deletedAt: null,
         },
       });
 
       if (!existing) {
-        const studentPeriodDiscount =
-          await this.prisma.studentPeriodDiscount.create({
+        const studentMonthDiscount =
+          await this.prisma.studentMonthDiscount.create({
             data: {
               studentId,
-              schoolPeriodId,
+              schoolMonthId,
               discountId: discount.discountId,
             },
           });
 
         this.auditLogService.createLog(
-          AuditableEntities.STUDENT_PERIOD_DISCOUNT,
+          AuditableEntities.STUDENT_MONTH_DISCOUNT,
           AuditLogActions.CREATE,
-          studentPeriodDiscount
+          studentMonthDiscount
         );
 
-        appliedDiscounts.push(studentPeriodDiscount);
+        appliedDiscounts.push(studentMonthDiscount);
       }
     }
 

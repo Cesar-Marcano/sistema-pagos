@@ -29,14 +29,14 @@ export const StudentDiscountSchema = registry.register(
   })
 );
 
-export const StudentPeriodDiscountSchema = registry.register(
-  "StudentPeriodDiscountSchema",
+export const StudentMonthDiscountSchema = registry.register(
+  "StudentMonthDiscountSchema",
   z.object({
     createdAt: z.date(),
     deletedAt: z.date().nullable(),
     id: z.number().positive(),
     updatedAt: z.date(),
-    schoolPeriodId: z.number().positive(),
+    schoolMonthId: z.number().positive(),
     discountId: z.number().positive(),
     studentId: z.number().positive(),
   })
@@ -60,12 +60,12 @@ export const ApplyDiscountToStudentSchema = registry.register(
   })
 );
 
-export const ApplyDiscountToStudentPeriodSchema = registry.register(
-  "ApplyDiscountToStudentPeriodSchema",
-  StudentPeriodDiscountSchema.pick({
+export const ApplyDiscountToStudentMonthSchema = registry.register(
+  "ApplyDiscountToStudentMonthSchema",
+  StudentMonthDiscountSchema.pick({
     studentId: true,
     discountId: true,
-    schoolPeriodId: true,
+    schoolMonthId: true,
   })
 );
 

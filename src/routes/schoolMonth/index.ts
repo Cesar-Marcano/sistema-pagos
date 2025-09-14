@@ -1,16 +1,16 @@
 import { Router } from "express";
 import passport from "passport";
-import { createSchoolPeriod } from "./createSchoolPeriod";
-import { updateSchoolPeriod } from "./updateSchoolPeriod";
-import { softDeleteSchoolPeriod } from "./softDeleteSchoolPeriod";
-import { findSchoolPeriodById } from "./findSchoolPeriodById";
-import { searchSchoolPeriod } from "./searchSchoolPeriod";
+import { createSchoolMonth } from "./createSchoolMonth";
+import { updateSchoolMonth } from "./updateSchoolMonth";
+import { softDeleteSchoolMonth } from "./softDeleteSchoolMonth";
+import { findSchoolMonthById } from "./findSchoolMonthById";
+import { searchSchoolMonth } from "./searchSchoolMonth";
 import { getRegistry } from "../../config/openApiRegistry";
 import {
-  CreateSchoolPeriodSchema,
-  SchoolPeriodSchema,
-  SchoolPeriodSearchCriteriaQueryParamsSchema,
-  UpdateSchoolPeriodSchema,
+  CreateSchoolMonthSchema,
+  SchoolMonthSchema,
+  SchoolMonthSearchCriteriaQueryParamsSchema,
+  UpdateSchoolMonthSchema,
 } from "./schemas";
 import z from "zod";
 import { FindByIdParamsSchema } from "../../lib/findByIdParamsSchema";
@@ -18,21 +18,21 @@ import { ZodSearchResponseSchemaBuilder } from "../../lib/zodSearchResponse";
 import { DefaultSearchSchema } from "../../lib/searchController";
 import { authenticateAndSetContext } from "../../middlewares/authenticateAndSetContext";
 
-export const schoolPeriodRoutes: Router = Router();
+export const schoolMonthRoutes: Router = Router();
 
 const registry = getRegistry();
 
 registry.registerPath({
-  description: "Registrar periodo (mes) escolar.",
-  tags: ["schoolPeriod"],
+  description: "Registrar mes escolar.",
+  tags: ["schoolMonth"],
   method: "post",
-  path: "/schoolPeriod",
+  path: "/schoolMonth",
   security: [{ Bearer: [] }],
   request: {
     body: {
       content: {
         "application/json": {
-          schema: CreateSchoolPeriodSchema.openapi({}).extend({
+          schema: CreateSchoolMonthSchema.openapi({}).extend({
             monthNumber: z
               .number()
               .positive()
@@ -42,7 +42,7 @@ registry.registerPath({
             name: z
               .string()
               .optional()
-              .describe("Nombre opcional para el periodo. Ej: 'Mayo 2025'"),
+              .describe("Nombre opcional para el mes escolar. Ej: 'Mayo 2025'"),
           }),
         },
       },
@@ -50,26 +50,22 @@ registry.registerPath({
   },
   responses: {
     201: {
-      description: "Periodo escolar registrado",
+      description: "Mes escolar registrado",
       content: {
         "application/json": {
-          schema: z.object({ schoolPeriod: SchoolPeriodSchema }),
+          schema: z.object({ schoolMonth: SchoolMonthSchema }),
         },
       },
     },
   },
 });
-schoolPeriodRoutes.post(
-  "/",
-  authenticateAndSetContext,
-  createSchoolPeriod
-);
+schoolMonthRoutes.post("/", authenticateAndSetContext, createSchoolMonth);
 
 registry.registerPath({
-  description: "Actualizar periodo (mes) escolar",
-  tags: ["schoolPeriod"],
+  description: "Actualizar mes escolar",
+  tags: ["schoolMonth"],
   method: "patch",
-  path: "/schoolPeriod/{id}",
+  path: "/schoolMonth/{id}",
   security: [{ Bearer: [] }],
   request: {
     params: z.object({
@@ -78,33 +74,29 @@ registry.registerPath({
     body: {
       content: {
         "application/json": {
-          schema: UpdateSchoolPeriodSchema.openapi({}),
+          schema: UpdateSchoolMonthSchema.openapi({}),
         },
       },
     },
   },
   responses: {
     200: {
-      description: "Periodo escolar actualizado",
+      description: "Mes escolar actualizado",
       content: {
         "application/json": {
-          schema: z.object({ schoolPeriod: SchoolPeriodSchema }),
+          schema: z.object({ schoolMonth: SchoolMonthSchema }),
         },
       },
     },
   },
 });
-schoolPeriodRoutes.patch(
-  "/:id",
-  authenticateAndSetContext,
-  updateSchoolPeriod
-);
+schoolMonthRoutes.patch("/:id", authenticateAndSetContext, updateSchoolMonth);
 
 registry.registerPath({
-  description: "Eliminar periodo (mes) escolar",
-  tags: ["schoolPeriod"],
+  description: "Eliminar mes escolar",
+  tags: ["schoolMonth"],
   method: "delete",
-  path: "/schoolPeriod/{id}",
+  path: "/schoolMonth/{id}",
   security: [{ Bearer: [] }],
   request: {
     params: z.object({
@@ -113,26 +105,26 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: "Periodo escolar eliminado",
+      description: "Mes escolar eliminado",
       content: {
         "application/json": {
-          schema: z.object({ schoolPeriod: SchoolPeriodSchema }),
+          schema: z.object({ schoolMonth: SchoolMonthSchema }),
         },
       },
     },
   },
 });
-schoolPeriodRoutes.delete(
+schoolMonthRoutes.delete(
   "/:id",
   authenticateAndSetContext,
-  softDeleteSchoolPeriod
+  softDeleteSchoolMonth
 );
 
 registry.registerPath({
-  description: "Obtener periodo (mes) escolar por id",
-  tags: ["schoolPeriod"],
+  description: "Obtener mes escolar por id",
+  tags: ["schoolMonth"],
   method: "get",
-  path: "/schoolPeriod/{id}",
+  path: "/schoolMonth/{id}",
   security: [{ Bearer: [] }],
   request: {
     params: z.object({
@@ -142,48 +134,40 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: "Periodo escolar",
+      description: "Mes escolar",
       content: {
         "application/json": {
-          schema: z.object({ schoolPeriod: SchoolPeriodSchema }),
+          schema: z.object({ schoolMonth: SchoolMonthSchema }),
         },
       },
     },
   },
 });
-schoolPeriodRoutes.get(
-  "/:id",
-  authenticateAndSetContext,
-  findSchoolPeriodById
-);
+schoolMonthRoutes.get("/:id", authenticateAndSetContext, findSchoolMonthById);
 
 registry.registerPath({
-  description: "Buscar periodos (meses) escolares",
-  tags: ["schoolPeriod"],
+  description: "Buscar meses escolares",
+  tags: ["schoolMonth"],
   method: "get",
-  path: "/schoolPeriod",
+  path: "/schoolMonth",
   security: [{ Bearer: [] }],
   request: {
-    query: SchoolPeriodSearchCriteriaQueryParamsSchema.extend(
+    query: SchoolMonthSearchCriteriaQueryParamsSchema.extend(
       DefaultSearchSchema.shape
     ),
   },
   responses: {
     200: {
-      description: "Periodo escolar",
+      description: "Mes escolar",
       content: {
         "application/json": {
           schema: ZodSearchResponseSchemaBuilder(
-            "schoolPeriods",
-            SchoolPeriodSchema
+            "schoolMonths",
+            SchoolMonthSchema
           ),
         },
       },
     },
   },
 });
-schoolPeriodRoutes.get(
-  "/",
-  authenticateAndSetContext,
-  searchSchoolPeriod
-);
+schoolMonthRoutes.get("/", authenticateAndSetContext, searchSchoolMonth);

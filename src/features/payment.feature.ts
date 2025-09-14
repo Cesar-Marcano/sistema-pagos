@@ -31,7 +31,7 @@ export class PaymentFeature {
 
   public async create(
     studentId: number,
-    schoolPeriodId: number,
+    schoolMonthId: number,
     paymentType: Exclude<PaymentType, "FULL" | "PARTIAL"> | null,
     amount: number,
     paymentMethodId: number,
@@ -40,9 +40,9 @@ export class PaymentFeature {
   ) {
     if (amount <= 0) throw createHttpError(400, "Monto de pago inválido.");
 
-    const schoolPeriod = await this.prisma.schoolPeriod.findUniqueOrThrow({
+    const schoolMonth = await this.prisma.schoolMonth.findUniqueOrThrow({
       where: {
-        id: schoolPeriodId,
+        id: schoolMonthId,
         deletedAt: null,
       },
       select: {
@@ -54,7 +54,7 @@ export class PaymentFeature {
       where: {
         studentId: studentId,
         schoolYear: {
-          id: schoolPeriod.schoolYearId,
+          id: schoolMonth.schoolYearId,
         },
         deletedAt: null,
       },
@@ -67,13 +67,13 @@ export class PaymentFeature {
 
     const monthlyFee = await this.monthlyFeeFeature.getEffectiveMonthlyFee(
       studentGrade.gradeId,
-      schoolPeriodId
+      schoolMonthId
     );
 
     if (!monthlyFee)
       throw createHttpError(
         500,
-        "Mensualidad vigente no encontrada para el grado seleccionado en el periodo seleccionado."
+        "Mensualidad vigente no encontrada para el grado seleccionado en el mes seleccionado."
       );
 
     if (pType === null) {
@@ -108,15 +108,15 @@ export class PaymentFeature {
     if (!paymentMethod.requiresManualVerification)
       paymentDetails.verified = null;
 
-    await this.discountFeature.applyStudentDiscountsToPeriod(
+    await this.discountFeature.applyStudentDiscountsToMonth(
       studentId,
-      schoolPeriodId
+      schoolMonthId
     );
 
     const payment = await this.prisma.payment.create({
       data: {
         studentId,
-        schoolPeriodId,
+        schoolMonthId,
         paymentType: pType!,
         amount,
         paymentMethodId,

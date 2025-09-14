@@ -8,18 +8,18 @@ import { softDeleteDiscount } from "./softDeleteDiscount";
 import { applyDiscountToStudent } from "./applyDiscountToStudent";
 import { unapplyDiscountFromStudent } from "./unapplyDiscountFromStudent";
 import { listStudentDiscounts } from "./listStudentDiscounts";
-import { applyDiscountToStudentPeriod } from "./applyDiscountToStudentPeriod";
-import { unapplyDiscountFromStudentPeriod } from "./unapplyDiscountFromStudentPeriod";
-import { listStudentPeriodDiscounts } from "./listStudentPeriodDiscounts";
+import { applyDiscountToStudentMonth } from "./applyDiscountToStudentMonth";
+import { unapplyDiscountFromStudentMonth } from "./unapplyDiscountFromStudentMonth";
+import { listStudentMonthDiscounts } from "./listStudentMonthDiscounts";
 import { getRegistry } from "../../config/openApiRegistry";
 import {
-  ApplyDiscountToStudentPeriodSchema,
+  ApplyDiscountToStudentMonthSchema,
   ApplyDiscountToStudentSchema,
   CreateDiscountSchema,
   DiscountSchema,
   DiscountSearchCriteriaQueryParams,
   StudentDiscountSchema,
-  StudentPeriodDiscountSchema,
+  StudentMonthDiscountSchema,
   UpdateDiscountSchema,
 } from "./schemas";
 import z from "zod";
@@ -124,16 +124,16 @@ discountRoutes.delete(
 );
 
 registry.registerPath({
-  description: "Aplicar descuento a un periodo del estudiante.",
+  description: "Aplicar descuento a un schoolMonthscolar del estudiante.",
   tags: ["discount"],
   method: "post",
-  path: "/discount/applyDiscountToStudentPeriod",
+  path: "/discount/applyDiscountToStudentMonth",
   security: [{ Bearer: [] }],
   request: {
     body: {
       content: {
         "application/json": {
-          schema: ApplyDiscountToStudentPeriodSchema.openapi({}),
+          schema: ApplyDiscountToStudentMonthSchema.openapi({}),
         },
       },
     },
@@ -143,23 +143,23 @@ registry.registerPath({
       description: "Descuento registrado",
       content: {
         "application/json": {
-          schema: z.object({ discountApplied: StudentPeriodDiscountSchema }),
+          schema: z.object({ discountApplied: StudentMonthDiscountSchema }),
         },
       },
     },
   },
 });
 discountRoutes.post(
-  "/applyDiscountToStudentPeriod",
+  "/applyDiscountToStudentMonth",
   authenticateAndSetContext,
-  applyDiscountToStudentPeriod
+  applyDiscountToStudentMonth
 );
 
 registry.registerPath({
-  description: "Desaplicar descuento a un periodo del estudiante.",
+  description: "Desaplicar descuento a un schoolMonthscolar del estudiante.",
   tags: ["discount"],
   method: "post",
-  path: "/discount/unapplyDiscountFromStudentPeriod/:id",
+  path: "/discount/unapplyDiscountFromStudentMonth/:id",
   security: [{ Bearer: [] }],
   request: {
     params: z.object({
@@ -171,16 +171,16 @@ registry.registerPath({
       description: "Descuento desaplicado",
       content: {
         "application/json": {
-          schema: z.object({ discountUnapplied: StudentPeriodDiscountSchema }),
+          schema: z.object({ discountUnapplied: StudentMonthDiscountSchema }),
         },
       },
     },
   },
 });
 discountRoutes.delete(
-  "/unapplyDiscountFromStudentPeriod/:id",
+  "/unapplyDiscountFromStudentMonth/:id",
   authenticateAndSetContext,
-  unapplyDiscountFromStudentPeriod
+  unapplyDiscountFromStudentMonth
 );
 
 registry.registerPath({
@@ -212,15 +212,15 @@ discountRoutes.get(
 );
 
 registry.registerPath({
-  description: "Listar descuentos del periodo de un estudiante.",
+  description: "Listar descuentos del schoolMonthscolar de un estudiante.",
   tags: ["discount"],
   method: "get",
-  path: "/studentPeriodDiscounts/student/{studentId}/period/{periodId}",
+  path: "/studentMonthDiscounts/student/{studentId}/schoolMonth/{schoolMonthId}",
   security: [{ Bearer: [] }],
   request: {
     params: z.object({
       studentId: z.number().positive(),
-      periodId: z.number().positive(),
+      schoolMonthId: z.number().positive(),
     }),
   },
   responses: {
@@ -229,7 +229,7 @@ registry.registerPath({
       content: {
         "application/json": {
           schema: z.object({
-            studentDiscounts: StudentPeriodDiscountSchema.array(),
+            studentDiscounts: StudentMonthDiscountSchema.array(),
           }),
         },
       },
@@ -237,9 +237,9 @@ registry.registerPath({
   },
 });
 discountRoutes.get(
-  "/studentPeriodDiscounts/student/:studentId/period/:periodId",
+  "/studentMonthDiscounts/student/:studentId/schoolMonth/:schoolMonthId",
   authenticateAndSetContext,
-  listStudentPeriodDiscounts
+  listStudentMonthDiscounts
 );
 
 registry.registerPath({

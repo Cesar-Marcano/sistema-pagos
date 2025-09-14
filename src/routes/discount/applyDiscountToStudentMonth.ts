@@ -2,20 +2,20 @@ import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
 import { DiscountFeature } from "../../features/discount.feature";
-import { ApplyDiscountToStudentPeriodSchema } from "./schemas";
+import { ApplyDiscountToStudentMonthSchema } from "./schemas";
 
-export async function applyDiscountToStudentPeriod(
+export async function applyDiscountToStudentMonth(
   req: Request,
   res: Response
 ) {
-  const { discountId, schoolPeriodId, studentId } =
-    ApplyDiscountToStudentPeriodSchema.parse(req.body);
+  const { discountId, schoolMonthId, studentId } =
+    ApplyDiscountToStudentMonthSchema.parse(req.body);
 
   const discountFeature = container.get<DiscountFeature>(TYPES.DiscountFeature);
 
-  const discountApplied = await discountFeature.applyDiscountToStudentPeriod(
+  const discountApplied = await discountFeature.applyDiscountToStudentMonth(
     discountId,
-    schoolPeriodId,
+    schoolMonthId,
     studentId
   );
 

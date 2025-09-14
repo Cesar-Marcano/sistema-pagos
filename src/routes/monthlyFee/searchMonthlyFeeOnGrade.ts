@@ -6,8 +6,8 @@ import { MonthlyFeeOnGradeSearchCriteriaQueryParams } from "./schemas";
 const monthlyFeeOnGradeWhereMapper = (queryParams: any) => ({
   ...(queryParams.monthlyFeeId && { monthlyFeeId: queryParams.monthlyFeeId }),
   ...(queryParams.gradeId && { gradeId: queryParams.gradeId }),
-  ...(queryParams.effectiveFromPeriodId && {
-    effectiveFromPeriodId: queryParams.effectiveFromPeriodId,
+  ...(queryParams.effectiveFromMonthId && {
+    effectiveFromMonthId: queryParams.effectiveFromMonthId,
   }),
 });
 

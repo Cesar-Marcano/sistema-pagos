@@ -22,16 +22,16 @@ export class ReportsFeature {
   public async getStudentTotalMonthlyFee(
     gradeId: number,
     studentId: number,
-    periodId: number
+    schoolMonthId: number
   ) {
     const monthlyFee = await this.monthlyFeeFeature.getEffectiveMonthlyFee(
       gradeId,
-      periodId
+      schoolMonthId
     );
 
-    const discounts = await this.discountFeature.listStudentPeriodDiscounts(
+    const discounts = await this.discountFeature.listStudentMonthDiscounts(
       studentId,
-      periodId
+      schoolMonthId
     );
 
     if (!monthlyFee)
@@ -39,8 +39,8 @@ export class ReportsFeature {
 
     let total = monthlyFee.monthlyFee.amount;
 
-    total = discounts.reduce((acc, studentPeriodDiscount) => {
-      const discount = studentPeriodDiscount.discount;
+    total = discounts.reduce((acc, studentMonthDiscount) => {
+      const discount = studentMonthDiscount.discount;
       const amount = discount.amount;
 
       if (discount.isPercentage) {
@@ -55,9 +55,9 @@ export class ReportsFeature {
     return total;
   }
 
-  public async getPeriodRevenue(periodId: number) {
+  public async getMonthRevenue(schoolMonthId: number) {
     const payment = await this.prisma.payment.aggregate({
-      where: { schoolPeriodId: periodId, deletedAt: null },
+      where: { schoolMonthId: schoolMonthId, deletedAt: null },
       _sum: {
         amount: true,
       },
@@ -70,8 +70,8 @@ export class ReportsFeature {
         deletedAt: null,
         schoolYear: {
           deletedAt: null,
-          SchoolPeriod: {
-            some: { id: periodId, deletedAt: null },
+          SchoolMonth: {
+            some: { id: schoolMonthId, deletedAt: null },
           },
         },
       },
@@ -86,7 +86,7 @@ export class ReportsFeature {
       const studentFee = await this.getStudentTotalMonthlyFee(
         studentGrade.gradeId,
         studentGrade.studentId,
-        periodId
+        schoolMonthId
       );
       expectedRevenue = expectedRevenue.plus(studentFee);
     }
@@ -97,16 +97,16 @@ export class ReportsFeature {
     };
   }
 
-  public async getStudentDue(periodId: number, studentId: number) {
+  public async getStudentDue(schoolMonthId: number, studentId: number) {
     const studentGrade = await this.prisma.studentGrade.findFirstOrThrow({
       where: {
         deletedAt: null,
         studentId,
         schoolYear: {
           deletedAt: null,
-          SchoolPeriod: {
+          SchoolMonth: {
             some: {
-              id: periodId,
+              id: schoolMonthId,
               deletedAt: null,
             },
           },
@@ -120,13 +120,13 @@ export class ReportsFeature {
     const totalMonthlyFee = await this.getStudentTotalMonthlyFee(
       studentGrade.gradeId,
       studentId,
-      periodId
+      schoolMonthId
     );
 
     const totalStudentPayments = await this.prisma.payment.aggregate({
       where: {
         studentId,
-        schoolPeriodId: periodId,
+        schoolMonthId: schoolMonthId,
         deletedAt: null,
         verified: {
           not: false,
@@ -148,26 +148,26 @@ export class ReportsFeature {
     };
   }
 
-  public async getStudentsInOverdue(periodId: number) {
+  public async getStudentsInOverdue(schoolMonthId: number) {
     const paymentDueDay = await this.settingsService.get("PAYMENT_DUE_DAY");
     const daysUntilOverdue = await this.settingsService.get(
       "DAYS_UNTIL_OVERDUE"
     );
 
-    const period = await this.prisma.schoolPeriod.findUniqueOrThrow({
-      where: { id: periodId, deletedAt: null },
+    const schoolMonth = await this.prisma.schoolMonth.findUniqueOrThrow({
+      where: { id: schoolMonthId, deletedAt: null },
       include: { schoolYear: true },
     });
 
-    const periodMonthDate = this.addMonths(
-      period.schoolYear.startDate,
-      period.month - 1
+    const schoolMonthMonthDate = this.addMonths(
+      schoolMonth.schoolYear.startDate,
+      schoolMonth.month - 1
     );
 
     const dueDate = new Date(
       Date.UTC(
-        periodMonthDate.getUTCFullYear(),
-        periodMonthDate.getUTCMonth(),
+        schoolMonthMonthDate.getUTCFullYear(),
+        schoolMonthMonthDate.getUTCMonth(),
         paymentDueDay
       )
     );
@@ -182,7 +182,7 @@ export class ReportsFeature {
         deletedAt: null,
         schoolYear: {
           deletedAt: null,
-          SchoolPeriod: { some: { id: periodId, deletedAt: null } },
+          SchoolMonth: { some: { id: schoolMonthId, deletedAt: null } },
         },
       },
       include: { student: true, grade: true },
@@ -194,13 +194,13 @@ export class ReportsFeature {
       const totalFee = await this.getStudentTotalMonthlyFee(
         sg.gradeId,
         sg.studentId,
-        periodId
+        schoolMonthId
       );
 
       const payments = await this.prisma.payment.aggregate({
         where: {
           studentId: sg.studentId,
-          schoolPeriodId: periodId,
+          schoolMonthId: schoolMonthId,
           deletedAt: null,
           verified: { not: false },
         },

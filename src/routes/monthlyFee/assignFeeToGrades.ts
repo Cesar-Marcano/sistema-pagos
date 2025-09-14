@@ -5,7 +5,7 @@ import { MonthlyFeeFeature } from "../../features/monthlyFee.feature";
 import { AssignFeeToGradesSchema } from "./schemas";
 
 export async function assignFeeToGrades(req: Request, res: Response) {
-  const { gradeIds, monthlyFeeId, effectiveFromPeriodId } =
+  const { gradeIds, monthlyFeeId, effectiveFromMonthId } =
     AssignFeeToGradesSchema.parse(req.body);
 
   const monthlyFeeFeature = container.get<MonthlyFeeFeature>(
@@ -15,7 +15,7 @@ export async function assignFeeToGrades(req: Request, res: Response) {
   const feesOnGrades = await monthlyFeeFeature.assignFeeToGrades(
     gradeIds,
     monthlyFeeId,
-    effectiveFromPeriodId
+    effectiveFromMonthId
   );
 
   res.json({ feesOnGrades });

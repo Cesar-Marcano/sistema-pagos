@@ -20,7 +20,7 @@ export const GetEffectiveMonthlyFeeQueryParamsSchema = registry.register(
   "GetEffectiveMonthlyFeeQuery",
   z.object({
     gradeId: z.string().transform(Number).pipe(z.number().positive()),
-    periodId: z.string().transform(Number).pipe(z.number().positive()),
+    schoolMonthId: z.string().transform(Number).pipe(z.number().positive()),
   })
 );
 
@@ -44,7 +44,7 @@ export const MonthlyFeeOnGradeSearchCriteriaQueryParams = registry.register(
   z.object({
     monthlyFeeId: z.string().optional().transform(Number),
     gradeId: z.string().optional().transform(Number),
-    effectiveFromPeriodId: z.string().optional().transform(Number),
+    effectiveFromMonthId: z.string().optional().transform(Number),
   })
 );
 
@@ -70,7 +70,7 @@ export const FeeOnGradeSchema = registry.register(
     gradeId: z.number().positive(),
     id: z.number().positive(),
     monthlyFeeId: z.number().positive(),
-    schoolPeriodId: z.number().positive(),
+    schoolMonthId: z.number().positive(),
     updatedAt: z.date(),
   })
 );
@@ -79,6 +79,6 @@ export const AssignFeeToGradesSchema = registry.register(
   "AssignFeeToGradesSchema",
   FeeOnGradeSchema.pick({ monthlyFeeId: true }).extend({
     gradeIds: z.array(z.number().positive()),
-    effectiveFromPeriodId: z.number().positive(),
+    effectiveFromMonthId: z.number().positive(),
   })
 );

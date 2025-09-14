@@ -9,13 +9,13 @@ export async function getEffectiveMonthlyFee(req: Request, res: Response) {
     TYPES.MonthlyFeeFeature
   );
 
-  const { gradeId, periodId } = GetEffectiveMonthlyFeeQueryParamsSchema.parse(
+  const { gradeId, schoolMonthId } = GetEffectiveMonthlyFeeQueryParamsSchema.parse(
     req.query
   );
 
   const effectiveMonthlyFee = await monthlyFeeFeature.getEffectiveMonthlyFee(
     gradeId,
-    periodId
+    schoolMonthId
   );
 
   res.status(200).json({ effectiveMonthlyFee });

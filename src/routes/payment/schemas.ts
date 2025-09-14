@@ -16,7 +16,7 @@ export const PaymentSchema = registry.register(
     id: z.number(),
     paymentMethodId: z.number().positive(),
     updatedAt: z.number(),
-    schoolPeriodId: z.number().positive(),
+    schoolMonthId: z.number().positive(),
     studentId: z.number().positive(),
     reference: ReferenceSchema.nullable().nullish(),
     verified: VerifiedSchema.nullable().nullish(),
@@ -28,7 +28,7 @@ export const CreatePaymentSchema = registry.register(
   "CreatePaymentSchema",
   PaymentSchema.pick({
     studentId: true,
-    schoolPeriodId: true,
+    schoolMonthId: true,
     amount: true,
     paymentMethodId: true,
     reference: true,
@@ -44,7 +44,7 @@ export const PaymentSearchCriteriaQueryParamsSchema = registry.register(
   "PaymentSearchCriteriaQuery",
   z.object({
     studentId: z.string().transform(Number).optional(),
-    schoolPeriodId: z.string().transform(Number).optional(),
+    schoolMonthId: z.string().transform(Number).optional(),
     paymentType: z.enum(PaymentType).optional(),
     amount: z.string().transform(Number).optional(),
     paymentMethodId: z.string().transform(Number).optional(),

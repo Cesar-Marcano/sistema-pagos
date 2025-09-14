@@ -9,7 +9,7 @@ export async function createPayment(req: Request, res: Response) {
     amount,
     paymentMethodId,
     paymentType,
-    schoolPeriodId,
+    schoolMonthId,
     reference,
     studentId,
     verified,
@@ -19,7 +19,7 @@ export async function createPayment(req: Request, res: Response) {
 
   const payment = await paymentFeature.create(
     studentId,
-    schoolPeriodId,
+    schoolMonthId,
     paymentType,
     amount,
     paymentMethodId,

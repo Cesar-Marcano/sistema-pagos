@@ -1,19 +1,19 @@
 import { Request, Response } from "express";
 import { createSearchController } from "../../lib/searchController";
 import { TYPES } from "../../config/types";
-import { SchoolPeriodSearchCriteriaQueryParamsSchema } from "./schemas";
+import { SchoolMonthSearchCriteriaQueryParamsSchema } from "./schemas";
 
-const schoolPeriodWhereMapper = (queryParams: any) => ({
+const schoolMonthWhereMapper = (queryParams: any) => ({
   ...(queryParams.name && { name: queryParams.name }),
   ...(queryParams.month && { month: queryParams.month }),
   ...(queryParams.schoolYearId && { schoolYearId: queryParams.schoolYearId }),
 });
 
-export const searchSchoolPeriod = createSearchController(
-  SchoolPeriodSearchCriteriaQueryParamsSchema,
-  TYPES.SchoolPeriodFeature,
-  schoolPeriodWhereMapper,
+export const searchSchoolMonth = createSearchController(
+  SchoolMonthSearchCriteriaQueryParamsSchema,
+  TYPES.SchoolMonthFeature,
+  schoolMonthWhereMapper,
   {
-    searchResultName: "schoolPeriods"
+    searchResultName: "schoolMonths"
   }
 );

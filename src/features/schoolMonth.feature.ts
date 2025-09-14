@@ -3,7 +3,7 @@ import { TYPES } from "../config/types";
 import {
   AuditableEntities,
   AuditLogActions,
-  SchoolPeriod,
+  SchoolMonth,
   SchoolYear,
 } from "@prisma/client";
 import createHttpError from "http-errors";
@@ -17,7 +17,7 @@ import { ExtendedPrisma } from "../config/container";
 import { AuditLogService } from "../services/auditLog.service";
 
 @injectable()
-export class SchoolPeriodFeature {
+export class SchoolMonthFeature {
   constructor(
     @inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma,
     @inject(TYPES.AuditLogService)
@@ -28,7 +28,7 @@ export class SchoolPeriodFeature {
     schoolYearId: number,
     month: number,
     name?: string
-  ): Promise<SchoolPeriod> {
+  ): Promise<SchoolMonth> {
     const schoolYear = await this.prisma.schoolYear.findUnique({
       where: { id: schoolYearId, deletedAt: null },
     });
@@ -37,7 +37,7 @@ export class SchoolPeriodFeature {
 
     this.validateMonth(schoolYear, month);
 
-    const existentSchoolPeriod = await this.prisma.schoolPeriod.count({
+    const existentSchoolMonth = await this.prisma.schoolMonth.count({
       where: {
         schoolYear: {
           id: schoolYearId,
@@ -47,13 +47,13 @@ export class SchoolPeriodFeature {
       },
     });
 
-    if (existentSchoolPeriod > 0)
+    if (existentSchoolMonth > 0)
       throw createHttpError(
         409,
-        "Periodo escolar con el mes indicado ya ha sido creado."
+        "Mes escolar con el mes indicado ya ha sido creado."
       );
 
-    const schoolPeriod = await this.prisma.schoolPeriod.create({
+    const schoolMonth = await this.prisma.schoolMonth.create({
       data: {
         schoolYear: {
           connect: {
@@ -66,18 +66,18 @@ export class SchoolPeriodFeature {
     });
 
     this.auditLogService.createLog(
-      AuditableEntities.SCHOOL_PERIOD,
+      AuditableEntities.SCHOOL_MONTH,
       AuditLogActions.CREATE,
-      schoolPeriod
+      schoolMonth
     );
 
-    return schoolPeriod;
+    return schoolMonth;
   }
   public async update(
     id: number,
     data: Partial<{ schoolYearId: number; month: number; name: string }>
-  ): Promise<SchoolPeriod> {
-    const period = await this.prisma.schoolPeriod.findUnique({
+  ): Promise<SchoolMonth> {
+    const existingSchoolMonth = await this.prisma.schoolMonth.findUnique({
       where: {
         id,
         deletedAt: null,
@@ -87,15 +87,15 @@ export class SchoolPeriodFeature {
       },
     });
 
-    if (!period) {
-      throw createHttpError(404, "El periodo escolar no fue encontrado.");
+    if (!existingSchoolMonth) {
+      throw createHttpError(404, "El mes escolar no fue encontrado.");
     }
 
-    const newSchoolYearId = data.schoolYearId ?? period.schoolYearId;
-    const newMonth = data.month ?? period.month;
+    const newSchoolYearId = data.schoolYearId ?? existingSchoolMonth.schoolYearId;
+    const newMonth = data.month ?? existingSchoolMonth.month;
 
-    let targetSchoolYear: SchoolYear | null = period.schoolYear;
-    if (data.schoolYearId && data.schoolYearId !== period.schoolYearId) {
+    let targetSchoolYear: SchoolYear | null = existingSchoolMonth.schoolYear;
+    if (data.schoolYearId && data.schoolYearId !== existingSchoolMonth.schoolYearId) {
       targetSchoolYear = await this.prisma.schoolYear.findUnique({
         where: { id: newSchoolYearId, deletedAt: null },
       });
@@ -118,8 +118,8 @@ export class SchoolPeriodFeature {
       throw createHttpError(400, "El nombre no puede estar vacío.");
     }
 
-    if (newSchoolYearId !== period.schoolYearId || newMonth !== period.month) {
-      const existingPeriod = await this.prisma.schoolPeriod.count({
+    if (newSchoolYearId !== existingSchoolMonth.schoolYearId || newMonth !== existingSchoolMonth.month) {
+      const existingMonth = await this.prisma.schoolMonth.count({
         where: {
           schoolYearId: newSchoolYearId,
           month: newMonth,
@@ -130,12 +130,12 @@ export class SchoolPeriodFeature {
         },
       });
 
-      if (existingPeriod > 0) {
+      if (existingMonth > 0) {
         throw createHttpError(409, "La combinación de año y mes ya existe.");
       }
     }
 
-    const schoolPeriod = await this.prisma.schoolPeriod.update({
+    const schoolMonth = await this.prisma.schoolMonth.update({
       where: {
         id,
       },
@@ -146,36 +146,36 @@ export class SchoolPeriodFeature {
           },
         },
         month: newMonth,
-        name: data.name ?? period.name,
+        name: data.name ?? existingSchoolMonth.name,
       },
     });
 
     this.auditLogService.createLog(
-      AuditableEntities.SCHOOL_PERIOD,
+      AuditableEntities.SCHOOL_MONTH,
       AuditLogActions.UPDATE,
       data
     );
 
-    return schoolPeriod;
+    return schoolMonth;
   }
 
-  public async softDelete(id: number): Promise<SchoolPeriod> {
-    const schoolPeriod = await this.prisma.schoolPeriod.update({
+  public async softDelete(id: number): Promise<SchoolMonth> {
+    const schoolMonth = await this.prisma.schoolMonth.update({
       where: { id, deletedAt: null },
       data: { deletedAt: new Date() },
     });
 
     this.auditLogService.createLog(
-      AuditableEntities.SCHOOL_PERIOD,
+      AuditableEntities.SCHOOL_MONTH,
       AuditLogActions.SOFT_DELETE,
-      { deletedAt: schoolPeriod.deletedAt }
+      { deletedAt: schoolMonth.deletedAt }
     );
 
-    return schoolPeriod;
+    return schoolMonth;
   }
 
-  public async hardDelete(id: number): Promise<SchoolPeriod> {
-    const schoolPeriod = await this.prisma.schoolPeriod.delete({
+  public async hardDelete(id: number): Promise<SchoolMonth> {
+    const schoolMonth = await this.prisma.schoolMonth.delete({
       where: {
         id,
         deletedAt: {
@@ -185,19 +185,19 @@ export class SchoolPeriodFeature {
     });
 
     this.auditLogService.createLog(
-      AuditableEntities.SCHOOL_PERIOD,
+      AuditableEntities.SCHOOL_MONTH,
       AuditLogActions.DELETE,
       {}
     );
 
-    return schoolPeriod;
+    return schoolMonth;
   }
 
   public async findById(
     id: number,
     includeDeleted: boolean
-  ): Promise<SchoolPeriod | null> {
-    return await this.prisma.schoolPeriod.findUnique({
+  ): Promise<SchoolMonth | null> {
+    return await this.prisma.schoolMonth.findUnique({
       where: {
         id,
         ...(includeDeleted ? {} : { deletedAt: null }),
@@ -208,17 +208,17 @@ export class SchoolPeriodFeature {
   public async search(
     args: SearchArgs<
       Partial<
-        Omit<SchoolPeriod, "id" | "deletedAt" | "createdAt" | "updatedAt">
+        Omit<SchoolMonth, "id" | "deletedAt" | "createdAt" | "updatedAt">
       > & {
         deletedAt?: {
           not: null;
         };
       }
     >
-  ): Promise<SearchResult<SchoolPeriod>> {
-    return searchWithPaginationAndCriteria<SchoolPeriod>(
-      this.prisma.schoolPeriod.findMany,
-      this.prisma.schoolPeriod.similarity,
+  ): Promise<SearchResult<SchoolMonth>> {
+    return searchWithPaginationAndCriteria<SchoolMonth>(
+      this.prisma.schoolMonth.findMany,
+      this.prisma.schoolMonth.similarity,
       {
         ...args,
         where: { ...args.where },
@@ -227,14 +227,14 @@ export class SchoolPeriodFeature {
   }
 
   private validateMonth(schoolYear: SchoolYear, month: number): void {
-    const maxSchoolarMonthsInYear = differenceInMonths(
+    const maxSchoolMonthsInYear = differenceInMonths(
       schoolYear.endDate,
       schoolYear.startDate
     );
-    if (month < 1 || month > maxSchoolarMonthsInYear) {
+    if (month < 1 || month > maxSchoolMonthsInYear) {
       throw createHttpError(
         400,
-        `El mes debe estar entre 1 y ${maxSchoolarMonthsInYear}.`
+        `El mes debe estar entre 1 y ${maxSchoolMonthsInYear}.`
       );
     }
   }

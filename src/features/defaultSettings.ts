@@ -2,7 +2,7 @@ import { PurgableModels } from "@prisma/client";
 import { createDefaultSettings } from "../lib/createDefaultSettings";
 
 export const defaultSettings = createDefaultSettings({
-  // The ID of the currently active school period.
+  // The ID of the currently active school schoolMonthId.
   // It's null if no school month is currently configured.
   ACTUAL_SCHOOL_PERIOD_ID: null as string | null,
 

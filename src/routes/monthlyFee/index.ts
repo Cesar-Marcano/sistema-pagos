@@ -233,7 +233,7 @@ registry.registerPath({
             z.object({
               monthlyFee: MonthlyFeeSchema,
               grade: GradeSchema,
-              effectiveFromPeriod: z.object({
+              effectiveFromMonth: z.object({
                 schoolYear: SchoolYearSchema,
               }),
             })

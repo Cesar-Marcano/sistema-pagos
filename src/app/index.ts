@@ -28,6 +28,6 @@ export async function run() {
   app.use(errorHandler);
 
   return app.listen(3000, () => {
-    logger.info("Server listeining on port 3000");
+    logger.info("Server listening on port 3000");
   });
 }

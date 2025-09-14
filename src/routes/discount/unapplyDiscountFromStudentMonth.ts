@@ -3,14 +3,14 @@ import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
 import { DiscountFeature } from "../../features/discount.feature";
 
-export async function unapplyDiscountFromStudentPeriod(
+export async function unapplyDiscountFromStudentMonth(
   req: Request,
   res: Response
 ) {
   const discountFeature = container.get<DiscountFeature>(TYPES.DiscountFeature);
 
   const discountUnapplied =
-    await discountFeature.unapplyDiscountFromStudentPeriod(
+    await discountFeature.unapplyDiscountFromStudentMonth(
       Number(req.params.id)
     );
 

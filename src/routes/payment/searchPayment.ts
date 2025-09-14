@@ -5,8 +5,8 @@ import { PaymentSearchCriteriaQueryParamsSchema } from "./schemas";
 
 const paymentWhereMapper = (queryParams: any) => ({
   ...(queryParams.studentId && { studentId: queryParams.studentId }),
-  ...(queryParams.schoolPeriodId && {
-    schoolPeriodId: queryParams.schoolPeriodId,
+  ...(queryParams.schoolMonthId && {
+    schoolMonthId: queryParams.schoolMonthId,
   }),
   ...(queryParams.paymentType && {
     paymentType: {
