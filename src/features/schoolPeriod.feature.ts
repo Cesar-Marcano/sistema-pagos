@@ -1,0 +1,230 @@
+import { inject, injectable } from "inversify";
+import { TYPES } from "../config/types";
+import {
+  AuditableEntities,
+  AuditLogActions,
+  SchoolPeriod,
+} from "@prisma/client";
+import {
+  SearchArgs,
+  SearchResult,
+  searchWithPaginationAndCriteria,
+} from "../lib/search";
+import createHttpError from "http-errors";
+import { ExtendedPrisma } from "../config/container";
+import { AuditLogService } from "../services/auditLog.service";
+
+@injectable()
+export class SchoolPeriodFeature {
+  constructor(
+    @inject(TYPES.Prisma)
+    private readonly prisma: ExtendedPrisma,
+    @inject(TYPES.AuditLogService)
+    private readonly auditLogService: AuditLogService
+  ) {}
+
+  public async create(
+    name: string,
+    schoolYearId: number
+  ): Promise<SchoolPeriod> {
+    const schoolYear = await this.prisma.schoolYear.findUnique({
+      where: {
+        id: schoolYearId,
+        deletedAt: null,
+      },
+    });
+
+    if (!schoolYear) {
+      throw createHttpError(404, "Año escolar no encontrado.");
+    }
+
+    const existingPeriod = await this.prisma.schoolPeriod.count({
+      where: {
+        name,
+        schoolYearId,
+        deletedAt: null,
+      },
+    });
+
+    if (existingPeriod > 0) {
+      throw createHttpError(
+        409,
+        "Ya existe un período escolar con este nombre para el año escolar especificado."
+      );
+    }
+
+    const schoolPeriod = await this.prisma.schoolPeriod.create({
+      data: {
+        name,
+        schoolYearId,
+      },
+      include: {
+        schoolYear: true,
+      },
+    });
+
+    this.auditLogService.createLog(
+      AuditableEntities.SCHOOL_PERIOD,
+      AuditLogActions.CREATE,
+      schoolPeriod
+    );
+
+    return schoolPeriod;
+  }
+
+  public async update(
+    id: number,
+    data: Partial<{
+      name: string;
+      schoolYearId: number;
+    }>
+  ): Promise<SchoolPeriod> {
+    const schoolPeriod = await this.prisma.schoolPeriod.findUnique({
+      where: {
+        id,
+        deletedAt: null,
+      },
+    });
+
+    if (!schoolPeriod) {
+      throw createHttpError(404, "Período escolar no encontrado.");
+    }
+
+    if (data.schoolYearId && data.schoolYearId !== schoolPeriod.schoolYearId) {
+      const schoolYear = await this.prisma.schoolYear.findUnique({
+        where: {
+          id: data.schoolYearId,
+          deletedAt: null,
+        },
+      });
+
+      if (!schoolYear) {
+        throw createHttpError(404, "Año escolar no encontrado.");
+      }
+    }
+
+    if (data.name && data.name !== schoolPeriod.name) {
+      const targetSchoolYearId = data.schoolYearId ?? schoolPeriod.schoolYearId;
+      const existingPeriod = await this.prisma.schoolPeriod.count({
+        where: {
+          name: data.name,
+          schoolYearId: targetSchoolYearId,
+          deletedAt: null,
+          id: {
+            not: id,
+          },
+        },
+      });
+
+      if (existingPeriod > 0) {
+        throw createHttpError(
+          409,
+          "Ya existe un período escolar con este nombre para el año escolar especificado."
+        );
+      }
+    }
+
+    const updatedSchoolPeriod = await this.prisma.schoolPeriod.update({
+      where: {
+        id,
+        deletedAt: null,
+      },
+      data,
+      include: {
+        schoolYear: true,
+      },
+    });
+
+    this.auditLogService.createLog(
+      AuditableEntities.SCHOOL_PERIOD,
+      AuditLogActions.UPDATE,
+      { data }
+    );
+
+    return updatedSchoolPeriod;
+  }
+
+  public async softDelete(id: number): Promise<SchoolPeriod> {
+    const schoolPeriod = await this.prisma.schoolPeriod.update({
+      where: {
+        id,
+        deletedAt: null,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+      include: {
+        schoolYear: true,
+      },
+    });
+
+    this.auditLogService.createLog(
+      AuditableEntities.SCHOOL_PERIOD,
+      AuditLogActions.SOFT_DELETE,
+      { deletedAt: schoolPeriod.deletedAt }
+    );
+
+    return schoolPeriod;
+  }
+
+  public async hardDelete(id: number): Promise<SchoolPeriod> {
+    const schoolPeriod = await this.prisma.schoolPeriod.delete({
+      where: {
+        id,
+        deletedAt: {
+          not: null,
+        },
+      },
+      include: {
+        schoolYear: true,
+      },
+    });
+
+    this.auditLogService.createLog(
+      AuditableEntities.SCHOOL_PERIOD,
+      AuditLogActions.DELETE,
+      {}
+    );
+
+    return schoolPeriod;
+  }
+
+  public async findById(
+    id: number,
+    includeDeleted: boolean
+  ): Promise<SchoolPeriod | null> {
+    return await this.prisma.schoolPeriod.findUnique({
+      where: {
+        id,
+        ...(includeDeleted ? {} : { deletedAt: null }),
+      },
+      include: {
+        schoolYear: true,
+      },
+    });
+  }
+
+  public async search(
+    args: SearchArgs<
+      Partial<
+        Omit<SchoolPeriod, "id" | "deletedAt" | "createdAt" | "updatedAt">
+      > & {
+        deletedAt?: {
+          not: null;
+        };
+      }
+    >
+  ): Promise<SearchResult<SchoolPeriod>> {
+    return searchWithPaginationAndCriteria<SchoolPeriod>(
+      this.prisma.schoolPeriod.findMany.bind(this.prisma.schoolPeriod),
+      this.prisma.schoolPeriod.similarity.bind(this.prisma.schoolPeriod),
+      {
+        ...args,
+        where: { ...args.where },
+        include: {
+          schoolYear: true,
+        },
+      }
+    );
+  }
+}

@@ -8,6 +8,7 @@ import { monthlyFeeRoutes } from "./monthlyFee";
 import { discountRoutes } from "./discount";
 import { paymentRoutes } from "./payment";
 import { paymentMethodRoutes } from "./paymentMethod";
+import { schoolPeriodRoutes } from "./schoolPeriod";
 
 export const router: Router = Router();
 
@@ -20,3 +21,4 @@ router.use("/student", studentRoutes);
 router.use("/monthlyFee", monthlyFeeRoutes);
 router.use("/discount", discountRoutes);
 router.use("/payment", paymentRoutes);
+router.use("/schoolPeriod", schoolPeriodRoutes);

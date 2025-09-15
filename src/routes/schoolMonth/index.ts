@@ -33,7 +33,11 @@ registry.registerPath({
       content: {
         "application/json": {
           schema: CreateSchoolMonthSchema.openapi({}).extend({
-            monthNumber: z
+            schoolPeriodId: z
+              .number()
+              .positive()
+              .describe("ID del período escolar al que pertenece este mes"),
+            month: z
               .number()
               .positive()
               .describe(

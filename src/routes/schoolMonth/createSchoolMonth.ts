@@ -5,7 +5,7 @@ import { SchoolMonthFeature } from "../../features/schoolMonth.feature";
 import { CreateSchoolMonthSchema } from "./schemas";
 
 export async function createSchoolMonth(req: Request, res: Response) {
-  const { name, month, schoolYearId } = CreateSchoolMonthSchema.parse(
+  const { name, month, schoolPeriodId } = CreateSchoolMonthSchema.parse(
     req.body
   );
 
@@ -14,7 +14,7 @@ export async function createSchoolMonth(req: Request, res: Response) {
   );
 
   const schoolMonth = await schoolMonthFeature.create(
-    schoolYearId,
+    schoolPeriodId,
     month,
     name
   );

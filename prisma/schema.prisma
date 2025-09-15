@@ -37,7 +37,6 @@ model SchoolYear {
     deletedAt DateTime? @db.Timestamptz()
 
     SchoolPeriod SchoolPeriod[]
-    StudentGrade StudentGrade[]
 
     @@unique([name, deletedAt])
     @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
@@ -56,6 +55,7 @@ model SchoolPeriod {
 
     schoolYearId Int
     SchoolMonth  SchoolMonth[]
+    StudentGrade StudentGrade[]
 
     @@unique([name, schoolYearId, deletedAt])
     @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
@@ -155,19 +155,19 @@ model Grade {
 model StudentGrade {
     id Int @id @default(autoincrement())
 
-    schoolYear SchoolYear @relation(fields: [schoolYearId], references: [id])
-    grade      Grade      @relation(fields: [gradeId], references: [id])
-    student    Student    @relation(fields: [studentId], references: [id])
+    schoolPeriod SchoolPeriod @relation(fields: [schoolPeriodId], references: [id])
+    grade        Grade        @relation(fields: [gradeId], references: [id])
+    student      Student      @relation(fields: [studentId], references: [id])
 
     createdAt DateTime  @default(now()) @db.Timestamptz()
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    schoolYearId Int
-    gradeId      Int
-    studentId    Int
+    schoolPeriodId Int
+    gradeId        Int
+    studentId      Int
 
-    @@unique([schoolYearId, gradeId, studentId, deletedAt])
+    @@unique([schoolPeriodId, gradeId, studentId, deletedAt])
 }
 
 model Discount {

@@ -6,7 +6,12 @@ import { SchoolMonthSearchCriteriaQueryParamsSchema } from "./schemas";
 const schoolMonthWhereMapper = (queryParams: any) => ({
   ...(queryParams.name && { name: queryParams.name }),
   ...(queryParams.month && { month: queryParams.month }),
-  ...(queryParams.schoolYearId && { schoolYearId: queryParams.schoolYearId }),
+  ...(queryParams.schoolPeriodId && { schoolPeriodId: queryParams.schoolPeriodId }),
+  ...(queryParams.schoolYearId && { 
+    schoolPeriod: { 
+      schoolYearId: queryParams.schoolYearId 
+    } 
+  }),
 });
 
 export const searchSchoolMonth = createSearchController(

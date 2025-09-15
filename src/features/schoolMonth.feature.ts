@@ -25,23 +25,22 @@ export class SchoolMonthFeature {
   ) {}
 
   public async create(
-    schoolYearId: number,
+    schoolPeriodId: number,
     month: number,
     name?: string
   ): Promise<SchoolMonth> {
-    const schoolYear = await this.prisma.schoolYear.findUnique({
-      where: { id: schoolYearId, deletedAt: null },
+    const schoolPeriod = await this.prisma.schoolPeriod.findUnique({
+      where: { id: schoolPeriodId, deletedAt: null },
+      include: { schoolYear: true },
     });
 
-    if (!schoolYear) throw createHttpError(404, "Año escolar no encontrado.");
+    if (!schoolPeriod) throw createHttpError(404, "Período escolar no encontrado.");
 
-    this.validateMonth(schoolYear, month);
+    this.validateMonth(schoolPeriod.schoolYear, month);
 
     const existentSchoolMonth = await this.prisma.schoolMonth.count({
       where: {
-        schoolYear: {
-          id: schoolYearId,
-        },
+        schoolPeriodId,
         month,
         deletedAt: null,
       },
@@ -55,9 +54,9 @@ export class SchoolMonthFeature {
 
     const schoolMonth = await this.prisma.schoolMonth.create({
       data: {
-        schoolYear: {
+        schoolPeriod: {
           connect: {
-            id: schoolYearId,
+            id: schoolPeriodId,
           },
         },
         month,
@@ -75,7 +74,7 @@ export class SchoolMonthFeature {
   }
   public async update(
     id: number,
-    data: Partial<{ schoolYearId: number; month: number; name: string }>
+    data: Partial<{ schoolPeriodId: number; month: number; name: string }>
   ): Promise<SchoolMonth> {
     const existingSchoolMonth = await this.prisma.schoolMonth.findUnique({
       where: {
@@ -83,7 +82,11 @@ export class SchoolMonthFeature {
         deletedAt: null,
       },
       include: {
-        schoolYear: true,
+        schoolPeriod: {
+          include: {
+            schoolYear: true,
+          },
+        },
       },
     });
 
@@ -91,37 +94,33 @@ export class SchoolMonthFeature {
       throw createHttpError(404, "El mes escolar no fue encontrado.");
     }
 
-    const newSchoolYearId = data.schoolYearId ?? existingSchoolMonth.schoolYearId;
+    const newSchoolPeriodId = data.schoolPeriodId ?? existingSchoolMonth.schoolPeriodId;
     const newMonth = data.month ?? existingSchoolMonth.month;
 
-    let targetSchoolYear: SchoolYear | null = existingSchoolMonth.schoolYear;
-    if (data.schoolYearId && data.schoolYearId !== existingSchoolMonth.schoolYearId) {
-      targetSchoolYear = await this.prisma.schoolYear.findUnique({
-        where: { id: newSchoolYearId, deletedAt: null },
+    let targetSchoolPeriod = existingSchoolMonth.schoolPeriod;
+    if (data.schoolPeriodId && data.schoolPeriodId !== existingSchoolMonth.schoolPeriodId) {
+      const foundSchoolPeriod = await this.prisma.schoolPeriod.findUnique({
+        where: { id: newSchoolPeriodId, deletedAt: null },
+        include: { schoolYear: true },
       });
-      if (!targetSchoolYear) {
-        throw createHttpError(404, "El nuevo año escolar no fue encontrado.");
+      if (!foundSchoolPeriod) {
+        throw createHttpError(404, "El nuevo período escolar no fue encontrado.");
       }
+      targetSchoolPeriod = foundSchoolPeriod;
     }
 
     if (data.month !== undefined) {
-      if (!targetSchoolYear) {
-        throw createHttpError(
-          500,
-          "Error interno: No se pudo determinar el año escolar de destino."
-        );
-      }
-      this.validateMonth(targetSchoolYear, newMonth);
+      this.validateMonth(targetSchoolPeriod.schoolYear, newMonth);
     }
 
     if (data.name !== undefined && data.name.trim() === "") {
       throw createHttpError(400, "El nombre no puede estar vacío.");
     }
 
-    if (newSchoolYearId !== existingSchoolMonth.schoolYearId || newMonth !== existingSchoolMonth.month) {
+    if (newSchoolPeriodId !== existingSchoolMonth.schoolPeriodId || newMonth !== existingSchoolMonth.month) {
       const existingMonth = await this.prisma.schoolMonth.count({
         where: {
-          schoolYearId: newSchoolYearId,
+          schoolPeriodId: newSchoolPeriodId,
           month: newMonth,
           deletedAt: null,
           NOT: {
@@ -131,7 +130,7 @@ export class SchoolMonthFeature {
       });
 
       if (existingMonth > 0) {
-        throw createHttpError(409, "La combinación de año y mes ya existe.");
+        throw createHttpError(409, "La combinación de período y mes ya existe.");
       }
     }
 
@@ -140,9 +139,9 @@ export class SchoolMonthFeature {
         id,
       },
       data: {
-        schoolYear: {
+        schoolPeriod: {
           connect: {
-            id: newSchoolYearId,
+            id: newSchoolPeriodId,
           },
         },
         month: newMonth,
@@ -212,6 +211,9 @@ export class SchoolMonthFeature {
       > & {
         deletedAt?: {
           not: null;
+        };
+        schoolPeriod?: {
+          schoolYearId?: number;
         };
       }
     >
