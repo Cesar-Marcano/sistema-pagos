@@ -173,6 +173,22 @@ export class MonthlyFeeFeature {
 
     const uniqueAssignments = this.getUniqueAssignments(assignmentsToCreate);
 
+    const gradeIdsInAssignments = uniqueAssignments.map(assignment => assignment.gradeId);
+    const uniqueGradeIds = [...new Set(gradeIdsInAssignments)];
+
+    const existingGrades = await this.prisma.grade.findMany({
+      where: {
+        id: { in: uniqueGradeIds }
+      },
+      select: { id: true }
+    });
+
+    if (existingGrades.length !== uniqueGradeIds.length) {
+      const existingGradeIds = existingGrades.map(g => g.id);
+      const missingGradeIds = uniqueGradeIds.filter(id => !existingGradeIds.includes(id));
+      throw createHttpError(400, `The following gradeIds do not exist: ${missingGradeIds.join(', ')}`);
+    }
+
     const monthlyFeeOnGrades = await this.prisma.monthlyFeeOnGrade.createMany({
       data: uniqueAssignments,
       skipDuplicates: true,
@@ -229,10 +245,13 @@ export class MonthlyFeeFeature {
   }
 
   public async findMonthlyFeeOnGradeById(id: number, includeDeleted: boolean) {
+    if (id == null || isNaN(id)) {
+      throw new Error(`Invalid id: ${id}`);
+    }
     return await this.prisma.monthlyFeeOnGrade.findUnique({
       where: {
-        id,
         ...(includeDeleted ? {} : { deletedAt: null }),
+        id,
       },
       include: {
         monthlyFee: true,
@@ -273,9 +292,9 @@ export class MonthlyFeeFeature {
     );
   }
 
-  public async getEffectiveMonthlyFee(gradeId: number, schoolYearId: number) {
+  public async getEffectiveMonthlyFee(gradeId: number, schoolMonthId: number) {
     const schoolMonth = await this.prisma.schoolMonth.findUnique({
-      where: { id: schoolYearId },
+      where: { id: schoolMonthId },
       select: {
         schoolPeriodId: true,
         month: true,
