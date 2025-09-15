@@ -21,6 +21,7 @@ const paymentWhereMapper = (queryParams: any) => ({
     reference: queryParams.reference,
   }),
   ...(queryParams.verified !== undefined && { verified: queryParams.verified }),
+  ...(queryParams.paidAt && { paidAt: queryParams.paidAt }),
 });
 
 export const searchPayment = createSearchController(

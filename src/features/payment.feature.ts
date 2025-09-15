@@ -36,7 +36,8 @@ export class PaymentFeature {
     amount: number,
     paymentMethodId: number,
     reference: string | null,
-    verified: boolean | null
+    verified: boolean | null,
+    paidAt: Date
   ) {
     if (amount <= 0) throw createHttpError(400, "Monto de pago inválido.");
 
@@ -118,6 +119,7 @@ export class PaymentFeature {
         paymentType: pType!,
         amount,
         paymentMethodId,
+        paidAt,
         reference: paymentDetails.reference,
         verified: paymentDetails.verified,
       },

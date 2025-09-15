@@ -21,6 +21,7 @@ export const PaymentSchema = registry.register(
     reference: ReferenceSchema.nullable().nullish(),
     verified: VerifiedSchema.nullable().nullish(),
     paymentType: z.enum(PaymentType),
+    paidAt: z.date(),
   })
 );
 
@@ -33,6 +34,7 @@ export const CreatePaymentSchema = registry.register(
     paymentMethodId: true,
     reference: true,
     verified: true,
+    paidAt: true,
   }).and(
     z.object({
       paymentType: z.enum(["OVERDUE", "REFUND"]).nullable(),
@@ -58,6 +60,7 @@ export const PaymentSearchCriteriaQueryParamsSchema = registry.register(
       .string()
       .transform((val) => val === "true")
       .optional(),
+    paidAt: z.date().optional(),
   })
 );
 

@@ -13,6 +13,7 @@ export async function createPayment(req: Request, res: Response) {
     reference,
     studentId,
     verified,
+    paidAt,
   } = CreatePaymentSchema.parse(req.body);
 
   const paymentFeature = container.get<PaymentFeature>(TYPES.PaymentFeature);
@@ -24,7 +25,8 @@ export async function createPayment(req: Request, res: Response) {
     amount,
     paymentMethodId,
     reference ?? null,
-    verified ?? null
+    verified ?? null,
+    paidAt,
   );
 
   res.status(201).json({ payment });
