@@ -68,7 +68,7 @@ export class ReportsFeature {
     const studentGrades = await this.prisma.studentGrade.findMany({
       where: {
         deletedAt: null,
-        schoolYear: {
+        schoolPeriod: {
           deletedAt: null,
           SchoolMonth: {
             some: { id: schoolMonthId, deletedAt: null },
@@ -102,7 +102,7 @@ export class ReportsFeature {
       where: {
         deletedAt: null,
         studentId,
-        schoolYear: {
+        schoolPeriod: {
           deletedAt: null,
           SchoolMonth: {
             some: {
@@ -156,11 +156,11 @@ export class ReportsFeature {
 
     const schoolMonth = await this.prisma.schoolMonth.findUniqueOrThrow({
       where: { id: schoolMonthId, deletedAt: null },
-      include: { schoolYear: true },
+      include: { schoolPeriod: { include: { schoolYear: true } } },
     });
 
     const schoolMonthMonthDate = this.addMonths(
-      schoolMonth.schoolYear.startDate,
+      schoolMonth.schoolPeriod.schoolYear.startDate,
       schoolMonth.month - 1
     );
 
@@ -180,7 +180,7 @@ export class ReportsFeature {
     const studentGrades = await this.prisma.studentGrade.findMany({
       where: {
         deletedAt: null,
-        schoolYear: {
+        schoolPeriod: {
           deletedAt: null,
           SchoolMonth: { some: { id: schoolMonthId, deletedAt: null } },
         },

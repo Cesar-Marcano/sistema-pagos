@@ -46,16 +46,14 @@ export class PaymentFeature {
         deletedAt: null,
       },
       select: {
-        schoolYearId: true,
+        schoolPeriodId: true,
       },
     });
 
     const studentGrade = await this.prisma.studentGrade.findFirstOrThrow({
       where: {
         studentId: studentId,
-        schoolYear: {
-          id: schoolMonth.schoolYearId,
-        },
+        schoolPeriodId: schoolMonth.schoolPeriodId,
         deletedAt: null,
       },
       select: {

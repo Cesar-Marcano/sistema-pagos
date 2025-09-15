@@ -27,7 +27,7 @@ export const FindStudentByGradesQuerySchema = registry.register(
   "FindStudentByGradesQuery",
   FindByIdParamsSchema.extend({
     studentId: z.string().transform(Number).pipe(z.number().positive()),
-    shoolYearId: z
+    schoolPeriodId: z
       .string()
       .transform(Number)
       .pipe(z.number().positive())
@@ -49,7 +49,7 @@ export const RegisterStudentToGradeSchema = registry.register(
   z.object({
     studentId: z.number(),
     gradeId: z.number(),
-    schoolYearId: z.number(),
+    schoolPeriodId: z.number(),
   })
 );
 
@@ -74,7 +74,7 @@ export const StudentGradeSchema = registry.register(
     deletedAt: z.date().nullable(),
     gradeId: z.number().positive(),
     id: z.number().positive(),
-    schoolYearId: z.number().positive(),
+    schoolPeriodId: z.number().positive(),
     studentId: z.number().positive(),
     updatedAt: z.date(),
   })

@@ -273,13 +273,15 @@ export class MonthlyFeeFeature {
     );
   }
 
-  public async getEffectiveMonthlyFee(gradeId: number, schoolMonthId: number) {
+  public async getEffectiveMonthlyFee(gradeId: number, schoolYearId: number) {
     const schoolMonth = await this.prisma.schoolMonth.findUnique({
-      where: { id: schoolMonthId },
+      where: { id: schoolYearId },
       select: {
-        schoolYearId: true,
+        schoolPeriodId: true,
         month: true,
-        schoolYear: { select: { startDate: true } },
+        schoolPeriod: {
+          select: { schoolYear: { select: { startDate: true } } },
+        },
       },
     });
 
@@ -292,9 +294,11 @@ export class MonthlyFeeFeature {
         gradeId: gradeId,
         deletedAt: null,
         effectiveFromMonth: {
-          schoolYear: {
-            startDate: {
-              lte: schoolMonth.schoolYear.startDate,
+          schoolPeriod: {
+            schoolYear: {
+              startDate: {
+                lte: schoolMonth.schoolPeriod.schoolYear.startDate,
+              },
             },
           },
           month: {
@@ -305,8 +309,10 @@ export class MonthlyFeeFeature {
       orderBy: [
         {
           effectiveFromMonth: {
-            schoolYear: {
-              startDate: "desc",
+            schoolPeriod: {
+              schoolYear: {
+                startDate: "desc",
+              },
             },
           },
         },
@@ -321,7 +327,11 @@ export class MonthlyFeeFeature {
         grade: true,
         effectiveFromMonth: {
           include: {
-            schoolYear: true,
+            schoolPeriod: {
+              include: {
+                schoolYear: true,
+              },
+            },
           },
         },
       },

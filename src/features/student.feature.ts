@@ -163,31 +163,31 @@ export class StudentFeature {
   public async registerStudentToGrade(
     studentId: number,
     gradeId: number,
-    schoolYearId: number
+    schoolPeriodId: number
   ): Promise<StudentGrade> {
-    const studentGradesInSchoolYearCount = await this.prisma.studentGrade.count(
+    const studentGradesInSchoolPeriodCount = await this.prisma.studentGrade.count(
       {
         where: {
           studentId,
-          schoolYearId,
+          schoolPeriodId,
           deletedAt: null,
         },
       }
     );
 
-    if (studentGradesInSchoolYearCount > 0) {
+    if (studentGradesInSchoolPeriodCount > 0) {
       throw createHttpError(
         409,
-        "El estudiante ya está registrado en este año escolar."
+        "El estudiante ya está registrado en este período escolar."
       );
     }
 
-    const [student, schoolYear, grade] = await this.prisma.$transaction([
+    const [student, schoolPeriod, grade] = await this.prisma.$transaction([
       this.prisma.student.findUnique({
         where: { id: studentId, deletedAt: null },
       }),
-      this.prisma.schoolYear.findUnique({
-        where: { id: schoolYearId, deletedAt: null },
+      this.prisma.schoolPeriod.findUnique({
+        where: { id: schoolPeriodId, deletedAt: null },
       }),
       this.prisma.grade.findUnique({ where: { id: gradeId, deletedAt: null } }),
     ]);
@@ -195,8 +195,8 @@ export class StudentFeature {
     if (!student) {
       throw createHttpError(404, "Estudiante no encontrado.");
     }
-    if (!schoolYear) {
-      throw createHttpError(404, "Año escolar no encontrado.");
+    if (!schoolPeriod) {
+      throw createHttpError(404, "Período escolar no encontrado.");
     }
     if (!grade) {
       throw createHttpError(404, "Grado no encontrado.");
@@ -205,7 +205,7 @@ export class StudentFeature {
     const existingStudentGrade = await this.prisma.studentGrade.findFirst({
       where: {
         studentId,
-        schoolYearId,
+        schoolPeriodId,
         gradeId,
         deletedAt: null,
       },
@@ -214,14 +214,14 @@ export class StudentFeature {
     if (existingStudentGrade) {
       throw createHttpError(
         409,
-        "El estudiante ya está asignado a este grado en este año escolar."
+        "El estudiante ya está asignado a este grado en este período escolar."
       );
     }
 
     const newStudentGrade = await this.prisma.studentGrade.create({
       data: {
         studentId,
-        schoolYearId,
+        schoolPeriodId,
         gradeId,
       },
     });
@@ -259,20 +259,25 @@ export class StudentFeature {
 
   public async findStudentGrades(
     studentId: number,
-    schoolYearId: number | null = null,
+    schoolPeriodId: number | null = null,
     includeDeleted: boolean = false
   ) {
     return await this.prisma.studentGrade.findMany({
       where: {
         studentId,
-        ...(schoolYearId ? { schoolYearId } : {}),
+        ...(schoolPeriodId ? { schoolPeriodId } : {}),
         ...(includeDeleted ? {} : { deletedAt: null }),
       },
       include: {
         grade: true,
+        schoolPeriod: {
+          include: {
+            schoolYear: true,
+          },
+        },
       },
       omit: {
-        schoolYearId: true,
+        schoolPeriodId: true,
         studentId: true,
       },
     });

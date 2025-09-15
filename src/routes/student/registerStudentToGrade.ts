@@ -5,7 +5,7 @@ import { StudentFeature } from "../../features/student.feature";
 import { RegisterStudentToGradeSchema } from "./schemas";
 
 export async function registerStudentToGrade(req: Request, res: Response) {
-  const { studentId, gradeId, schoolYearId } =
+  const { studentId, gradeId, schoolPeriodId } =
     RegisterStudentToGradeSchema.parse(req.body);
 
   const studentFeature = container.get<StudentFeature>(TYPES.StudentFeature);
@@ -13,7 +13,7 @@ export async function registerStudentToGrade(req: Request, res: Response) {
   const studentGrade = await studentFeature.registerStudentToGrade(
     studentId,
     gradeId,
-    schoolYearId
+    schoolPeriodId
   );
 
   res.json({ studentGrade });

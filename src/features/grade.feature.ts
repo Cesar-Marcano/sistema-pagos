@@ -170,6 +170,28 @@ export class GradeFeature {
     return studentGrade.grade;
   }
 
+  public async findStudentsByGradeAndPeriod(
+    gradeId: number,
+    schoolPeriodId: number
+  ): Promise<Student[]> {
+    const studentGrades = await this.prisma.studentGrade.findMany({
+      where: {
+        gradeId,
+        schoolPeriodId,
+        deletedAt: null,
+      },
+      include: {
+        student: true,
+      },
+    });
+
+    if (studentGrades.length === 0) {
+      return [];
+    }
+
+    return studentGrades.map((sg) => sg.student);
+  }
+
   public async findStudentsByGradeAndYear(
     gradeId: number,
     schoolYearId: number
@@ -177,7 +199,9 @@ export class GradeFeature {
     const studentGrades = await this.prisma.studentGrade.findMany({
       where: {
         gradeId,
-        schoolYearId,
+        schoolPeriod: {
+          schoolYearId,
+        },
         deletedAt: null,
       },
       include: {

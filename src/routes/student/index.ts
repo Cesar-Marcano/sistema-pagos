@@ -146,7 +146,7 @@ registry.registerPath({
         "application/json": {
           schema: z.object({
             studentGrades: StudentGradeSchema.omit({
-              schoolYearId: true,
+              schoolPeriodId: true,
               studentId: true,
             })
               .extend({ grade: GradeSchema })

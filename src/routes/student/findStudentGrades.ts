@@ -8,13 +8,13 @@ import { FindStudentByGradesQuerySchema } from "./schemas";
 export async function findStudentGrades(req: Request, res: Response) {
   const studentFeature = container.get<StudentFeature>(TYPES.StudentFeature);
 
-  const { studentId, shoolYearId, includeDeleted } = FindStudentByGradesQuerySchema.parse(
+  const { studentId, schoolPeriodId, includeDeleted } = FindStudentByGradesQuerySchema.parse(
     req.query
   );
 
   const studentGrades = await studentFeature.findStudentGrades(
     studentId,
-    shoolYearId,
+    schoolPeriodId,
     includeDeleted
   );
 
