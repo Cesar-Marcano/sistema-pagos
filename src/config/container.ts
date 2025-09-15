@@ -15,6 +15,7 @@ import { DiscountFeature } from "../features/discount.feature";
 import { PaymentMethodFeature } from "../features/paymentMethod.feature";
 import { PaymentFeature } from "../features/payment.feature";
 import { SchoolPeriodFeature } from "../features/schoolPeriod.feature";
+import { ReportsFeature } from "../features/reports.feature";
 import { withPgTrgm } from "prisma-extension-pg-trgm";
 import { SettingsService } from "../services/settings.service";
 import { AuditLogService } from "../services/auditLog.service";
@@ -55,6 +56,7 @@ container.bind<PaymentFeature>(TYPES.PaymentFeature).to(PaymentFeature);
 container
   .bind<SchoolPeriodFeature>(TYPES.SchoolPeriodFeature)
   .to(SchoolPeriodFeature);
+container.bind<ReportsFeature>(TYPES.ReportsFeature).to(ReportsFeature);
 
 container.bind<PassportConfig>(PassportConfig).toSelf();
 

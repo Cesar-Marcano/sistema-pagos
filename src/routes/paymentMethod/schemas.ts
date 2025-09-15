@@ -32,13 +32,21 @@ export const PaymentMethodSearchCriteriaQueryParams = registry.register(
     requiresManualVerification: z
       .string()
       .optional()
-      .transform((val) => val === "true")
-      .default(false),
+      .transform((val) => {
+        if (val === undefined) return undefined;
+        if (val === "true") return true;
+        if (val === "false") return false;
+        return undefined;
+      }),
     requiresReferenceId: z
       .string()
       .optional()
-      .transform((val) => val === "true")
-      .default(false),
+      .transform((val) => {
+        if (val === undefined) return undefined;
+        if (val === "true") return true;
+        if (val === "false") return false;
+        return undefined;
+      }),
   })
 );
 

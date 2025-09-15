@@ -187,35 +187,6 @@ monthlyFeeRoutes.get(
 );
 
 registry.registerPath({
-  description: "Buscar mensualidad aplicada a grado",
-  tags: ["monthlyFee"],
-  method: "get",
-  path: "/monthlyFee/feeOnGrade/{id}",
-  security: [{ Bearer: [] }],
-  request: {
-    params: z.object({
-      id: z.number().positive(),
-    }),
-    query: FindByIdParamsSchema,
-  },
-  responses: {
-    200: {
-      description: "Mensualidad aplicada a grado",
-      content: {
-        "application/json": {
-          schema: FeeOnGradeSchema,
-        },
-      },
-    },
-  },
-});
-monthlyFeeRoutes.get(
-  "/feeOnGrade/:id",
-  authenticateAndSetContext,
-  findMonthlyFeeOnGradeById
-);
-
-registry.registerPath({
   description: "Buscar mensualidad vigente para un grado",
   tags: ["monthlyFee"],
   method: "get",
@@ -247,6 +218,35 @@ monthlyFeeRoutes.get(
   "/feeOnGrade/getEffectiveMonthlyFee",
   authenticateAndSetContext,
   getEffectiveMonthlyFee
+);
+
+registry.registerPath({
+  description: "Buscar mensualidad aplicada a grado",
+  tags: ["monthlyFee"],
+  method: "get",
+  path: "/monthlyFee/feeOnGrade/{id}",
+  security: [{ Bearer: [] }],
+  request: {
+    params: z.object({
+      id: z.number().positive(),
+    }),
+    query: FindByIdParamsSchema,
+  },
+  responses: {
+    200: {
+      description: "Mensualidad aplicada a grado",
+      content: {
+        "application/json": {
+          schema: FeeOnGradeSchema,
+        },
+      },
+    },
+  },
+});
+monthlyFeeRoutes.get(
+  "/feeOnGrade/:id",
+  authenticateAndSetContext,
+  findMonthlyFeeOnGradeById
 );
 
 registry.registerPath({

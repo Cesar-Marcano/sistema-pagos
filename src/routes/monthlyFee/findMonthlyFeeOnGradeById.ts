@@ -12,13 +12,19 @@ export async function findMonthlyFeeOnGradeById(req: Request, res: Response) {
 
   const queryParams = FindByIdParamsSchema.parse(req.query);
 
+  const id = Number(req.params.id);
+  if (isNaN(id)) {
+    throw createHttpError(400, "ID parameter must be a valid number");
+  }
+
   const feeOnGrade = await monthlyFeeFeature.findMonthlyFeeOnGradeById(
-    Number(req.params.id),
+    id,
     queryParams.includeDeleted
   );
 
-  if (!feeOnGrade)
-    throw createHttpError(404, "Mensualidad asignada no encontrada.");
+  if (!feeOnGrade) {
+    throw createHttpError(404, "Monthly fee on grade not found");
+  }
 
-  res.json({ feeOnGrade });
+  res.status(200).json(feeOnGrade);
 }

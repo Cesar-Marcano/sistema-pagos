@@ -26,7 +26,7 @@ export const GetEffectiveMonthlyFeeQueryParamsSchema = registry.register(
 
 export const CreateMonthlyFeeSchema = registry.register(
   "CreateMonthlyFee",
-  MonthlyFeeSchema.pick({ description: true, amount: true }).and(
+  MonthlyFeeSchema.pick({ description: true }).and(
     z.object({ amount: z.number().positive().min(0.01) })
   )
 );

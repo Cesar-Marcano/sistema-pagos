@@ -78,7 +78,12 @@ export const DiscountSearchCriteriaQueryParams = registry.register(
     isPercentage: z
       .string()
       .optional()
-      .transform((val) => val === "true"),
+      .transform((val) => {
+        if (val === undefined) return undefined;
+        if (val === "true") return true;
+        if (val === "false") return false;
+        return undefined;
+      }),
   })
 );
 
