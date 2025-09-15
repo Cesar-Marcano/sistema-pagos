@@ -36,7 +36,7 @@ model SchoolYear {
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    SchoolMonth SchoolMonth[]
+    SchoolPeriod SchoolPeriod[]
     StudentGrade StudentGrade[]
 
     @@unique([name, deletedAt])
@@ -44,25 +44,43 @@ model SchoolYear {
     @@index([startDate, endDate])
 }
 
-model SchoolMonth {
+model SchoolPeriod {
     id Int @id @default(autoincrement())
 
     schoolYear SchoolYear @relation(fields: [schoolYearId], references: [id])
-    month      Int
-    name       String?
+    name       String
 
     createdAt DateTime  @default(now()) @db.Timestamptz()
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    schoolYearId          Int
+    schoolYearId Int
+    SchoolMonth  SchoolMonth[]
+
+    @@unique([name, schoolYearId, deletedAt])
+    @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
+    @@index([schoolYearId])
+}
+
+model SchoolMonth {
+    id Int @id @default(autoincrement())
+
+    schoolPeriod SchoolPeriod @relation(fields: [schoolPeriodId], references: [id])
+    month        Int
+    name         String?
+
+    createdAt DateTime  @default(now()) @db.Timestamptz()
+    updatedAt DateTime  @updatedAt @db.Timestamptz()
+    deletedAt DateTime? @db.Timestamptz()
+
+    schoolPeriodId        Int
     Payment               Payment[]
     MonthlyFeeOnGrade     MonthlyFeeOnGrade[]
     StudentMonthDiscount StudentMonthDiscount[]
 
-    @@unique([month, schoolYearId, deletedAt])
+    @@unique([month, schoolPeriodId, deletedAt])
     @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
-    @@index([month, schoolYearId])
+    @@index([month, schoolPeriodId])
 }
 
 model Student {
