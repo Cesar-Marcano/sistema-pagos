@@ -4,6 +4,26 @@ import { Request, Response, NextFunction } from "express";
 import createHttpError from "http-errors";
 import logger from "../app/logger";
 
+const modelToSpanishName: Record<string, string> = {
+  User: 'Usuario',
+  SchoolYear: 'Año Escolar',
+  SchoolPeriod: 'Periodo Escolar',
+  SchoolMonth: 'Mes Escolar',
+  Student: 'Estudiante',
+  MonthlyFee: 'Mensualidad',
+  MonthlyFeeOnGrade: 'Mensualidad por Grado',
+  Grade: 'Grado',
+  StudentGrade: 'Grado del Estudiante',
+  Discount: 'Descuento',
+  StudentDiscount: 'Descuento del Estudiante',
+  PaymentMethod: 'Método de Pago',
+  Payment: 'Pago',
+  StudentMonthDiscount: 'Descuento del Mes del Estudiante',
+  AuditLog: 'Registro de Auditoría',
+  Session: 'Sesión',
+  Setting: 'Configuración'
+};
+
 export function errorHandler(
   err: any,
   req: Request,
@@ -36,8 +56,14 @@ export function errorHandler(
     }
 
     if (err.code === "P2025") {
+      const modelName = err.meta?.modelName as string;
+      let message = "El registro no fue encontrado para la operación.";
+      if (modelName) {
+        const spanishName = modelToSpanishName[modelName] || modelName;
+        message = `No se encontró ${spanishName} con los parámetros proporcionados.`;
+      }
       return res.status(404).json({
-        message: "El registro no fue encontrado para la operación.",
+        message,
         target: err.meta?.target,
       });
     }
