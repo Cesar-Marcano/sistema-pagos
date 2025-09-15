@@ -73,9 +73,9 @@ model SchoolMonth {
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    schoolPeriodId        Int
-    Payment               Payment[]
-    MonthlyFeeOnGrade     MonthlyFeeOnGrade[]
+    schoolPeriodId       Int
+    Payment              Payment[]
+    MonthlyFeeOnGrade    MonthlyFeeOnGrade[]
     StudentMonthDiscount StudentMonthDiscount[]
 
     @@unique([month, schoolPeriodId, deletedAt])
@@ -92,9 +92,9 @@ model Student {
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    StudentGrade          StudentGrade[]
-    Payment               Payment[]
-    StudentDiscount       StudentDiscount[]
+    StudentGrade         StudentGrade[]
+    Payment              Payment[]
+    StudentDiscount      StudentDiscount[]
     StudentMonthDiscount StudentMonthDiscount[]
 
     @@unique([name, deletedAt])
@@ -120,17 +120,17 @@ model MonthlyFee {
 model MonthlyFeeOnGrade {
     id Int @id @default(autoincrement())
 
-    monthlyFee          MonthlyFee   @relation(fields: [monthlyFeeId], references: [id])
-    grade               Grade        @relation(fields: [gradeId], references: [id])
+    monthlyFee         MonthlyFee  @relation(fields: [monthlyFeeId], references: [id])
+    grade              Grade       @relation(fields: [gradeId], references: [id])
     effectiveFromMonth SchoolMonth @relation(fields: [schoolMonthId], references: [id])
 
     createdAt DateTime  @default(now()) @db.Timestamptz()
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    monthlyFeeId   Int
+    monthlyFeeId  Int
     schoolMonthId Int
-    gradeId        Int
+    gradeId       Int
 
     @@unique([monthlyFeeId, gradeId, schoolMonthId, deletedAt])
     @@index([monthlyFeeId, gradeId, schoolMonthId])
@@ -182,7 +182,7 @@ model Discount {
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    StudentDiscount       StudentDiscount[]
+    StudentDiscount      StudentDiscount[]
     StudentMonthDiscount StudentMonthDiscount[]
 
     @@unique([name, deletedAt])
@@ -233,20 +233,22 @@ enum PaymentType {
 model Payment {
     id Int @id @default(autoincrement())
 
-    student      Student      @relation(fields: [studentId], references: [id])
+    student     Student     @relation(fields: [studentId], references: [id])
     schoolMonth SchoolMonth @relation(fields: [schoolMonthId], references: [id])
-    amount       Decimal      @db.Decimal(15, 2)
-    paymentType  PaymentType
+    amount      Decimal     @db.Decimal(15, 2)
+    paymentType PaymentType
 
     paymentMethod PaymentMethod @relation(fields: [paymentMethodId], references: [id])
     reference     String?
     verified      Boolean?
-    createdAt     DateTime      @default(now()) @db.Timestamptz()
-    updatedAt     DateTime      @updatedAt @db.Timestamptz()
-    deletedAt     DateTime?     @db.Timestamptz()
+    paidAt        DateTime      @db.Timestamptz()
+
+    createdAt DateTime  @default(now()) @db.Timestamptz()
+    updatedAt DateTime  @updatedAt @db.Timestamptz()
+    deletedAt DateTime? @db.Timestamptz()
 
     studentId       Int
-    schoolMonthId  Int
+    schoolMonthId   Int
     paymentMethodId Int
 
     @@unique([paymentMethodId, reference, deletedAt])
@@ -256,16 +258,16 @@ model Payment {
 model StudentMonthDiscount {
     id Int @id @default(autoincrement())
 
-    student  Student      @relation(fields: [studentId], references: [id])
-    schoolMonth   SchoolMonth @relation(fields: [schoolMonthId], references: [id])
-    discount Discount     @relation(fields: [discountId], references: [id])
+    student     Student     @relation(fields: [studentId], references: [id])
+    schoolMonth SchoolMonth @relation(fields: [schoolMonthId], references: [id])
+    discount    Discount    @relation(fields: [discountId], references: [id])
 
     createdAt DateTime  @default(now()) @db.Timestamptz()
     updatedAt DateTime  @updatedAt @db.Timestamptz()
     deletedAt DateTime? @db.Timestamptz()
 
-    discountId     Int
-    studentId      Int
+    discountId    Int
+    studentId     Int
     schoolMonthId Int
 
     @@unique([discountId, studentId, schoolMonthId, deletedAt])
