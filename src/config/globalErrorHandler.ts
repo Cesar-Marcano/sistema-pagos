@@ -5,23 +5,23 @@ import createHttpError from "http-errors";
 import logger from "../app/logger";
 
 const modelToSpanishName: Record<string, string> = {
-  User: 'Usuario',
-  SchoolYear: 'Año Escolar',
-  SchoolPeriod: 'Periodo Escolar',
-  SchoolMonth: 'Mes Escolar',
-  Student: 'Estudiante',
-  MonthlyFee: 'Mensualidad',
-  MonthlyFeeOnGrade: 'Mensualidad por Grado',
-  Grade: 'Grado',
-  StudentGrade: 'Grado del Estudiante',
-  Discount: 'Descuento',
-  StudentDiscount: 'Descuento del Estudiante',
-  PaymentMethod: 'Método de Pago',
-  Payment: 'Pago',
-  StudentMonthDiscount: 'Descuento del Mes del Estudiante',
-  AuditLog: 'Registro de Auditoría',
-  Session: 'Sesión',
-  Setting: 'Configuración'
+  User: "Usuario",
+  SchoolYear: "Año Escolar",
+  SchoolPeriod: "Periodo Escolar",
+  SchoolMonth: "Mes Escolar",
+  Student: "Estudiante",
+  MonthlyFee: "Mensualidad",
+  MonthlyFeeOnGrade: "Mensualidad por Grado",
+  Grade: "Grado",
+  StudentGrade: "Grado del Estudiante",
+  Discount: "Descuento",
+  StudentDiscount: "Descuento del Estudiante",
+  PaymentMethod: "Método de Pago",
+  Payment: "Pago",
+  StudentMonthDiscount: "Descuento del Mes del Estudiante",
+  AuditLog: "Registro de Auditoría",
+  Session: "Sesión",
+  Setting: "Configuración",
 };
 
 export function errorHandler(
@@ -65,6 +65,23 @@ export function errorHandler(
       return res.status(404).json({
         message,
         target: err.meta?.target,
+      });
+    }
+
+    if (err.code === "P2003") {
+      const modelName = err.meta?.modelName as string;
+
+      const spanishName = modelToSpanishName[modelName] || modelName;
+
+      let message = "Violación de una clave foránea.";
+
+      if (modelName) {
+        message = `No se puede realizar la operación. El valor para '${spanishName}' no existe en la tabla relacionada.`;
+      }
+
+      return res.status(400).json({
+        message,
+        target: spanishName,
       });
     }
   }
