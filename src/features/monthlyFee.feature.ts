@@ -173,20 +173,54 @@ export class MonthlyFeeFeature {
 
     const uniqueAssignments = this.getUniqueAssignments(assignmentsToCreate);
 
-    const gradeIdsInAssignments = uniqueAssignments.map(assignment => assignment.gradeId);
+    const gradeIdsInAssignments = uniqueAssignments.map(
+      (assignment) => assignment.gradeId
+    );
     const uniqueGradeIds = [...new Set(gradeIdsInAssignments)];
 
     const existingGrades = await this.prisma.grade.findMany({
       where: {
-        id: { in: uniqueGradeIds }
+        id: { in: uniqueGradeIds },
+        deletedAt: null,
       },
-      select: { id: true }
+      select: { id: true },
     });
 
     if (existingGrades.length !== uniqueGradeIds.length) {
-      const existingGradeIds = existingGrades.map(g => g.id);
-      const missingGradeIds = uniqueGradeIds.filter(id => !existingGradeIds.includes(id));
-      throw createHttpError(400, `The following gradeIds do not exist: ${missingGradeIds.join(', ')}`);
+      const existingGradeIds = existingGrades.map((g) => g.id);
+      const missingGradeIds = uniqueGradeIds.filter(
+        (id) => !existingGradeIds.includes(id)
+      );
+      throw createHttpError(
+        400,
+        `The following gradeIds do not exist: ${missingGradeIds.join(", ")}`
+      );
+    }
+
+    const existingAssignments = await this.prisma.monthlyFeeOnGrade.findMany({
+      where: {
+        OR: uniqueAssignments.map((assignment) => ({
+          gradeId: assignment.gradeId,
+          monthlyFeeId: assignment.monthlyFeeId,
+          schoolMonthId: assignment.schoolMonthId,
+          deletedAt: null,
+        })),
+      },
+      select: {
+        gradeId: true,
+      },
+    });
+
+    if (existingAssignments.length > 0) {
+      const duplicateGradeIds = [
+        ...new Set(existingAssignments.map((a) => a.gradeId)),
+      ];
+      throw createHttpError(
+        409,
+        `La mensualidad ya está asignada a los siguientes grados para este mes: ${duplicateGradeIds.join(
+          ", "
+        )}`
+      );
     }
 
     const monthlyFeeOnGrades = await this.prisma.monthlyFeeOnGrade.createMany({
