@@ -46,6 +46,46 @@ registry.registerPath({
         },
       },
     },
+    400: {
+      description: "Datos de entrada inválidos",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    401: {
+      description: "No autenticado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    409: {
+      description: "Método de pago ya existe",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
   },
 });
 paymentMethodRoutes.post(
@@ -81,6 +121,46 @@ registry.registerPath({
         },
       },
     },
+    400: {
+      description: "Datos de entrada inválidos",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    401: {
+      description: "No autenticado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    404: {
+      description: "Método de pago no encontrado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
   },
 });
 paymentMethodRoutes.patch(
@@ -106,6 +186,36 @@ registry.registerPath({
       content: {
         "application/json": {
           schema: z.object({ paymentMethod: PaymentMethodSchema }),
+        },
+      },
+    },
+    401: {
+      description: "No autenticado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    404: {
+      description: "Método de pago no encontrado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
         },
       },
     },
@@ -138,6 +248,46 @@ registry.registerPath({
         },
       },
     },
+    400: {
+      description: "Parámetros de consulta inválidos",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    401: {
+      description: "No autenticado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    404: {
+      description: "Método de pago no encontrado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
   },
 });
 paymentMethodRoutes.get(
@@ -166,6 +316,36 @@ registry.registerPath({
             "paymentMethods",
             PaymentMethodSchema
           ),
+        },
+      },
+    },
+    400: {
+      description: "Parámetros de consulta inválidos",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    401: {
+      description: "No autenticado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
         },
       },
     },
