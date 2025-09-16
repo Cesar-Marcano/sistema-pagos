@@ -61,6 +61,36 @@ registry.registerPath({
         },
       },
     },
+    400: {
+      description: "Datos de entrada inválidos",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    401: {
+      description: "No autenticado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
   },
 });
 studentRoutes.post(
@@ -98,6 +128,46 @@ registry.registerPath({
         },
       },
     },
+    400: {
+      description: "Datos de entrada inválidos",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    401: {
+      description: "No autenticado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    404: {
+      description: "Estudiante no encontrado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
   },
 });
 studentRoutes.patch(
@@ -121,6 +191,36 @@ registry.registerPath({
       content: {
         "application/json": {
           schema: z.object({ student: StudentSchema }),
+        },
+      },
+    },
+    401: {
+      description: "No autenticado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    404: {
+      description: "Estudiante no encontrado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
         },
       },
     },
@@ -153,6 +253,46 @@ registry.registerPath({
             })
               .extend({ grade: GradeSchema })
               .array(),
+          }),
+        },
+      },
+    },
+    400: {
+      description: "Parámetros de consulta inválidos",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    401: {
+      description: "No autenticado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    404: {
+      description: "Estudiante no encontrado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
           }),
         },
       },
@@ -264,11 +404,61 @@ registry.registerPath({
     },
   },
   responses: {
-    201: {
+    200: {
       description: "Estudiante registrado a un grado",
       content: {
         "application/json": {
-          schema: StudentGradeSchema.openapi({}),
+          schema: z.object({ studentGrade: StudentGradeSchema }),
+        },
+      },
+    },
+    400: {
+      description: "Datos de entrada inválidos",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    401: {
+      description: "No autenticado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    404: {
+      description: "Estudiante o grado no encontrado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    409: {
+      description: "El estudiante ya está registrado en este grado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
         },
       },
     },
