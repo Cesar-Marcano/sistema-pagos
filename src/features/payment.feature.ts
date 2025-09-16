@@ -4,7 +4,8 @@ import {
   AuditableEntities,
   AuditLogActions,
   Payment,
-  PaymentType,
+  PaymentTags,
+  Settings,
 } from "@prisma/client";
 import createHttpError from "http-errors";
 import {
@@ -16,6 +17,8 @@ import { MonthlyFeeFeature } from "./monthlyFee.feature";
 import { ExtendedPrisma } from "../config/container";
 import { AuditLogService } from "../services/auditLog.service";
 import { DiscountFeature } from "./discount.feature";
+import { SettingsService } from "../services/settings.service";
+import { ReportsFeature } from "./reports.feature";
 
 @injectable()
 export class PaymentFeature {
@@ -26,13 +29,17 @@ export class PaymentFeature {
     @inject(TYPES.DiscountFeature)
     private readonly discountFeature: DiscountFeature,
     @inject(TYPES.AuditLogService)
-    private readonly auditLogService: AuditLogService
+    private readonly auditLogService: AuditLogService,
+    @inject(TYPES.SettingsService)
+    private readonly settingsService: SettingsService,
+    @inject(TYPES.ReportsFeature)
+    private readonly reportsFeature: ReportsFeature
   ) {}
 
   public async create(
     studentId: number,
     schoolMonthId: number,
-    paymentType: Exclude<PaymentType, "FULL" | "PARTIAL"> | null,
+    isRefund: boolean,
     amount: number,
     paymentMethodId: number,
     reference: string | null,
@@ -62,7 +69,7 @@ export class PaymentFeature {
       },
     });
 
-    let pType: PaymentType | null = paymentType;
+    let paymentTags: PaymentTags[] = [];
 
     const monthlyFee = await this.monthlyFeeFeature.getEffectiveMonthlyFee(
       studentGrade.gradeId,
@@ -75,12 +82,46 @@ export class PaymentFeature {
         "Mensualidad vigente no encontrada para el grado seleccionado en el mes seleccionado."
       );
 
-    if (pType === null) {
-      if (amount >= monthlyFee?.monthlyFee.amount.toNumber()) {
-        pType = PaymentType.FULL;
+    const studentDue = await this.reportsFeature.getStudentDue(
+      studentId,
+      schoolMonthId
+    );
+
+    if (isRefund) {
+      paymentTags.push(PaymentTags.REFUND);
+    } else {
+      if (amount === monthlyFee?.monthlyFee.amount.toNumber()) {
+        paymentTags.push(PaymentTags.FULL);
+      } else if (
+        amount > monthlyFee?.monthlyFee.amount.toNumber() ||
+        amount > studentDue.due.toNumber()
+      ) {
+        paymentTags.push(PaymentTags.OVERPAYMENT);
       } else {
-        pType = PaymentType.PARTIAL;
+        paymentTags.push(PaymentTags.PARTIAL);
       }
+
+      const dueDay = await this.settingsService.get(Settings.PAYMENT_DUE_DAY);
+      const schoolYearStartDate =
+        monthlyFee.effectiveFromMonth.schoolPeriod.schoolYear.startDate;
+      const schoolMonth = await this.prisma.schoolMonth.findUniqueOrThrow({
+        where: { id: schoolMonthId },
+        select: { month: true },
+      });
+
+      const paymentMonth =
+        new Date(schoolYearStartDate).getMonth() + schoolMonth.month;
+      const paymentYear = new Date(schoolYearStartDate).getFullYear();
+
+      const paymentDueDate = new Date(paymentYear, paymentMonth - 1, dueDay);
+
+      const daysUntilOverdue = await this.settingsService.get(
+        Settings.DAYS_UNTIL_OVERDUE
+      );
+      const overdueDate = new Date(paymentDueDate);
+      overdueDate.setDate(paymentDueDate.getDate() + daysUntilOverdue);
+
+      if (paidAt > overdueDate) paymentTags.push(PaymentTags.OVERDUE);
     }
 
     const paymentMethod = await this.prisma.paymentMethod.findUniqueOrThrow({
@@ -116,7 +157,7 @@ export class PaymentFeature {
       data: {
         studentId,
         schoolMonthId,
-        paymentType: pType!,
+        paymentTags,
         amount,
         paymentMethodId,
         paidAt,
