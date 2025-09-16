@@ -4,6 +4,7 @@ import {
   AuditableEntities,
   AuditLogActions,
   Grade,
+  SchoolPeriod,
   Student,
 } from "@prisma/client";
 import createHttpError from "http-errors";
@@ -26,14 +27,21 @@ export class GradeFeature {
   public async create(name: string, tier: number) {
     const existingGrades = await this.prisma.grade.count({
       where: {
-        name,
-        tier,
-        deletedAt: null,
+        OR: [
+          {
+            tier,
+            deletedAt: null,
+          },
+          {
+            name,
+            deletedAt: null,
+          },
+        ],
       },
     });
 
     if (existingGrades > 0)
-      throw createHttpError(409, "Ya existe un grado con ese nombre y nivel.");
+      throw createHttpError(409, "Ya existe un grado con ese nombre y/o nivel.");
 
     const newGrade = await this.prisma.grade.create({
       data: {
@@ -54,14 +62,21 @@ export class GradeFeature {
   public async update(id: number, name: string, tier: number) {
     const existingGrades = await this.prisma.grade.count({
       where: {
-        name,
-        tier,
-        deletedAt: null,
+        OR: [
+          {
+            tier,
+            deletedAt: null,
+          },
+          {
+            name,
+            deletedAt: null,
+          },
+        ],
       },
     });
 
     if (existingGrades > 0)
-      throw createHttpError(409, "Ya existe un grado con ese nombre.");
+      throw createHttpError(409, "Ya existe un grado con ese nombre y/o nivel.");
 
     const updatedGrade = await this.prisma.grade.update({
       where: {
@@ -161,6 +176,7 @@ export class GradeFeature {
       },
       include: {
         grade: true,
+        schoolPeriod: true
       },
     });
 
@@ -171,7 +187,7 @@ export class GradeFeature {
       );
     }
 
-    return studentGrade.grade;
+    return {grade: studentGrade.grade, schoolPeriod: studentGrade.schoolPeriod};
   }
 
   public async findStudentsByGradeAndPeriod(
@@ -199,7 +215,7 @@ export class GradeFeature {
   public async findStudentsByGradeAndYear(
     gradeId: number,
     schoolYearId: number
-  ): Promise<Student[]> {
+  ): Promise<{student: Student, schoolPeriod: SchoolPeriod}[]> {
     const studentGrades = await this.prisma.studentGrade.findMany({
       where: {
         gradeId,
@@ -210,6 +226,7 @@ export class GradeFeature {
       },
       include: {
         student: true,
+        schoolPeriod: true,
       },
     });
 
@@ -217,6 +234,6 @@ export class GradeFeature {
       return [];
     }
 
-    return studentGrades.map((sg) => sg.student);
+    return studentGrades.map((sg) => ({student: sg.student, schoolPeriod: sg.schoolPeriod}));
   }
 }
