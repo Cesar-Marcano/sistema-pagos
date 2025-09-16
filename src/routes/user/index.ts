@@ -44,6 +44,46 @@ registry.registerPath({
         },
       },
     },
+    400: {
+      description: "Datos de entrada inválidos",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    403: {
+      description: "No autorizado para registrar usuarios",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    409: {
+      description: "Usuario ya existe",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
   },
 });
 userRoutes.post("/register", canRegister, register);
@@ -79,6 +119,56 @@ registry.registerPath({
         },
       },
     },
+    400: {
+      description: "Datos de entrada inválidos",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    401: {
+      description: "No autenticado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    403: {
+      description: "No autorizado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    409: {
+      description: "Usuario ya existe",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
   },
 });
 userRoutes.post(
@@ -108,15 +198,42 @@ registry.registerPath({
     },
   },
   responses: {
-    403: {
-      description: "Credenciales incorrectas",
-    },
-    201: {
+    200: {
       description: "Sesión iniciada",
       content: {
         "application/json": {
           schema: z.object({
             token: z.jwt(),
+          }),
+        },
+      },
+    },
+    400: {
+      description: "Datos de entrada inválidos",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    403: {
+      description: "Credenciales incorrectas",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
           }),
         },
       },
