@@ -293,4 +293,91 @@ export class StudentFeature {
       })) > 0
     );
   }
+
+  public async enrollActiveStudentsToNextPeriod(
+    currentSchoolPeriodId: number,
+    nextSchoolPeriodId: number
+  ): Promise<{ enrolledCount: number; studentGrades: StudentGrade[] }> {
+    const [currentPeriod, nextPeriod] = await this.prisma.$transaction([
+      this.prisma.schoolPeriod.findUnique({
+        where: { id: currentSchoolPeriodId, deletedAt: null },
+      }),
+      this.prisma.schoolPeriod.findUnique({
+        where: { id: nextSchoolPeriodId, deletedAt: null },
+      }),
+    ]);
+
+    if (!currentPeriod) {
+      throw createHttpError(404, "Período escolar actual no encontrado.");
+    }
+    if (!nextPeriod) {
+      throw createHttpError(404, "Período escolar siguiente no encontrado.");
+    }
+
+    const activeStudentsInCurrentPeriod = await this.prisma.studentGrade.findMany({
+      where: {
+        schoolPeriodId: currentSchoolPeriodId,
+        deletedAt: null,
+        student: {
+          deletedAt: null,
+          status: "ACTIVE",
+        },
+      },
+      include: {
+        student: true,
+        grade: true,
+      },
+    });
+
+    if (activeStudentsInCurrentPeriod.length === 0) {
+      return { enrolledCount: 0, studentGrades: [] };
+    }
+
+    const studentsAlreadyEnrolled = await this.prisma.studentGrade.findMany({
+      where: {
+        schoolPeriodId: nextSchoolPeriodId,
+        studentId: {
+          in: activeStudentsInCurrentPeriod.map((sg) => sg.studentId),
+        },
+        deletedAt: null,
+      },
+    });
+
+    const alreadyEnrolledStudentIds = new Set(
+      studentsAlreadyEnrolled.map((sg) => sg.studentId)
+    );
+
+    const studentsToEnroll = activeStudentsInCurrentPeriod.filter(
+      (sg) => !alreadyEnrolledStudentIds.has(sg.studentId)
+    );
+
+    if (studentsToEnroll.length === 0) {
+      return { enrolledCount: 0, studentGrades: [] };
+    }
+
+    const newStudentGrades = await this.prisma.$transaction(
+      studentsToEnroll.map((sg) =>
+        this.prisma.studentGrade.create({
+          data: {
+            studentId: sg.studentId,
+            gradeId: sg.gradeId,
+            schoolPeriodId: nextSchoolPeriodId,
+          },
+        })
+      )
+    );
+
+    for (const studentGrade of newStudentGrades) {
+      this.auditLogService.createLog(
+        AuditableEntities.STUDENT_GRADE,
+        AuditLogActions.CREATE,
+        studentGrade
+      );
+    }
+
+    return {
+      enrolledCount: newStudentGrades.length,
+      studentGrades: newStudentGrades,
+    };
+  }
 }

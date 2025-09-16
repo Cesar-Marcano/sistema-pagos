@@ -8,9 +8,11 @@ import { softDeleteStudent } from "./softDeleteStudent";
 import { registerStudentToGrade } from "./registerStudentToGrade";
 import { unregisterStudentFromGrade } from "./unregisterStudentFromGrade";
 import { hasGrade } from "./hasGrade";
+import { enrollActiveStudentsToNextPeriod } from "./enrollActiveStudentsToNextPeriod";
 import { getRegistry } from "../../config/openApiRegistry";
 import {
   CreateStudentSchema,
+  EnrollActiveStudentsToNextPeriodSchema,
   FindStudentByGradesQuerySchema,
   HasGradeQueryParamsSchema,
   RegisterStudentToGradeSchema,
@@ -302,4 +304,44 @@ studentRoutes.delete(
   "/unregisterStudentFromGrade/:id",
   authenticateAndSetContext,
   unregisterStudentFromGrade
+);
+
+registry.registerPath({
+  description: "Inscribir estudiantes activos al siguiente período",
+  tags: ["student"],
+  method: "post",
+  path: "/student/enrollActiveStudentsToNextPeriod",
+  security: [{ Bearer: [] }],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: EnrollActiveStudentsToNextPeriodSchema.openapi({
+            default: {
+              currentSchoolPeriodId: 1,
+              nextSchoolPeriodId: 2,
+            },
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Estudiantes inscritos al siguiente período",
+      content: {
+        "application/json": {
+          schema: z.object({
+            enrolledCount: z.number(),
+            studentGrades: StudentGradeSchema.array(),
+          }),
+        },
+      },
+    },
+  },
+});
+studentRoutes.post(
+  "/enrollActiveStudentsToNextPeriod",
+  authenticateAndSetContext,
+  enrollActiveStudentsToNextPeriod
 );

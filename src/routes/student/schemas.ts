@@ -79,3 +79,11 @@ export const StudentGradeSchema = registry.register(
     updatedAt: z.date(),
   })
 );
+
+export const EnrollActiveStudentsToNextPeriodSchema = registry.register(
+  "EnrollActiveStudentsToNextPeriodSchema",
+  z.object({
+    currentSchoolPeriodId: z.number().positive(),
+    nextSchoolPeriodId: z.number().positive(),
+  })
+);
