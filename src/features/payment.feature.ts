@@ -19,6 +19,7 @@ import { AuditLogService } from "../services/auditLog.service";
 import { DiscountFeature } from "./discount.feature";
 import { SettingsService } from "../services/settings.service";
 import { ReportsFeature } from "./reports.feature";
+import { isOverdue } from "../lib/isOverdue";
 
 @injectable()
 export class PaymentFeature {
@@ -83,8 +84,8 @@ export class PaymentFeature {
       );
 
     const studentDue = await this.reportsFeature.getStudentDue(
-      studentId,
-      schoolMonthId
+      schoolMonthId,
+      studentId
     );
 
     if (isRefund) {
@@ -102,26 +103,12 @@ export class PaymentFeature {
       }
 
       const dueDay = await this.settingsService.get(Settings.PAYMENT_DUE_DAY);
-      const schoolYearStartDate =
-        monthlyFee.effectiveFromMonth.schoolPeriod.schoolYear.startDate;
-      const schoolMonth = await this.prisma.schoolMonth.findUniqueOrThrow({
-        where: { id: schoolMonthId },
-        select: { month: true },
-      });
-
-      const paymentMonth =
-        new Date(schoolYearStartDate).getMonth() + schoolMonth.month;
-      const paymentYear = new Date(schoolYearStartDate).getFullYear();
-
-      const paymentDueDate = new Date(paymentYear, paymentMonth - 1, dueDay);
 
       const daysUntilOverdue = await this.settingsService.get(
         Settings.DAYS_UNTIL_OVERDUE
       );
-      const overdueDate = new Date(paymentDueDate);
-      overdueDate.setDate(paymentDueDate.getDate() + daysUntilOverdue);
 
-      if (paidAt > overdueDate) paymentTags.push(PaymentTags.OVERDUE);
+      if (isOverdue(paidAt, dueDay, daysUntilOverdue)) paymentTags.push(PaymentTags.OVERDUE);
     }
 
     const paymentMethod = await this.prisma.paymentMethod.findUniqueOrThrow({
