@@ -14,5 +14,8 @@ export const getMonthRevenue = async (req: Request, res: Response) => {
   res.json({
     expectedRevenue: revenue.expectedRevenue.toString(),
     totalRevenue: revenue.totalRevenue.toString(),
+    originalExpectedRevenue: revenue.originalExpectedRevenue.toString(),
+    totalDiscountsApplied: revenue.totalDiscountsApplied.toString(),
+    collectionRate: revenue.collectionRate.toString(),
   });
 };
