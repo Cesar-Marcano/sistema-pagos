@@ -30,20 +30,14 @@ export const SchoolYearSchema = registry.register(
 
 export const CreateSchoolYearSchema = registry.register(
   "CreateSchoolYearSchema",
-  SchoolYearSchema.pick({ name: true })
-    .extend({
-      startDate: z
-        .string()
-        .regex(
-          /^\d{4}-\d{2}-\d{2}$/,
-          "El formato de fecha debe ser YYYY-MM-DD."
-        ),
-      endDate: z
-        .string()
-        .regex(
-          /^\d{4}-\d{2}-\d{2}$/,
-          "El formato de fecha debe ser YYYY-MM-DD."
-        ),
+  z
+    .object({
+      startDate: z.string().transform((date) => new Date(date)),
+      endDate: z.string().transform((date) => new Date(date)),
+      automaticallyGenerateSchoolPeriodsAndMonths: z
+        .boolean()
+        .optional()
+        .default(true),
     })
     .refine((data) => new Date(data.endDate) > new Date(data.startDate), {
       message: "La fecha de fin debe ser posterior a la fecha de inicio.",
@@ -60,4 +54,21 @@ export const SchoolYearSearchCriteriaQueryParamsSchema = registry.register(
   })
 );
 
-export const UpdateSchoolYearSchema = registry.register("UpdateSchoolYearSchema", CreateSchoolYearSchema.partial())
+export const UpdateSchoolYearSchema = registry.register(
+  "UpdateSchoolYearSchema",
+  CreateSchoolYearSchema.omit({
+    automaticallyGenerateSchoolPeriodsAndMonths: true,
+  })
+    .partial()
+    .extend({
+      name: z
+        .string()
+        .trim()
+        .toUpperCase()
+        .regex(
+          /^AÑO-ESCOLAR-\d{4}-\d{4}$/,
+          "El nombre debe tener el formato AÑO-ESCOLAR-YYYY-YYYY."
+        )
+        .optional(),
+    })
+);
