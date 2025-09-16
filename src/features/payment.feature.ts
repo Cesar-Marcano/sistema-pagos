@@ -20,6 +20,7 @@ import { DiscountFeature } from "./discount.feature";
 import { SettingsService } from "../services/settings.service";
 import { ReportsFeature } from "./reports.feature";
 import { isOverdue } from "../lib/isOverdue";
+import { Decimal } from "@prisma/client/runtime/library";
 
 @injectable()
 export class PaymentFeature {
@@ -91,24 +92,35 @@ export class PaymentFeature {
     if (isRefund) {
       paymentTags.push(PaymentTags.REFUND);
     } else {
-      if (amount === monthlyFee?.monthlyFee.amount.toNumber()) {
+      const dueDay = await this.settingsService.get(Settings.PAYMENT_DUE_DAY);
+      const daysUntilOverdue = await this.settingsService.get(
+        Settings.DAYS_UNTIL_OVERDUE
+      );
+      const paymentIsOverdue = isOverdue(paidAt, dueDay, daysUntilOverdue);
+      
+      const expectedAmount = await this.reportsFeature.getStudentTotalMonthlyFee(
+        studentGrade.gradeId,
+        studentId,
+        schoolMonthId,
+        paymentIsOverdue
+      );
+
+      const amountDecimal = new Decimal(amount);
+      
+      if (amountDecimal.equals(expectedAmount)) {
         paymentTags.push(PaymentTags.FULL);
       } else if (
-        amount > monthlyFee?.monthlyFee.amount.toNumber() ||
-        amount > studentDue.due.toNumber()
+        amountDecimal.greaterThan(expectedAmount) ||
+        amountDecimal.greaterThan(studentDue.totalMonthlyFee)
       ) {
         paymentTags.push(PaymentTags.OVERPAYMENT);
       } else {
         paymentTags.push(PaymentTags.PARTIAL);
       }
 
-      const dueDay = await this.settingsService.get(Settings.PAYMENT_DUE_DAY);
-
-      const daysUntilOverdue = await this.settingsService.get(
-        Settings.DAYS_UNTIL_OVERDUE
-      );
-
-      if (isOverdue(paidAt, dueDay, daysUntilOverdue)) paymentTags.push(PaymentTags.OVERDUE);
+      if (paymentIsOverdue) {
+        paymentTags.push(PaymentTags.OVERDUE);
+      }
     }
 
     const paymentMethod = await this.prisma.paymentMethod.findUniqueOrThrow({

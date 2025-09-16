@@ -8,6 +8,7 @@ import { Decimal } from "@prisma/client/runtime/library";
 import { SettingsService } from "../services/settings.service";
 import { Settings } from "@prisma/client";
 import { isOverdue } from "../lib/isOverdue";
+import { calculateOverdueFee, calculateOverdueDate } from "../lib/dateUtils";
 
 @injectable()
 export class ReportsFeature {
@@ -24,7 +25,9 @@ export class ReportsFeature {
   public async getStudentTotalMonthlyFee(
     gradeId: number,
     studentId: number,
-    schoolMonthId: number
+    schoolMonthId: number,
+    includeOverdueFee: boolean = false,
+    currentDate: Date = new Date()
   ) {
     const monthlyFee = await this.monthlyFeeFeature.getEffectiveMonthlyFee(
       gradeId,
@@ -34,7 +37,6 @@ export class ReportsFeature {
     if (!monthlyFee)
       throw createHttpError(404, "Mensualidad efectiva no encontrada.");
 
-    // Get all applicable discounts for this student and month
     const discounts = await this.discountFeature.listStudentMonthDiscounts(
       studentId,
       schoolMonthId
@@ -44,23 +46,18 @@ export class ReportsFeature {
     let percentageDiscounts = new Decimal(0);
     let fixedDiscounts = new Decimal(0);
 
-    // Separate percentage and fixed discounts for proper calculation
     discounts.forEach((studentMonthDiscount) => {
       const discount = studentMonthDiscount.discount;
       const amount = new Decimal(discount.amount);
 
       if (discount.isPercentage) {
-        // Accumulate percentage discounts (they should be applied to the original amount)
         percentageDiscounts = percentageDiscounts.plus(amount);
       } else {
-        // Accumulate fixed amount discounts
         fixedDiscounts = fixedDiscounts.plus(amount);
       }
     });
 
-    // Apply percentage discounts first (on original amount)
     if (percentageDiscounts.greaterThan(0)) {
-      // Cap percentage discounts at 100%
       if (percentageDiscounts.greaterThan(100)) {
         percentageDiscounts = new Decimal(100);
       }
@@ -68,13 +65,22 @@ export class ReportsFeature {
       total = total.minus(discountAmount);
     }
 
-    // Apply fixed discounts
     if (fixedDiscounts.greaterThan(0)) {
       total = total.minus(fixedDiscounts);
     }
-
-    // Ensure total never goes below zero
     if (total.lessThan(0)) total = new Decimal(0);
+
+    if (includeOverdueFee) {
+      const isPaymentOverdue = await this.isPaymentOverdue(
+        schoolMonthId,
+        currentDate
+      );
+
+      if (isPaymentOverdue) {
+        const overdueFee = await this.calculateOverdueFeeForAmount(total);
+        total = total.plus(overdueFee);
+      }
+    }
 
     return total;
   }
@@ -172,10 +178,13 @@ export class ReportsFeature {
       },
     });
 
+    const isPaymentOverdue = await this.isPaymentOverdue(schoolMonthId);
+
     const totalMonthlyFee = await this.getStudentTotalMonthlyFee(
       studentGrade.gradeId,
       studentId,
-      schoolMonthId
+      schoolMonthId,
+      isPaymentOverdue
     );
 
     const totalStudentPayments = await this.prisma.payment.aggregate({
@@ -196,10 +205,23 @@ export class ReportsFeature {
 
     const due = totalMonthlyFee.minus(totalPaid);
 
+    let overdueFee = new Decimal(0);
+    if (isPaymentOverdue) {
+      const baseAmount = await this.getStudentTotalMonthlyFee(
+        studentGrade.gradeId,
+        studentId,
+        schoolMonthId,
+        false
+      );
+      overdueFee = await this.calculateOverdueFeeForAmount(baseAmount);
+    }
+
     return {
       totalPaid,
       totalMonthlyFee,
       due,
+      overdueFee,
+      isOverdue: isPaymentOverdue,
     };
   }
 
@@ -251,21 +273,28 @@ export class ReportsFeature {
     const overdueStudents: any[] = [];
 
     for (const sg of studentGrades) {
-      // Get total fee with discounts applied
+      const isStudentOverdue = today >= overdueDate;
+
       const totalFeeWithDiscounts = await this.getStudentTotalMonthlyFee(
         sg.gradeId,
         sg.studentId,
-        schoolMonthId
+        schoolMonthId,
+        isStudentOverdue
       );
 
-      // Get original fee without discounts for comparison
+      const baseFeeWithDiscounts = await this.getStudentTotalMonthlyFee(
+        sg.gradeId,
+        sg.studentId,
+        schoolMonthId,
+        false
+      );
+
       const monthlyFee = await this.monthlyFeeFeature.getEffectiveMonthlyFee(
         sg.gradeId,
         schoolMonthId
       );
       const originalFee = monthlyFee?.monthlyFee.amount ?? new Decimal(0);
 
-      // Get applied discounts for this student
       const discounts = await this.discountFeature.listStudentMonthDiscounts(
         sg.studentId,
         schoolMonthId
@@ -282,9 +311,11 @@ export class ReportsFeature {
       });
 
       const paid = payments._sum.amount ?? new Decimal(0);
-      const discountAmount = originalFee.minus(totalFeeWithDiscounts);
+      const discountAmount = originalFee.minus(baseFeeWithDiscounts);
+      const overdueFee = isStudentOverdue
+        ? totalFeeWithDiscounts.minus(baseFeeWithDiscounts)
+        : new Decimal(0);
 
-      // Skip if student has paid the full amount (with discounts applied)
       if (paid.gte(totalFeeWithDiscounts)) continue;
 
       const studentData = {
@@ -292,8 +323,10 @@ export class ReportsFeature {
         studentName: sg.student.name,
         grade: sg.grade.name,
         originalFee: originalFee,
+        baseFee: baseFeeWithDiscounts,
         totalFee: totalFeeWithDiscounts,
         discountAmount: discountAmount,
+        overdueFee: overdueFee,
         discountsApplied: discounts.map((d) => ({
           name: d.discount.name,
           amount: d.discount.amount,
@@ -328,7 +361,6 @@ export class ReportsFeature {
   }
 
   public async getDiscountReport(schoolMonthId: number) {
-    // Get all student grades for this school month
     const studentGrades = await this.prisma.studentGrade.findMany({
       where: {
         deletedAt: null,
@@ -363,7 +395,6 @@ export class ReportsFeature {
     };
 
     for (const sg of studentGrades) {
-      // Get original monthly fee
       const monthlyFee = await this.monthlyFeeFeature.getEffectiveMonthlyFee(
         sg.gradeId,
         schoolMonthId
@@ -375,13 +406,11 @@ export class ReportsFeature {
       discountSummary.totalOriginalAmount =
         discountSummary.totalOriginalAmount.plus(originalAmount);
 
-      // Get discounts applied
       const discounts = await this.discountFeature.listStudentMonthDiscounts(
         sg.studentId,
         schoolMonthId
       );
 
-      // Calculate final amount with discounts
       const finalAmount = await this.getStudentTotalMonthlyFee(
         sg.gradeId,
         sg.studentId,
@@ -398,7 +427,6 @@ export class ReportsFeature {
         discountSummary.studentsWithDiscounts++;
       }
 
-      // Track discounts by type
       discounts.forEach((studentDiscount) => {
         const discount = studentDiscount.discount;
         const key = `${discount.name} (${
@@ -416,7 +444,6 @@ export class ReportsFeature {
         discountSummary.discountsByType[key].count++;
         discountSummary.discountsByType[key].students.push(sg.student.name);
 
-        // Calculate actual discount amount for this student
         let actualDiscountAmount = new Decimal(0);
         if (discount.isPercentage) {
           actualDiscountAmount = originalAmount.mul(
@@ -431,7 +458,6 @@ export class ReportsFeature {
           );
       });
 
-      // Add student details
       discountSummary.studentDetails.push({
         studentId: sg.studentId,
         studentName: sg.student.name,
@@ -448,7 +474,6 @@ export class ReportsFeature {
       });
     }
 
-    // Calculate percentages
     const discountPercentage = discountSummary.totalOriginalAmount.greaterThan(
       0
     )
@@ -522,7 +547,6 @@ export class ReportsFeature {
     const paymentHistory = [];
 
     for (const payment of payments) {
-      // Get student grade for this payment's school month
       const studentGrade = await this.prisma.studentGrade.findFirst({
         where: {
           studentId,
@@ -538,21 +562,18 @@ export class ReportsFeature {
 
       if (!studentGrade) continue;
 
-      // Get expected amount with discounts
       const expectedAmount = await this.getStudentTotalMonthlyFee(
         studentGrade.gradeId,
         studentId,
         payment.schoolMonthId
       );
 
-      // Get original amount without discounts
       const monthlyFee = await this.monthlyFeeFeature.getEffectiveMonthlyFee(
         studentGrade.gradeId,
         payment.schoolMonthId
       );
       const originalAmount = monthlyFee?.monthlyFee.amount ?? new Decimal(0);
 
-      // Get discounts applied
       const discounts = await this.discountFeature.listStudentMonthDiscounts(
         studentId,
         payment.schoolMonthId
@@ -595,5 +616,48 @@ export class ReportsFeature {
     );
 
     return isOverdue(date, dueDay, gracePeriodDays);
+  }
+
+  public async isPaymentOverdue(
+    schoolMonthId: number,
+    currentDate: Date = new Date()
+  ): Promise<boolean> {
+    const paymentDueDay = await this.settingsService.get(
+      Settings.PAYMENT_DUE_DAY
+    );
+    const daysUntilOverdue = await this.settingsService.get(
+      Settings.DAYS_UNTIL_OVERDUE
+    );
+
+    const schoolMonth = await this.prisma.schoolMonth.findUniqueOrThrow({
+      where: { id: schoolMonthId, deletedAt: null },
+      include: { schoolPeriod: { include: { schoolYear: true } } },
+    });
+
+    const overdueDate = calculateOverdueDate(
+      schoolMonth.schoolPeriod.schoolYear.startDate,
+      schoolMonth.month,
+      paymentDueDay,
+      daysUntilOverdue
+    );
+
+    return currentDate >= overdueDate;
+  }
+
+  /**
+   * Calculates the overdue fee for a given amount
+   */
+  public async calculateOverdueFeeForAmount(amount: Decimal): Promise<Decimal> {
+    const overdueFeeValue = await this.settingsService.get(
+      Settings.OVERDUE_FEE_VALUE
+    );
+    const overdueFeeIsPercentage = await this.settingsService.get(
+      Settings.OVERDUE_FEE_IS_PERCENTAGE
+    );
+
+    const feeValue = overdueFeeValue ?? 0;
+    const isPercentage = overdueFeeIsPercentage;
+
+    return calculateOverdueFee(amount, feeValue, isPercentage);
   }
 }
