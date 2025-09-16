@@ -67,6 +67,12 @@ export const defaultSettings = createDefaultSettings({
 
   // Whether to automatically enroll students in a new period.
   AUTO_ENROLL_STUDENTS_IN_NEW_PERIOD: true,
+
+  // The day of the month on which to automatically enroll students in a new grade.
+  AUTO_ENROLL_GRADE_CRON_DAY: 1,
+
+  // The day of the month on which to automatically enroll students in a new period.
+  AUTO_ENROLL_PERIOD_CRON_DAY: 1,
 });
 
 export type DefaultSettings = typeof defaultSettings;
