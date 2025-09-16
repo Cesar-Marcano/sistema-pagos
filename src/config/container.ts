@@ -6,7 +6,7 @@ import { PrismaClient } from "@prisma/client";
 import { UserFeature } from "../features/user.feature";
 import { ITokenService, JwtService } from "../services/jwt.service";
 import { SessionFeature } from "../features/session.feature";
-import { SchoolYearFeature } from "../features/schoolyear.feature";
+import { SchoolYearFeature } from "../features/schoolYear.feature";
 import { GradeFeature } from "../features/grade.feature";
 import { SchoolMonthFeature } from "../features/schoolMonth.feature";
 import { StudentFeature } from "../features/student.feature";
