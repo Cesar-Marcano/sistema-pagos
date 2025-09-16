@@ -55,9 +55,18 @@ export const defaultSettings = createDefaultSettings({
   // The fuzzy search threshold.
   SEARCH_THRESHOLD: 0.47,
 
-  // A boolean flag to allow or deny free registration on /users/register. 
+  // A boolean flag to allow or deny free registration on /users/register.
   // A value of 'false' means that users can only be registered by admins.
   PUBLIC_REGISTRATION_ENABLED: true,
+
+  // The alias for the current school period.
+  PERIOD_ALIAS: "PERIODO",
+
+  // Whether to automatically enroll students in a new grade.
+  AUTO_ENROLL_STUDENTS_IN_NEW_GRADE: true,
+
+  // Whether to automatically enroll students in a new period.
+  AUTO_ENROLL_STUDENTS_IN_NEW_PERIOD: true,
 });
 
 export type DefaultSettings = typeof defaultSettings;
