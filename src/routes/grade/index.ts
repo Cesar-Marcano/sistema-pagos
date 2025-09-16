@@ -12,7 +12,7 @@ import { FindByIdParamsSchema } from "../../lib/findByIdParamsSchema";
 import { DefaultSearchSchema } from "../../lib/searchController";
 import { ZodSearchResponseSchemaBuilder } from "../../lib/zodSearchResponse";
 import { findLastStudentGradeById } from "./findLastStudentGrade";
-import { findStudentsByGradeAndYear } from "./findStudentsByGradeAndYear";
+import { findStudentsInGrade } from "./findStudentsInGrade";
 import { StudentSchema } from "../student/schemas";
 import { authenticateAndSetContext } from "../../middlewares/authenticateAndSetContext";
 
@@ -144,14 +144,15 @@ gradeRoutes.get(
 );
 
 registry.registerPath({
-  description: "Obtener estudiantes pertenecientes a un grado",
+  description: "Obtener estudiantes pertenecientes a un grado en un año",
   tags: ["grade"],
   method: "get",
-  path: "/grade/findStudentsByGradeAndYear/{id}",
+  path: "/grade/findStudentsInGrade/grade/{gradeId}/schoolYear/{schoolYearId}",
   security: [{ Bearer: [] }],
   request: {
     params: z.object({
-      id: z.number().positive(),
+      gradeId: z.number().positive(),
+      schoolYearId: z.number().positive(),
     })
   },
   responses: {
@@ -166,9 +167,9 @@ registry.registerPath({
   },
 });
 gradeRoutes.get(
-  "/findStudentsByGradeAndYear/:id",
+  "/findStudentsInGrade/grade/:gradeId/schoolYear/:schoolYearId",
   authenticateAndSetContext,
-  findStudentsByGradeAndYear
+  findStudentsInGrade
 );
 
 registry.registerPath({
