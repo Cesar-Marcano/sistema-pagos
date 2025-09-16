@@ -287,31 +287,17 @@ export class SchoolMonthFeature {
     const totalMonths = differenceInMonths(
       firstSchoolPeriod.schoolYear.endDate,
       firstSchoolPeriod.schoolYear.startDate
-    );
-
-    const existingMonthsCount = await this.prisma.schoolMonth.count({
-      where: {
-        OR: [
-          { schoolPeriodId: firstSchoolPeriod.id },
-          { schoolPeriodId: secondSchoolPeriod.id },
-          { schoolPeriodId: thirdSchoolPeriod.id },
-        ],
-        deletedAt: null,
-      },
-    });
-
-    if (existingMonthsCount > 0) {
-      throw createHttpError(
-        409,
-        "Ya existen meses escolares para uno o más de los períodos seleccionados. Use la opción de actualización en su lugar."
-      );
-    }
+    ) + 1;
 
     const monthsToCreate: any[] = [];
-    let currentDate = new Date(firstSchoolPeriod.schoolYear.startDate);
+
+    const startMonthIndex =
+      firstSchoolPeriod.schoolYear.startDate.getUTCMonth();
+    const startYear = firstSchoolPeriod.schoolYear.startDate.getUTCFullYear();
 
     for (let i = 0; i < totalMonths; i++) {
       const monthNumber = i + 1;
+
       let schoolPeriodId: number;
 
       if (monthNumber >= 1 && monthNumber <= 4) {
@@ -321,22 +307,20 @@ export class SchoolMonthFeature {
       } else if (monthNumber >= 8 && monthNumber <= 12) {
         schoolPeriodId = thirdSchoolPeriod.id;
       } else {
-        logger.warn(
-          `El mes número ${monthNumber} no tiene un lapso asignado y será omitido.`
-        );
-        currentDate = addMonths(currentDate, 1);
         continue;
       }
 
-      const monthName = format(currentDate, "MMMM yyyy", { locale: es }).toUpperCase();
+      const actualMonth = (startMonthIndex + i) % 12;
+      const actualYear = startYear + Math.floor((startMonthIndex + i) / 12);
+      const monthName = format(new Date(actualYear, actualMonth), "MMMM yyyy", {
+        locale: es,
+      }).toUpperCase();
 
       monthsToCreate.push({
         schoolPeriodId,
-        month: currentDate.getMonth() + 1,
+        month: monthNumber,
         name: monthName,
       });
-
-      currentDate = addMonths(currentDate, 1);
     }
 
     if (monthsToCreate.length > 0) {
@@ -356,18 +340,18 @@ export class SchoolMonthFeature {
       );
     }
 
-    const createdMonths = await this.prisma.schoolMonth.findMany({
+    return await this.prisma.schoolMonth.findMany({
       where: {
-        OR: [
-          { schoolPeriodId: firstSchoolPeriod.id },
-          { schoolPeriodId: secondSchoolPeriod.id },
-          { schoolPeriodId: thirdSchoolPeriod.id },
-        ],
+        schoolPeriodId: {
+          in: [
+            firstSchoolPeriod.id,
+            secondSchoolPeriod.id,
+            thirdSchoolPeriod.id,
+          ],
+        },
         deletedAt: null,
       },
-      orderBy: { createdAt: "asc" },
+      orderBy: { month: "asc" },
     });
-
-    return createdMonths;
   }
 }
