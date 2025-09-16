@@ -46,6 +46,9 @@ export const MonthRevenueResponseSchema = registry.register(
   z.object({
     expectedRevenue: z.string(),
     totalRevenue: z.string(),
+    originalExpectedRevenue: z.string(),
+    totalDiscountsApplied: z.string(),
+    collectionRate: z.string(),
   })
 );
 
