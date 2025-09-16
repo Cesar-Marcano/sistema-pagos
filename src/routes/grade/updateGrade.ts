@@ -11,7 +11,8 @@ export async function updateGrade(req: Request, res: Response) {
 
   const grade = await gradeFeature.update(
     Number(req.params.id),
-    validatedData.name
+    validatedData.name,
+    validatedData.tier
   );
 
   res.json({ grade });

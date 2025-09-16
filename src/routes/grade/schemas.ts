@@ -10,13 +10,14 @@ export const GradeSchema = registry.register(
     deletedAt: z.date().nullable(),
     id: z.number().positive(),
     name: z.string().trim().toUpperCase().min(3),
+    tier: z.number().positive(),
     updatedAt: z.date(),
   })
 );
 
 export const CreateGradeSchema = registry.register(
   "CreateGradeSchema",
-  GradeSchema.pick({ name: true })
+  GradeSchema.pick({ name: true, tier: true })
 );
 
 export const GradeSearchCriteriaQueryParams = registry.register(
@@ -36,5 +37,5 @@ export const FindStudentsByGradeAndYearQueryParams = registry.register(
 
 export const UpdateGradeSchema = registry.register(
   "UpdateGradeSchema",
-  GradeSchema.pick({ name: true })
+  GradeSchema.pick({ name: true, tier: true })
 );

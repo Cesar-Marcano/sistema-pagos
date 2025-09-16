@@ -23,20 +23,22 @@ export class GradeFeature {
     private readonly auditLogService: AuditLogService
   ) {}
 
-  public async create(name: string) {
+  public async create(name: string, tier: number) {
     const existingGrades = await this.prisma.grade.count({
       where: {
         name,
+        tier,
         deletedAt: null,
       },
     });
 
     if (existingGrades > 0)
-      throw createHttpError(409, "Ya existe un grado con ese nombre.");
+      throw createHttpError(409, "Ya existe un grado con ese nombre y nivel.");
 
     const newGrade = await this.prisma.grade.create({
       data: {
         name,
+        tier,
       },
     });
 
@@ -49,10 +51,11 @@ export class GradeFeature {
     return newGrade;
   }
 
-  public async update(id: number, name: string) {
+  public async update(id: number, name: string, tier: number) {
     const existingGrades = await this.prisma.grade.count({
       where: {
         name,
+        tier,
         deletedAt: null,
       },
     });
@@ -67,13 +70,14 @@ export class GradeFeature {
       },
       data: {
         name,
+        tier,
       },
     });
 
     this.auditLogService.createLog(
       AuditableEntities.GRADE,
       AuditLogActions.UPDATE,
-      { name }
+      { name, tier }
     );
 
     return updatedGrade;
@@ -115,7 +119,7 @@ export class GradeFeature {
       {}
     );
 
-    return deletedGrade
+    return deletedGrade;
   }
 
   public async findById(id: number, includeDeleted: boolean) {
