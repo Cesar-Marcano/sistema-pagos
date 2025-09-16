@@ -34,9 +34,9 @@ export const CreatePaymentSchema = registry.register(
     paymentMethodId: true,
     reference: true,
     verified: true,
-    paidAt: true,
   }).and(
     z.object({
+      paidAt: z.string().transform((val) => new Date(val)),
       isRefund: z.boolean().optional().default(false),
     })
   )
@@ -60,7 +60,7 @@ export const PaymentSearchCriteriaQueryParamsSchema = registry.register(
       .string()
       .transform((val) => val === "true")
       .optional(),
-    paidAt: z.date().optional(),
+    paidAt: z.string().transform((val) => new Date(val)).optional(),
   })
 );
 
