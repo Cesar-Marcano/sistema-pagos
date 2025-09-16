@@ -1,6 +1,6 @@
 import z from "zod";
 import { getRegistry } from "../../config/openApiRegistry";
-import { PaymentType } from "@prisma/client";
+import { PaymentTags } from "@prisma/client";
 
 const registry = getRegistry();
 
@@ -20,7 +20,7 @@ export const PaymentSchema = registry.register(
     studentId: z.number().positive(),
     reference: ReferenceSchema.nullable().nullish(),
     verified: VerifiedSchema.nullable().nullish(),
-    paymentType: z.enum(PaymentType),
+    paymentTags: z.array(z.enum(PaymentTags)),
     paidAt: z.date(),
   })
 );
@@ -37,7 +37,7 @@ export const CreatePaymentSchema = registry.register(
     paidAt: true,
   }).and(
     z.object({
-      paymentType: z.enum(["OVERDUE", "REFUND"]).nullable(),
+      isRefund: z.boolean().optional().default(false),
     })
   )
 );
@@ -47,7 +47,7 @@ export const PaymentSearchCriteriaQueryParamsSchema = registry.register(
   z.object({
     studentId: z.string().transform(Number).optional(),
     schoolMonthId: z.string().transform(Number).optional(),
-    paymentType: z.enum(PaymentType).optional(),
+    paymentTags: z.array(z.enum(PaymentTags)).optional(),
     amount: z.string().transform(Number).optional(),
     paymentMethodId: z.string().transform(Number).optional(),
     reference: z

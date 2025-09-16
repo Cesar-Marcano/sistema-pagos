@@ -8,9 +8,9 @@ const paymentWhereMapper = (queryParams: any) => ({
   ...(queryParams.schoolMonthId && {
     schoolMonthId: queryParams.schoolMonthId,
   }),
-  ...(queryParams.paymentType && {
-    paymentType: {
-      equals: queryParams.paymentType,
+  ...(queryParams.paymentTags && {
+    paymentTags: {
+      hasEvery: queryParams.paymentTags,
     },
   }),
   ...(queryParams.amount && { amount: queryParams.amount }),
