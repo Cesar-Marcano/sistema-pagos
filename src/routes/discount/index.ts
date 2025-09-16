@@ -99,7 +99,7 @@ registry.registerPath({
   description: "Desaplicar descuento a estudiante.",
   tags: ["discount"],
   method: "post",
-  path: "/discount/unapplyDiscountFromStudent/:id",
+  path: "/discount/unapplyDiscountFromStudent/{id}",
   security: [{ Bearer: [] }],
   request: {
     params: z.object({
@@ -159,7 +159,7 @@ registry.registerPath({
   description: "Desaplicar descuento a un schoolMonthscolar del estudiante.",
   tags: ["discount"],
   method: "post",
-  path: "/discount/unapplyDiscountFromStudentMonth/:id",
+  path: "/discount/unapplyDiscountFromStudentMonth/{id}",
   security: [{ Bearer: [] }],
   request: {
     params: z.object({
@@ -187,7 +187,7 @@ registry.registerPath({
   description: "Listar descuentos de estudiante.",
   tags: ["discount"],
   method: "get",
-  path: "/discount/studentDiscounts/:id",
+  path: "/discount/studentDiscounts/{id}",
   security: [{ Bearer: [] }],
   request: {
     params: z.object({
@@ -246,7 +246,7 @@ registry.registerPath({
   description: "Actualizar descuento.",
   tags: ["discount"],
   method: "patch",
-  path: "/discount/:id",
+  path: "/discount/{id}",
   security: [{ Bearer: [] }],
   request: {
     params: z.object({
@@ -281,7 +281,7 @@ registry.registerPath({
   description: "Eliminar descuento.",
   tags: ["discount"],
   method: "delete",
-  path: "/discount/:id",
+  path: "/discount/{id}",
   security: [{ Bearer: [] }],
   request: {
     params: z.object({
@@ -309,7 +309,7 @@ registry.registerPath({
   description: "Obtener descuento por id.",
   tags: ["discount"],
   method: "get",
-  path: "/discount/:id",
+  path: "/discount/{id}",
   security: [{ Bearer: [] }],
   request: {
     params: z.object({
