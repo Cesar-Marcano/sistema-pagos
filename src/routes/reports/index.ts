@@ -15,6 +15,7 @@ import {
   StudentsInOverdueResponseSchema,
 } from "./schemas";
 import { authenticateAndSetContext } from "../../middlewares/authenticateAndSetContext";
+import z from "zod";
 
 export const reportsRoutes: Router = Router();
 
@@ -35,6 +36,46 @@ registry.registerPath({
       content: {
         "application/json": {
           schema: StudentTotalMonthlyFeeResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Parámetros de consulta inválidos",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    401: {
+      description: "No autenticado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    404: {
+      description: "Estudiante, grado o mes escolar no encontrado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
         },
       },
     },
@@ -64,6 +105,46 @@ registry.registerPath({
         },
       },
     },
+    400: {
+      description: "Parámetros de consulta inválidos",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    401: {
+      description: "No autenticado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    404: {
+      description: "Mes escolar no encontrado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
   },
 });
 reportsRoutes.get("/monthRevenue", authenticateAndSetContext, getMonthRevenue);
@@ -86,6 +167,46 @@ registry.registerPath({
         },
       },
     },
+    400: {
+      description: "Parámetros de consulta inválidos",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    401: {
+      description: "No autenticado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    404: {
+      description: "Estudiante o mes escolar no encontrado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
   },
 });
 reportsRoutes.get("/studentDue", authenticateAndSetContext, getStudentDue);
@@ -105,6 +226,46 @@ registry.registerPath({
       content: {
         "application/json": {
           schema: StudentsInOverdueResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Parámetros de consulta inválidos",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    401: {
+      description: "No autenticado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    404: {
+      description: "Mes escolar no encontrado",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: "Error interno del servidor",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string(),
+          }),
         },
       },
     },
