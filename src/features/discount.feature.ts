@@ -225,6 +225,36 @@ export class DiscountFeature {
     schoolMonthId: number,
     studentId: number
   ) {
+    const discountCount = await this.prisma.discount.count({
+      where: {
+        id: discountId,
+        deletedAt: null,
+      },
+    });
+
+    if (discountCount === 0)
+      throw createHttpError(404, "Descuento no encontrado.");
+
+    const schoolMonthCount = await this.prisma.schoolMonth.count({
+      where: {
+        id: schoolMonthId,
+        deletedAt: null,
+      },
+    });
+
+    if (schoolMonthCount === 0)
+      throw createHttpError(404, "Mes escolar no encontrado.");
+
+    const studentCount = await this.prisma.student.count({
+      where: {
+        id: studentId,
+        deletedAt: null,
+      },
+    });
+
+    if (studentCount === 0)
+      throw createHttpError(404, "Estudiante no encontrado.");
+
     const existentDiscountAssignedToMonthCount =
       await this.prisma.studentMonthDiscount.count({
         where: {
