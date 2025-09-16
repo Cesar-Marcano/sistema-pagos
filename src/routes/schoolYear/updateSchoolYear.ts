@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { TYPES } from "../../config/types";
 import { container } from "../../config/container";
-import { SchoolYearFeature } from "../../features/schoolyear.feature";
+import { SchoolYearFeature } from "../../features/schoolYear.feature";
 import { UpdateSchoolYearSchema } from "./schemas";
 
 export async function updateSchoolYear(req: Request, res: Response) {
