@@ -83,9 +83,15 @@ model SchoolMonth {
     @@index([month, schoolPeriodId])
 }
 
+enum StudentStatus {
+    ACTIVE
+    INACTIVE
+}
+
 model Student {
     id Int @id @default(autoincrement())
 
+    status StudentStatus @default(ACTIVE)
     name String
 
     createdAt DateTime  @default(now()) @db.Timestamptz()
@@ -140,6 +146,7 @@ model Grade {
     id Int @id @default(autoincrement())
 
     name String
+    tier Int
 
     createdAt DateTime  @default(now()) @db.Timestamptz()
     updatedAt DateTime  @updatedAt @db.Timestamptz()
@@ -149,7 +156,9 @@ model Grade {
     MonthlyFeeOnGrade MonthlyFeeOnGrade[]
 
     @@unique([name, deletedAt])
+    @@unique([tier, deletedAt])
     @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
+    @@index([tier])
 }
 
 model StudentGrade {
@@ -223,20 +232,21 @@ model PaymentMethod {
     @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
 }
 
-enum PaymentType {
+enum PaymentTags {
     FULL
     PARTIAL
     REFUND
     OVERDUE
+    OVERPAYMENT
 }
 
 model Payment {
     id Int @id @default(autoincrement())
 
-    student     Student     @relation(fields: [studentId], references: [id])
-    schoolMonth SchoolMonth @relation(fields: [schoolMonthId], references: [id])
-    amount      Decimal     @db.Decimal(15, 2)
-    paymentType PaymentType
+    student     Student       @relation(fields: [studentId], references: [id])
+    schoolMonth SchoolMonth   @relation(fields: [schoolMonthId], references: [id])
+    amount      Decimal       @db.Decimal(15, 2)
+    paymentTags PaymentTags[]
 
     paymentMethod PaymentMethod @relation(fields: [paymentMethodId], references: [id])
     reference     String?
@@ -338,6 +348,9 @@ enum Settings {
     ACTUAL_SCHOOL_MONTH_ID
     SEARCH_THRESHOLD
     PUBLIC_REGISTRATION_ENABLED
+    PERIOD_ALIAS
+    AUTO_ENROLL_STUDENTS_IN_NEW_PERIOD
+    AUTO_ENROLL_STUDENTS_IN_NEW_GRADE
 }
 
 model Setting {
