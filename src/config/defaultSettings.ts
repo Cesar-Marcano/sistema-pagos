@@ -73,6 +73,9 @@ export const defaultSettings = createDefaultSettings({
 
   // The day of the month on which to automatically enroll students in a new period.
   AUTO_ENROLL_PERIOD_CRON_DAY: 1,
+
+  // Whether to automatically set the actual school period month and year.
+  AUTO_SET_ACTUAL_SCHOOL_PERIOD_MONTH_AND_YEAR: true,
 });
 
 export type DefaultSettings = typeof defaultSettings;
