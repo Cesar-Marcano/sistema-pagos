@@ -284,10 +284,11 @@ export class SchoolMonthFeature {
       );
     }
 
-    const totalMonths = differenceInMonths(
-      firstSchoolPeriod.schoolYear.endDate,
-      firstSchoolPeriod.schoolYear.startDate
-    ) + 1;
+    const totalMonths =
+      differenceInMonths(
+        firstSchoolPeriod.schoolYear.endDate,
+        firstSchoolPeriod.schoolYear.startDate
+      ) + 1;
 
     const monthsToCreate: any[] = [];
 
@@ -353,5 +354,23 @@ export class SchoolMonthFeature {
       },
       orderBy: { month: "asc" },
     });
+  }
+
+  public async isLastMonthOfPeriod(schoolMonthId: number): Promise<boolean> {
+    const schoolMonth = await this.prisma.schoolMonth.findUnique({
+      where: { id: schoolMonthId },
+      select: { schoolPeriodId: true },
+    });
+
+    if (!schoolMonth) {
+      return false;
+    }
+
+    const ultimoMesDelPeriodo = await this.prisma.schoolMonth.findFirst({
+      where: { schoolPeriodId: schoolMonth.schoolPeriodId },
+      orderBy: { month: "desc" },
+    });
+
+    return ultimoMesDelPeriodo?.id === schoolMonthId;
   }
 }
