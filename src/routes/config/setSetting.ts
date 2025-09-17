@@ -13,5 +13,5 @@ export async function setSetting(req: Request, res: Response) {
 
   const setting = await settingService.set(name, value);
 
-  res.json({ setting });
+  res.json({ [setting.name]: setting.value });
 }

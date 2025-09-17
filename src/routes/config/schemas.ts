@@ -67,6 +67,20 @@ export const UpsertSettingSchema = registry.register(
     })
 );
 
+// Create union schema for all possible setting responses
+// Each setting name becomes a key in the response object
+// Controller returns { [settingName]: settingValue }
+const settingResponseSchemas = Object.values(Settings)
+  .filter((setting) => setting in settingValueSchemas)
+  .map((setting) =>
+    z.object({ [setting]: settingValueSchemas[setting as keyof typeof settingValueSchemas] })
+  );
+
+export const GetSettingResponseSchema = registry.register(
+  "GetSettingResponseSchema",
+  z.union(settingResponseSchemas)
+);
+
 export const GetSettingParamsSchema = registry.register(
   "GetSettingParamsSchema",
   SettingSchema.pick({ name: true })

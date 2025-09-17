@@ -2,9 +2,10 @@ import { Router } from "express";
 import { getSetting } from "./getSetting";
 import { setSetting } from "./setSetting";
 import { getRegistry } from "../../config/openApiRegistry";
-import { UpsertSettingSchema, SettingSchema, GetSettingParamsSchema } from "./schemas";
+import { UpsertSettingSchema, SettingSchema, GetSettingParamsSchema, GetSettingResponseSchema } from "./schemas";
 import z from "zod";
 import { authenticateAndSetContext } from "../../middlewares/authenticateAndSetContext";
+import { Settings } from "@prisma/client";
 
 export const configRoutes: Router = Router();
 
@@ -30,7 +31,7 @@ registry.registerPath({
       description: "Ajuste configurado exitosamente",
       content: {
         "application/json": {
-          schema: z.object({ setting: SettingSchema }),
+          schema: GetSettingResponseSchema,
         },
       },
     },
@@ -52,7 +53,7 @@ registry.registerPath({
       description: "Valor del ajuste obtenido",
       content: {
         "application/json": {
-          schema: z.object({ setting: SettingSchema }),
+          schema: GetSettingResponseSchema,
         },
       },
     },
