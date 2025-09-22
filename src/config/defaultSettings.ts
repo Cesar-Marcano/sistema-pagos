@@ -4,15 +4,15 @@ import { createDefaultSettings } from "../lib/createDefaultSettings";
 export const defaultSettings = createDefaultSettings({
   // The ID of the currently active school period.
   // It's null if no school month is currently configured.
-  ACTUAL_SCHOOL_PERIOD_ID: null as string | null,
+  ACTUAL_SCHOOL_PERIOD_ID: null as number | null,
 
   // The ID of the currently active school month.
   // It's null if no school month is currently configured.
-  ACTUAL_SCHOOL_MONTH_ID: null as string | null,
+  ACTUAL_SCHOOL_MONTH_ID: null as number | null,
 
   // The ID of the current school year.
   // It's null if no school year is currently configured.
-  ACTUAL_SCHOOL_YEAR_ID: null as string | null,
+  ACTUAL_SCHOOL_YEAR_ID: null as number | null,
 
   // Number of days to retain audit logs. Set to two years to comply with
   // common business data retention policies.
@@ -59,14 +59,8 @@ export const defaultSettings = createDefaultSettings({
   // The alias for the current school period.
   PERIOD_ALIAS: "PERIODO",
 
-  // Whether to automatically enroll students in a new grade.
-  AUTO_ENROLL_STUDENTS_IN_NEW_GRADE: true,
-
   // Whether to automatically enroll students in a new period.
   AUTO_ENROLL_STUDENTS_IN_NEW_PERIOD: true,
-
-  // The date on which to automatically enroll students in a new grade.
-  AUTO_ENROLL_GRADE_CRON_DATE: 1,
 
   // The day of the month on which to automatically enroll students in a new period.
   AUTO_ENROLL_PERIOD_CRON_DAY: 1,
