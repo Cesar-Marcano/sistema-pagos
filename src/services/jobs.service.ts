@@ -3,7 +3,7 @@ import { CronJobsService } from "./cronJobs.service";
 import { TYPES } from "../config/types";
 import { ExtendedPrisma } from "../config/container";
 import { SettingsService } from "./settings.service";
-import { Settings } from "@prisma/client";
+import { PurgableModels, Settings } from "@prisma/client";
 
 @injectable()
 export class JobsService extends CronJobsService {
@@ -19,11 +19,26 @@ export class JobsService extends CronJobsService {
       Settings.AUDIT_LOG_RETENTION_DAYS
     );
 
+    const dbCleanupDay = await this.settingsService.get(
+      Settings.DB_CLEANUP_DAY
+    );
+
+    const softDeletedModelsToPurge = await this.settingsService.get(
+      Settings.SOFT_DELETED_MODELS_TO_PURGE
+    );
+
     this.scheduleJob(
       "0 0 * * *",
       "Audit Log Cleanup",
       this.auditLogCleanup.bind(this, auditLogRetentionDays)
     );
+
+    softDeletedModelsToPurge.length > 0 &&
+      this.scheduleJob(
+        `0 0 ${dbCleanupDay} * *`,
+        "Soft Deleted Models Cleanup",
+        this.softDeletedModelsCleanup.bind(this, softDeletedModelsToPurge)
+      );
   }
 
   private async auditLogCleanup(auditLogRetentionDays: number) {
@@ -36,5 +51,33 @@ export class JobsService extends CronJobsService {
         },
       },
     });
+  }
+
+  private async softDeletedModelsCleanup(
+    softDeletedModelsToPurge: PurgableModels[]
+  ) {
+    const modelMap: Record<PurgableModels, keyof typeof this.prisma> = {
+      User: "user",
+      SchoolYear: "schoolYear",
+      SchoolPeriod: "schoolPeriod",
+      Student: "student",
+      MonthlyFee: "monthlyFee",
+      MonthlyFeeOnGrade: "monthlyFeeOnGrade",
+      Grade: "grade",
+      StudentGrade: "studentGrade",
+      Discount: "discount",
+      StudentDiscount: "studentDiscount",
+      PaymentMethod: "paymentMethod",
+      Payment: "payment",
+      StudentMonthDiscount: "studentMonthDiscount",
+    };
+
+    await this.prisma.$transaction(
+      softDeletedModelsToPurge.map((model) =>
+        (this.prisma[modelMap[model]] as any).deleteMany({
+          where: { deletedAt: { not: null } },
+        })
+      )
+    );
   }
 }
