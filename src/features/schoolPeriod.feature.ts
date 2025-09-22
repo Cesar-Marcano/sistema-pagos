@@ -265,4 +265,55 @@ export class SchoolPeriodFeature {
 
     return schoolMonth?.schoolPeriod ?? null;
   }
+
+  public async isLastMonthOfPeriod(
+    schoolPeriodId: number,
+    monthId: number
+  ): Promise<boolean> {
+    const maxMonth = await this.prisma.schoolMonth.findFirst({
+      where: {
+        schoolPeriodId,
+        deletedAt: null,
+      },
+      orderBy: {
+        month: 'desc',
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return maxMonth ? maxMonth.id === monthId : false;
+  }
+
+  public async getNextPeriod(schoolPeriodId: number): Promise<SchoolPeriod | null> {
+    const currentPeriod = await this.prisma.schoolPeriod.findUnique({
+      where: {
+        id: schoolPeriodId,
+        deletedAt: null,
+      },
+    });
+
+    if (!currentPeriod) {
+      return null;
+    }
+
+    const nextPeriod = await this.prisma.schoolPeriod.findFirst({
+      where: {
+        schoolYearId: currentPeriod.schoolYearId,
+        createdAt: {
+          gt: currentPeriod.createdAt,
+        },
+        deletedAt: null,
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+      include: {
+        schoolYear: true,
+      },
+    });
+
+    return nextPeriod;
+  }
 }

@@ -5,9 +5,9 @@ import { getRegistry } from "../../config/openApiRegistry";
 const registry = getRegistry();
 
 const settingValueSchemas = {
-  ACTUAL_SCHOOL_PERIOD_ID: z.string().nullable(),
-  ACTUAL_SCHOOL_MONTH_ID: z.string().nullable(),
-  ACTUAL_SCHOOL_YEAR_ID: z.string().nullable(),
+  ACTUAL_SCHOOL_PERIOD_ID: z.number().nullable(),
+  ACTUAL_SCHOOL_MONTH_ID: z.number().nullable(),
+  ACTUAL_SCHOOL_YEAR_ID: z.number().nullable(),
   AUDIT_LOG_RETENTION_DAYS: z.number().int().positive(),
   CURRENCY_SYMBOL: z.string().min(1),
   DAYS_UNTIL_OVERDUE: z.number().int().positive(),
@@ -20,6 +20,10 @@ const settingValueSchemas = {
   SOFT_DELETED_MODELS_TO_PURGE: z.array(z.enum(PurgableModels)),
   SEARCH_THRESHOLD: z.number().min(0).max(1),
   PUBLIC_REGISTRATION_ENABLED: z.boolean(),
+  AUTO_ENROLL_STUDENTS_IN_NEW_PERIOD: z.boolean(),
+  AUTO_ENROLL_PERIOD_CRON_DAY: z.number().int().min(1).max(31),
+  AUTO_SET_ACTUAL_SCHOOL_PERIOD_MONTH_AND_YEAR: z.boolean(),
+  PERIOD_ALIAS: z.string().min(1),
 } as const;
 
 const getSettingSchema = (name: Settings) =>
