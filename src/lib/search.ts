@@ -1,4 +1,8 @@
 import { SimilarityResult } from "prisma-extension-pg-trgm/dist/similarity/types";
+import { container } from "../config/container";
+import { TYPES } from "../config/types";
+import { SettingsService } from "../services/settings.service";
+import { Settings } from "@prisma/client";
 
 export interface SearchCriteria<T> {
   where?: T;
@@ -24,7 +28,8 @@ export interface SearchResult<T> {
 export async function searchWithPaginationAndCriteria<T>(
   findMany: (args: any) => Promise<T[]>,
   similarity: (args: any) => Promise<SimilarityResult<T, any>>,
-  args: SearchArgs<any> = {}
+  args: SearchArgs<any> = {},
+  searchThreshold: number = 0.47
 ): Promise<SearchResult<T>> {
   const {
     page = 1,
@@ -50,7 +55,12 @@ export async function searchWithPaginationAndCriteria<T>(
         useSimilarity = true;
         textQuery = {
           ...textQuery,
-          [key]: { word_similarity: { text: value, threshold: { gt: 0.47 } } },
+          [key]: {
+            word_similarity: {
+              text: value,
+              threshold: { gt: searchThreshold },
+            },
+          },
         };
       } else {
         otherFilters = { ...otherFilters, [key]: value };

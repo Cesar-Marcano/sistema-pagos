@@ -3,6 +3,7 @@ import { TYPES } from "../config/types";
 import {
   AuditableEntities,
   AuditLogActions,
+  Settings,
   Student,
   StudentGrade,
 } from "@prisma/client";
@@ -14,13 +15,16 @@ import {
 } from "../lib/search";
 import { ExtendedPrisma } from "../config/container";
 import { AuditLogService } from "../services/auditLog.service";
+import { SettingsService } from "../services/settings.service";
 
 @injectable()
 export class StudentFeature {
   constructor(
     @inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma,
     @inject(TYPES.AuditLogService)
-    private readonly auditLogService: AuditLogService
+    private readonly auditLogService: AuditLogService,
+    @inject(TYPES.SettingsService)
+    private readonly settingsService: SettingsService
   ) {}
 
   public async create(name: string): Promise<Student> {
@@ -156,7 +160,8 @@ export class StudentFeature {
       {
         ...args,
         where: { ...args.where },
-      }
+      },
+      await this.settingsService.get(Settings.SEARCH_THRESHOLD)
     );
   }
 
@@ -165,15 +170,14 @@ export class StudentFeature {
     gradeId: number,
     schoolPeriodId: number
   ): Promise<StudentGrade> {
-    const studentGradesInSchoolPeriodCount = await this.prisma.studentGrade.count(
-      {
+    const studentGradesInSchoolPeriodCount =
+      await this.prisma.studentGrade.count({
         where: {
           studentId,
           schoolPeriodId,
           deletedAt: null,
         },
-      }
-    );
+      });
 
     if (studentGradesInSchoolPeriodCount > 0) {
       throw createHttpError(
@@ -314,20 +318,21 @@ export class StudentFeature {
       throw createHttpError(404, "Período escolar siguiente no encontrado.");
     }
 
-    const activeStudentsInCurrentPeriod = await this.prisma.studentGrade.findMany({
-      where: {
-        schoolPeriodId: currentSchoolPeriodId,
-        deletedAt: null,
-        student: {
+    const activeStudentsInCurrentPeriod =
+      await this.prisma.studentGrade.findMany({
+        where: {
+          schoolPeriodId: currentSchoolPeriodId,
           deletedAt: null,
-          status: "ACTIVE",
+          student: {
+            deletedAt: null,
+            status: "ACTIVE",
+          },
         },
-      },
-      include: {
-        student: true,
-        grade: true,
-      },
-    });
+        include: {
+          student: true,
+          grade: true,
+        },
+      });
 
     if (activeStudentsInCurrentPeriod.length === 0) {
       return { enrolledCount: 0, studentGrades: [] };

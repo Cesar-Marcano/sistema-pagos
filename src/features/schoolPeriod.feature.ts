@@ -4,6 +4,7 @@ import {
   AuditableEntities,
   AuditLogActions,
   SchoolPeriod,
+  Settings,
 } from "@prisma/client";
 import {
   SearchArgs,
@@ -14,6 +15,7 @@ import createHttpError from "http-errors";
 import { ExtendedPrisma } from "../config/container";
 import { AuditLogService } from "../services/auditLog.service";
 import { calculateRelativeMonth } from "../lib/dateUtils";
+import { SettingsService } from "../services/settings.service";
 
 @injectable()
 export class SchoolPeriodFeature {
@@ -21,7 +23,9 @@ export class SchoolPeriodFeature {
     @inject(TYPES.Prisma)
     private readonly prisma: ExtendedPrisma,
     @inject(TYPES.AuditLogService)
-    private readonly auditLogService: AuditLogService
+    private readonly auditLogService: AuditLogService,
+    @inject(TYPES.SettingsService)
+    private readonly settingsService: SettingsService
   ) {}
 
   public async create(
@@ -225,7 +229,8 @@ export class SchoolPeriodFeature {
         include: {
           schoolYear: true,
         },
-      }
+      },
+      await this.settingsService.get(Settings.SEARCH_THRESHOLD)
     );
   }
 

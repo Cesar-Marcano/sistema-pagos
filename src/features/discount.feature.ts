@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../config/types";
-import { AuditableEntities, AuditLogActions, Discount } from "@prisma/client";
+import { AuditableEntities, AuditLogActions, Discount, Settings } from "@prisma/client";
 import createHttpError from "http-errors";
 import {
   SearchArgs,
@@ -9,13 +9,15 @@ import {
 } from "../lib/search";
 import { ExtendedPrisma } from "../config/container";
 import { AuditLogService } from "../services/auditLog.service";
+import { SettingsService } from "../services/settings.service";
 
 @injectable()
 export class DiscountFeature {
   constructor(
     @inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma,
     @inject(TYPES.AuditLogService)
-    private readonly auditLogService: AuditLogService
+    private readonly auditLogService: AuditLogService,
+    @inject(TYPES.SettingsService) private readonly settingsService: SettingsService
   ) {}
 
   public async create(
@@ -167,7 +169,8 @@ export class DiscountFeature {
       {
         ...args,
         where: { ...args.where },
-      }
+      },
+      await this.settingsService.get(Settings.SEARCH_THRESHOLD)
     );
   }
 

@@ -298,7 +298,8 @@ export class PaymentFeature {
       {
         ...args,
         where: { ...args.where },
-      }
+      },
+      await this.settingsService.get(Settings.SEARCH_THRESHOLD)
     );
   }
 }

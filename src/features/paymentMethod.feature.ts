@@ -4,6 +4,7 @@ import {
   AuditableEntities,
   AuditLogActions,
   PaymentMethod,
+  Settings,
 } from "@prisma/client";
 import createHttpError from "http-errors";
 import {
@@ -13,13 +14,15 @@ import {
 } from "../lib/search";
 import { ExtendedPrisma } from "../config/container";
 import { AuditLogService } from "../services/auditLog.service";
+import { SettingsService } from "../services/settings.service";
 
 @injectable()
 export class PaymentMethodFeature {
   constructor(
     @inject(TYPES.Prisma) private readonly prisma: ExtendedPrisma,
     @inject(TYPES.AuditLogService)
-    private readonly auditLogService: AuditLogService
+    private readonly auditLogService: AuditLogService,
+    @inject(TYPES.SettingsService) private readonly settingsService: SettingsService
   ) {}
 
   public async create(
@@ -163,7 +166,8 @@ export class PaymentMethodFeature {
       {
         ...args,
         where: { ...args.where },
-      }
+      },
+      await this.settingsService.get(Settings.SEARCH_THRESHOLD)
     );
   }
 }
