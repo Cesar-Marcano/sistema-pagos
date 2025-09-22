@@ -252,4 +252,22 @@ export class SchoolYearFeature {
       await this.settingsService.get(Settings.SEARCH_THRESHOLD)
     );
   }
+
+  public async getActualSchoolYear(): Promise<SchoolYear | null> {
+    const today = new Date();
+
+    const schoolYear = await this.prisma.schoolYear.findFirst({
+      where: {
+        startDate: { lte: today },
+        endDate: { gte: today },
+        deletedAt: null,
+      },
+    });
+
+    if (!schoolYear) {
+      return null;
+    }
+
+    return schoolYear;
+  }
 }

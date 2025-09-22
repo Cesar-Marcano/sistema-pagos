@@ -18,6 +18,7 @@ import { AuditLogService } from "../services/auditLog.service";
 import { differenceInMonths, format } from "date-fns";
 import { es } from "date-fns/locale";
 import { SettingsService } from "../services/settings.service";
+import { calculateRelativeMonth } from "../lib/dateUtils";
 
 @injectable()
 export class SchoolMonthFeature {
@@ -376,5 +377,36 @@ export class SchoolMonthFeature {
     });
 
     return ultimoMesDelPeriodo?.id === schoolMonthId;
+  }
+
+  public async getActualSchoolMonth(): Promise<SchoolMonth | null> {
+    const today = new Date();
+
+    const schoolYear = await this.prisma.schoolYear.findFirst({
+      where: {
+        startDate: { lte: today },
+        endDate: { gte: today },
+        deletedAt: null,
+      },
+    });
+
+    if (!schoolYear) {
+      return null;
+    }
+
+    const relativeMonth = calculateRelativeMonth(schoolYear.startDate, today);
+
+    const schoolMonth = await this.prisma.schoolMonth.findFirst({
+      where: {
+        schoolPeriod: {
+          schoolYearId: schoolYear.id,
+          deletedAt: null,
+        },
+        month: relativeMonth,
+        deletedAt: null,
+      },
+    });
+
+    return schoolMonth ?? null;
   }
 }
