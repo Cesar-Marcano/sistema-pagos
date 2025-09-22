@@ -7,9 +7,12 @@ import {
   verify,
 } from "jsonwebtoken";
 import ms, { StringValue } from "ms";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import createHttpError from "http-errors";
 import { env } from "../config/env";
+import { SettingsService } from "../services/settings.service";
+import { TYPES } from "../config/types";
+import { Settings } from "@prisma/client";
 
 export type TokenUserData = { username: string };
 
@@ -19,34 +22,40 @@ export interface ITokenService {
   sign(
     username: string,
     userId: number
-  ): {
+  ): Promise<{
     token: string;
     jti: string;
     expiration: Date;
     now: Date;
-  };
+  }>;
   verify(token: string): Payload;
 }
 
 @injectable()
 export class JwtService implements ITokenService {
   private readonly jwtSecret: string = env.JWT_SECRET;
-  private readonly tokenLifetime: StringValue =
-    env.TOKEN_LIFETIME as StringValue;
   private readonly tokenIssuer: string = env.TOKEN_ISSUER;
 
-  public sign(
+  constructor(
+    @inject(TYPES.SettingsService)
+    private readonly settingsService: SettingsService
+  ) {}
+
+  public async sign(
     username: string,
     userId: number
-  ): {
+  ): Promise<{
     token: string;
     jti: string;
     expiration: Date;
     now: Date;
-  } {
+  }> {
     const jti = v4();
     const now = Math.floor(Date.now() / 1000);
-    const exp = now + Math.floor(ms(this.tokenLifetime) / 1000);
+
+    const tokenLifetime = await this.settingsService.get(Settings.SESSION_TIMEOUT_MINUTES);
+
+    const exp = now + Math.floor(ms(`${tokenLifetime}m`) / 1000);
 
     const token = sign({ username, iat: now, exp }, this.jwtSecret, {
       issuer: this.tokenIssuer,
