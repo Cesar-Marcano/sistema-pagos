@@ -59,14 +59,14 @@ export class UserFeature {
       },
     });
 
-    if (!user) throw createHttpError(403, "Credenciales inválidos.");
+    if (!user) throw createHttpError(401, "Credenciales inválidos.");
 
     const isPasswordValid = await this.hasherService.compare(
       user.password,
       password
     );
 
-    if (!isPasswordValid) throw createHttpError(403, "Credenciales inválidos.");
+    if (!isPasswordValid) throw createHttpError(401, "Credenciales inválidos.");
 
     const { password: _, ...loggedUser } = user;
 

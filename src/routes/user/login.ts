@@ -10,7 +10,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       return next(err);
     }
     if (!result) {
-      return res.status(403).json({ message: "Credenciales inválidos." });
+      return res.status(401).json({ message: "Credenciales inválidos." });
     }
 
     return res.status(200).json({ token: result.token });

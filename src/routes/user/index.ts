@@ -54,7 +54,7 @@ registry.registerPath({
         },
       },
     },
-    403: {
+    401: {
       description: "No autorizado para registrar usuarios",
       content: {
         "application/json": {
@@ -218,7 +218,7 @@ registry.registerPath({
         },
       },
     },
-    403: {
+    401: {
       description: "Credenciales incorrectas",
       content: {
         "application/json": {

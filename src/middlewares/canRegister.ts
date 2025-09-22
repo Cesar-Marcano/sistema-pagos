@@ -22,7 +22,7 @@ export async function canRegister(
 
   if (!isRegistrationEnabled)
     throw createHttpError(
-      403,
+      401,
       "La creación de usuarios está actualmente deshabilitada."
     );
 
