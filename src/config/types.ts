@@ -4,6 +4,7 @@ export const TYPES = {
   // Services
   IHasherService: Symbol.for("HasherService"),
   ITokenService: Symbol.for("TokenService"),
+  JobsService: Symbol.for("JobsService"),
   SettingsService: Symbol.for("SettingsService"),
   AuditLogService: Symbol.for("AuditLogService"),
 

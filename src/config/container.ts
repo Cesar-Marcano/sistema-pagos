@@ -19,6 +19,7 @@ import { ReportsFeature } from "../features/reports.feature";
 import { withPgTrgm } from "prisma-extension-pg-trgm";
 import { SettingsService } from "../services/settings.service";
 import { AuditLogService } from "../services/auditLog.service";
+import { JobsService } from "../services/jobs.service";
 
 const container = new Container();
 
@@ -33,6 +34,7 @@ container.bind<IHasherService>(TYPES.IHasherService).to(Argon2Service);
 container.bind<ITokenService>(TYPES.ITokenService).to(JwtService);
 container.bind<SettingsService>(TYPES.SettingsService).to(SettingsService);
 container.bind<AuditLogService>(TYPES.AuditLogService).to(AuditLogService);
+container.bind<JobsService>(TYPES.JobsService).to(JobsService);
 
 // Features
 container.bind<UserFeature>(TYPES.UserFeature).to(UserFeature);
