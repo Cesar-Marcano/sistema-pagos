@@ -1,28 +1,8 @@
 import { z } from "zod";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { PrismaClientKnownRequestError, PrismaClientValidationError } from "@prisma/client/runtime/library";
 import { Request, Response, NextFunction } from "express";
 import createHttpError from "http-errors";
 import logger from "../app/logger";
-
-const modelToSpanishName: Record<string, string> = {
-  User: "Usuario",
-  SchoolYear: "Año Escolar",
-  SchoolPeriod: "Periodo Escolar",
-  SchoolMonth: "Mes Escolar",
-  Student: "Estudiante",
-  MonthlyFee: "Mensualidad",
-  MonthlyFeeOnGrade: "Mensualidad por Grado",
-  Grade: "Grado",
-  StudentGrade: "Grado del Estudiante",
-  Discount: "Descuento",
-  StudentDiscount: "Descuento del Estudiante",
-  PaymentMethod: "Método de Pago",
-  Payment: "Pago",
-  StudentMonthDiscount: "Descuento del Mes del Estudiante",
-  AuditLog: "Registro de Auditoría",
-  Session: "Sesión",
-  Setting: "Configuración",
-};
 
 export function errorHandler(
   err: any,
@@ -30,62 +10,80 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ) {
+  // Log del error para debugging interno (no exponer al cliente)
+  logger.error('Error interno:', {
+    message: err.message,
+    stack: err.stack,
+    url: req.url,
+    method: req.method,
+    userAgent: req.get('User-Agent'),
+    ip: req.ip,
+  });
+
+  // Errores de validación de Zod
   if (err instanceof z.ZodError) {
     const issues = err.issues.map((issue) => ({
-      path: issue.path.join("."),
+      path: issue.path.join('.'),
       message: issue.message,
     }));
     return res.status(400).json({
-      message: "Error de validación",
+      message: 'Los datos proporcionados no son válidos',
       details: issues,
     });
   }
 
+  // Errores HTTP personalizados
   if (createHttpError.isHttpError(err)) {
     return res.status(err.status).json({
       message: err.message,
     });
   }
 
+  // Errores de Prisma - Manejo seguro sin exponer información sensible
   if (err instanceof PrismaClientKnownRequestError) {
-    if (err.code === "P2002") {
-      return res.status(409).json({
-        message: "El registro ya existe.",
-        target: err.meta?.target,
-      });
-    }
+    switch (err.code) {
+      case 'P2002':
+        return res.status(409).json({
+          message: 'Ya existe un registro con estos datos.',
+        });
 
-    if (err.code === "P2025") {
-      const modelName = err.meta?.modelName as string;
-      let message = "El registro no fue encontrado para la operación.";
-      if (modelName) {
-        const spanishName = modelToSpanishName[modelName] || modelName;
-        message = `No se encontró ${spanishName} con los parámetros proporcionados.`;
-      }
-      return res.status(404).json({
-        message,
-        target: err.meta?.target,
-      });
-    }
+      case 'P2025':
+        return res.status(404).json({
+          message: 'El registro solicitado no fue encontrado.',
+        });
 
-    if (err.code === "P2003") {
-      const modelName = err.meta?.modelName as string;
+      case 'P2003':
+        return res.status(400).json({
+          message: 'No se puede completar la operación debido a dependencias existentes.',
+        });
 
-      const spanishName = modelToSpanishName[modelName] || modelName;
+      case 'P2014':
+        return res.status(400).json({
+          message: 'No se puede eliminar el registro porque tiene datos relacionados.',
+        });
 
-      let message = "Violación de una clave foránea.";
+      case 'P2011':
+        return res.status(400).json({
+          message: 'Faltan datos requeridos para completar la operación.',
+        });
 
-      if (modelName) {
-        message = `No se puede realizar la operación. El valor para '${spanishName}' no existe en la tabla relacionada.`;
-      }
-
-      return res.status(400).json({
-        message,
-        target: spanishName,
-      });
+      default:
+        // Para cualquier otro error de Prisma, devolver mensaje genérico
+        return res.status(500).json({
+          message: 'Error interno del servidor',
+        });
     }
   }
 
-  logger.error(err);
-  return res.status(500).json({ message: "Error interno del servidor" });
+  // Errores de validación de Prisma
+  if (err instanceof PrismaClientValidationError) {
+    return res.status(400).json({
+      message: 'Los datos proporcionados no son válidos',
+    });
+  }
+
+  // Error genérico para cualquier otro tipo de error
+  return res.status(500).json({
+    message: 'Error interno del servidor',
+  });
 }
