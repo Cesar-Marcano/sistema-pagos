@@ -50,7 +50,7 @@ export class PaymentFeature {
   ) {
     if (amount <= 0) throw createHttpError(400, "Monto de pago inválido.");
 
-    const schoolMonth = await this.prisma.schoolMonth.findUniqueOrThrow({
+    const schoolMonth = await this.prisma.schoolMonth.findUnique({
       where: {
         id: schoolMonthId,
         deletedAt: null,
@@ -60,7 +60,11 @@ export class PaymentFeature {
       },
     });
 
-    const studentGrade = await this.prisma.studentGrade.findFirstOrThrow({
+    if (!schoolMonth) {
+      throw createHttpError(404, "Mes escolar no encontrado.");
+    }
+
+    const studentGrade = await this.prisma.studentGrade.findFirst({
       where: {
         studentId: studentId,
         schoolPeriodId: schoolMonth.schoolPeriodId,
@@ -70,6 +74,10 @@ export class PaymentFeature {
         gradeId: true,
       },
     });
+
+    if (!studentGrade) {
+      throw createHttpError(404, "El estudiante no está registrado en este período escolar.");
+    }
 
     let paymentTags: PaymentTags[] = [];
 
@@ -123,12 +131,16 @@ export class PaymentFeature {
       }
     }
 
-    const paymentMethod = await this.prisma.paymentMethod.findUniqueOrThrow({
+    const paymentMethod = await this.prisma.paymentMethod.findUnique({
       where: {
         id: paymentMethodId,
         deletedAt: null,
       },
     });
+
+    if (!paymentMethod) {
+      throw createHttpError(404, "Método de pago no encontrado.");
+    }
 
     let paymentDetails = { reference, verified };
 
